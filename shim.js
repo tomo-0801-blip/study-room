@@ -136,6 +136,22 @@
     },
   };
 
+  // ---------- ファイル（勉強会資料のPDF） ----------
+  const BUCKET = "materials";
+  const files = {
+    async upload(path, file) {
+      const { error } = await sb.storage.from(BUCKET).upload(path, file, { upsert: true, contentType: file.type || "application/pdf" });
+      if (error) { const e = new Error(error.message); e.code = /size|exceed/i.test(error.message) ? "too_large" : "upload"; throw e; }
+      return path;
+    },
+    async url(path) {
+      const { data, error } = await sb.storage.from(BUCKET).createSignedUrl(path, 60 * 60);
+      if (error) throw error;
+      return data.signedUrl;
+    },
+    async remove(path) { await sb.storage.from(BUCKET).remove([path]); },
+  };
+
   // ---------- メンバー管理（管理者だけ） ----------
   const ROLE_JA = { viewer: "見る", editor: "見る＋追加・編集", admin: "管理者" };
   async function openMembers(myEmail) {
@@ -210,6 +226,7 @@
     hideGate();
     accountBar(email, role);
     const user = { canEdit: async () => role === "editor" || role === "admin", isOwner: async () => role === "admin", email, role };
+    window.studyFiles = role === "viewer" ? { url: files.url } : files;
     resolveReady({ db, user, sample: CFG.ai ? sample : null });
   }
   sb.auth.onAuthStateChange((_ev, session) => { if (session) start(session); });

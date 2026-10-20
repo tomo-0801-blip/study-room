@@ -349,7 +349,7 @@ body{padding-top:env(safe-area-inset-top)}
 
   <div class="toolbar">
     <div class="viewsw" id="viewsw"><button data-view="cards" aria-pressed="true">カード</button><button data-view="table" aria-pressed="false">処方を表で比べる</button></div>
-    <button class="btn small" id="addBtn" hidden>＋ 追加</button>
+    <span style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn small" id="bulkBtn" hidden>PDFをまとめて追加</button><input type="file" id="bulkIn" accept="application/pdf" multiple hidden><button class="btn small" id="addBtn" hidden>＋ 追加</button></span>
   </div>
   <div class="facets" id="facets"></div>
   <div class="list" id="list"></div>
@@ -374,6 +374,7 @@ body{padding-top:env(safe-area-inset-top)}
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
 <script src="shim.js"></script>
+<script src="presets.js"></script>
 <script>
 (() => {
   const $ = (s) => document.querySelector(s);
@@ -457,7 +458,7 @@ body{padding-top:env(safe-area-inset-top)}
       mid: norm([x.summary, x.practice, ...(Array.isArray(x.sections) ? x.sections.map((s) => `${s.h} ${s.b}`) : [])].join(" ")),
       lo: norm([x.category, x.topic].join(" ")),
     };
-    return { hi: norm([x.title, tagsOf(x).join(" ")].join(" ")), mid: norm(x.summary), lo: norm([x.kind, x.date].join(" ")) };
+    return { hi: norm([x.title, tagsOf(x).join(" ")].join(" ")), mid: norm([x.summary, x.topic].join(" ")), lo: norm([x.kind, x.date, x.fileName].join(" ")) };
   }
   function expand(q) {
     const terms = norm(q).split(/[\s、。,，?？!！・/]+/).filter(Boolean);
@@ -539,6 +540,7 @@ body{padding-top:env(safe-area-inset-top)}
         <span class="meta">${esc(m.date || "")}</span></div>
       ${m.summary ? `<p class="finding">${esc(m.summary)}</p>` : ""}
       ${linked.length ? `<div class="linked">参照論文：${linked.map((p) => esc(shortName(p))).join("、")}</div>` : ""}
+      ${m.file ? `<div><button class="btn primary small" data-pdf="${esc(m.file)}">PDFを開く</button> <span class="hint">${esc(m.fileName || "")}</span></div>` : ""}
       <div class="top"><div class="tags" style="flex:1">${tagsOf(m).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>
       ${state.canEdit ? `<div class="rowacts"><button class="btn ghost small" data-edit="materials:${esc(m.id)}">編集</button></div>` : ""}</div>
     </article>`;
@@ -770,6 +772,7 @@ body{padding-top:env(safe-area-inset-top)}
     const quiz = state.tab === "quiz";
     $("#tab-quiz").setAttribute("aria-selected", quiz);
     $("#topics").hidden = quiz; $("#addBtn").hidden = quiz || !state.canEdit;
+    $("#bulkBtn").hidden = state.tab !== "materials" || !state.canEdit || !window.studyFiles?.upload;
     if (quiz) {
       ["papers","basics","materials","summaries"].forEach((k) => $("#tab-" + k).setAttribute("aria-selected", false));
       $("#facets").hidden = true; $("#viewsw").hidden = true; renderQuiz(); return;
@@ -1048,6 +1051,7 @@ ${JSON.stringify(mats)}`;
         ${field("f_summary", "概要", x.summary, "textarea", "何を扱った資料か")}
         ${field("f_tags", "タグ（読点かカンマ区切り）", tagsOf(x).join("、"))}
         ${field("f_url", "リンク（Googleドライブ、スライドなど）", x.url, "url", "https://")}
+        ${window.studyFiles?.upload ? `<div class="f"><label for="f_file">PDFファイル</label><input type="file" id="f_file" accept="application/pdf">${x.fileName ? `<span class="hint">今のファイル：${esc(x.fileName)}（選び直すと差し替わります）</span>` : ""}</div>` : ""}
         <div class="f"><label>参照している論文</label><div class="pick">${state.papers.length ? state.papers.slice().sort((a, b) => String(a.title).localeCompare(String(b.title))).map((p) => `<label><input type="checkbox" value="${esc(p.id)}" ${(x.paperIds || []).includes(p.id) ? "checked" : ""}> ${esc(shortName(p))}：${esc(p.title)}</label>`).join("") : `<span class="hint">論文を登録すると選べます。</span>`}</div></div>
       </div>`;
     }
@@ -1101,8 +1105,18 @@ ${JSON.stringify(mats)}`;
     const docId = id || slug(title);
     const prev = id ? state[kind].find((x) => x.id === id) : null;
     body.addedAt = prev?.addedAt || new Date().toISOString();
+    if (kind === "materials") { if (prev?.file) { body.file = prev.file; body.fileName = prev.fileName || ""; } }
+    const pick = kind === "materials" ? $("#f_file")?.files?.[0] : null;
     $("#saveBtn").disabled = true;
-    try { await db.collection(kind).doc(docId).set(body); closeSheet(); }
+    try {
+      if (pick) {
+        $("#formErr").textContent = "PDFを送っています…";
+        body.file = await window.studyFiles.upload(`${docId}.pdf`, pick);
+        body.fileName = pick.name;
+        $("#formErr").textContent = "";
+      }
+      await db.collection(kind).doc(docId).set(body); closeSheet();
+    }
     catch (e) { $("#formErr").textContent = e?.code === "quota_exceeded" ? "保存できる件数の上限に達しました。古いものを削除してください。" : e?.code === "invalid_argument" ? "保存する権限がないか、内容が大きすぎます。" : "保存できませんでした。もう一度試してください。"; }
     finally { $("#saveBtn").disabled = false; }
   }
@@ -1111,7 +1125,8 @@ ${JSON.stringify(mats)}`;
     if (!btn.dataset.armed) { btn.dataset.armed = "1"; btn.textContent = "本当に削除する"; return; }
     const { kind, id } = state.editing || {};
     if (!kind || !id) return;
-    try { await db.collection(kind).doc(id).delete(); closeSheet(); }
+    const prevD = state[kind]?.find((x) => x.id === id);
+    try { await db.collection(kind).doc(id).delete(); if (kind === "materials" && prevD?.file && window.studyFiles?.remove) window.studyFiles.remove(prevD.file).catch(() => {}); closeSheet(); }
     catch { $("#formErr").textContent = "削除できませんでした。"; }
   }
 
@@ -1365,6 +1380,37 @@ ${text.slice(0, 2000)}`;
     if (e.target.id === "clearAi") { state.ai = null; renderAI(); }
   });
   $("#addBtn").addEventListener("click", () => openSheet(state.tab, null));
+  // 勉強会資料のPDF
+  $("#list").addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-pdf]"); if (!b || !window.studyFiles) return;
+    const w = window.open("", "_blank");
+    try { const u = await window.studyFiles.url(b.dataset.pdf); if (w) w.location.href = u; else location.href = u; }
+    catch { if (w) w.close(); $("#status").innerHTML = `<div class="notice">PDFを開けませんでした。もう一度試してください。</div>`; }
+  });
+  $("#bulkBtn").addEventListener("click", () => $("#bulkIn").click());
+  $("#bulkIn").addEventListener("change", async (e) => {
+    const list = [...e.target.files]; e.target.value = "";
+    if (!list.length || !db || !window.studyFiles?.upload) return;
+    const presets = window.MATERIAL_PRESETS || [];
+    const st = $("#status"); let ok = 0; const ng = [];
+    for (const [i, f] of list.entries()) {
+      st.innerHTML = `<div class="notice">PDFを追加しています（${i + 1} / ${list.length}）：${esc(f.name)}</div>`;
+      const nm = f.name.normalize("NFC");
+      const pr = presets.find((p) => p.keys.some((k) => nm.includes(k)));
+      const base = nm.replace(/\.pdf$/i, "");
+      const docId = pr ? pr.id : slug(base);
+      const prev = state.materials.find((x) => x.id === docId);
+      const dm = nm.match(/(20\d{2})[-_.]?(\d{2})[-_.]?(\d{2})/);
+      const body = pr ? { title: pr.title, date: pr.date, kind: pr.kind, topic: pr.topic, summary: pr.summary, tags: pr.tags, url: "", paperIds: [] }
+        : { title: base, date: dm ? `${dm[1]}-${dm[2]}-${dm[3]}` : "", kind: "勉強会資料", topic: "", summary: "", tags: [], url: "", paperIds: [] };
+      try {
+        body.file = await window.studyFiles.upload(`${docId}.pdf`, f);
+        body.fileName = f.name; body.addedAt = prev?.addedAt || new Date().toISOString();
+        await db.collection("materials").doc(docId).set(body); ok++;
+      } catch (err) { ng.push(f.name + (err?.code === "too_large" ? "（大きすぎます）" : "")); }
+    }
+    st.innerHTML = `<div class="notice">${ok}件のPDFを追加しました。${ng.length ? `追加できなかったもの：${ng.map(esc).join("、")}` : ""}</div>`;
+  });
   $("#cancelBtn").addEventListener("click", closeSheet);
   $("#saveBtn").addEventListener("click", save);
   $("#delBtn").addEventListener("click", del);
