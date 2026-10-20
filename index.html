@@ -1,0 +1,1406 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#22626c">
+<meta name="description" content="論文・基礎知識・まとめ資料・勉強会資料と小テストをまとめた勉強用アプリ">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="勉強部屋">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<title>自分の勉強部屋</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#f4f6f7; --surface:#ffffff; --sunk:#eaeef1; --ink:#17222c; --ink-2:#465460; --ink-3:#6c7986;
+  --line:#d6dde3; --line-2:#e7ecef;
+  --accent:#a8323f; --accent-soft:#f6e5e7;
+  --teal:#2b6a6e; --teal-soft:#e0eeef;
+  --amber:#875811; --amber-soft:#f6edd9;
+  --body:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;
+  --head:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#10161c; --surface:#18212a; --sunk:#131b22; --ink:#e5ebef; --ink-2:#b3bfc9; --ink-3:#8593a0;
+    --line:#2b3742; --line-2:#212b35;
+    --accent:#e0717d; --accent-soft:#3a2126; --teal:#71b6bb; --teal-soft:#1a2f32; --amber:#e1b262; --amber-soft:#33281a;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#10161c; --surface:#18212a; --sunk:#131b22; --ink:#e5ebef; --ink-2:#b3bfc9; --ink-3:#8593a0;
+  --line:#2b3742; --line-2:#212b35;
+  --accent:#e0717d; --accent-soft:#3a2126; --teal:#71b6bb; --teal-soft:#1a2f32; --amber:#e1b262; --amber-soft:#33281a;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.75;padding-inline:16px;padding-block:0 72px}
+.wrap{max-width:920px;margin:0 auto}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:url(img/bg.jpg) center/cover no-repeat;mix-blend-mode:multiply;opacity:.6}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) body::before{filter:invert(1);mix-blend-mode:screen;opacity:.2}}
+:root[data-theme="dark"] body::before{filter:invert(1);mix-blend-mode:screen;opacity:.2}
+header{padding-block:28px 10px;display:grid;gap:6px}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--head);font-size:clamp(26px,5vw,34px);line-height:1.3;margin:0}
+.sub{color:var(--ink-2);font-size:14px;margin:0}
+.counts{font-family:var(--mono);font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+
+.searchbar{display:grid;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px}
+.qrow{display:flex;gap:8px;flex-wrap:wrap}
+#q{flex:1 1 260px;min-width:0;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink)}
+#q:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+button{font:inherit;cursor:pointer}
+.btn{padding:9px 16px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:14px;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--ink-2);padding:6px 10px}
+.btn.small{padding:4px 10px;font-size:12.5px}
+.btn.danger{color:var(--accent);border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn:focus-visible,.chip:focus-visible,.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hint{font-size:12.5px;color:var(--ink-3)}
+.examples{display:flex;gap:6px;flex-wrap:wrap}
+.ex{font-size:12.5px;padding:3px 10px;border-radius:999px;border:1px dashed var(--line);background:transparent;color:var(--ink-2)}
+.ex:hover{border-color:var(--accent);color:var(--accent)}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding-block:10px;margin-bottom:16px;background:var(--paper);border-bottom:1px solid var(--line)}
+@media (max-width:620px){.tabs{grid-template-columns:repeat(3,1fr)}}
+.tab{display:grid;gap:1px;justify-items:center;align-content:center;min-height:54px;padding:6px 4px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font:inherit}
+.tab .tl{font-size:15px;font-weight:700;white-space:nowrap}
+.tab .ti{width:30px;height:30px;border-radius:50%;object-fit:cover;border:1.5px solid var(--line);margin-bottom:2px}
+.tab[aria-selected="true"] .ti{border-color:rgba(255,255,255,.9)}
+.hero{position:relative;height:150px;border-radius:14px;overflow:hidden;margin:4px 0 14px;background:var(--surface)}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,18,28,.78) 0%,rgba(10,18,28,.45) 45%,rgba(10,18,28,0) 80%)}
+.hero .ht{position:absolute;left:18px;bottom:16px;right:18px;z-index:1;color:#fff}
+.hero .ht b{display:block;font-size:22px;letter-spacing:.02em}
+.hero .ht span{font-size:13px;opacity:.92}
+@media (max-width:620px){.hero{height:112px}.hero .ht b{font-size:18px}.hero .ht span{font-size:12px}}
+.tab .n{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.tab:hover{border-color:var(--accent)}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.tab[aria-selected="true"] .n{color:rgba(255,255,255,.85)}
+.anchor{scroll-margin-top:150px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-block:12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:12.5px;padding:2px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+
+.list{display:grid;gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:grid;gap:6px}
+.card .top{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.card h3{font-size:15.5px;margin:0;line-height:1.5;flex:1 1 300px}
+.card h3 a{color:inherit;text-decoration:none}
+.card h3 a:hover{color:var(--accent);text-decoration:underline}
+.meta{font-family:var(--mono);font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.finding{margin:0;color:var(--ink);max-width:72ch}
+.dose{font-size:13px;background:var(--sunk);border-radius:6px;padding:6px 10px;color:var(--ink-2);white-space:pre-wrap}
+.dose b{color:var(--teal);font-weight:500;margin-right:6px}
+.tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font-size:11.5px;color:var(--ink-3);background:var(--sunk);padding:0 8px;border-radius:4px}
+.lvl{font-family:var(--mono);font-size:11px;font-weight:500;padding:1px 7px;border-radius:4px;white-space:nowrap}
+.lvl.A{background:var(--teal-soft);color:var(--teal)}
+.lvl.B{background:var(--amber-soft);color:var(--amber)}
+.lvl.C{background:var(--accent-soft);color:var(--accent)}
+.design{font-size:12px;color:var(--ink-2);border:1px solid var(--line);padding:0 7px;border-radius:4px;white-space:nowrap}
+.kind{font-size:12px;color:var(--accent);font-weight:500}
+.rowacts{display:flex;gap:4px;justify-content:flex-end}
+.linked{font-size:13px;color:var(--ink-2)}
+.linked a{color:var(--teal)}
+
+.ai{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:8px;padding:14px 16px;display:grid;gap:10px;margin-top:14px}
+.ai h2{font-size:14px;margin:0;color:var(--teal);font-weight:700;display:flex;gap:8px;align-items:center}
+.ai .answer{margin:0;white-space:pre-wrap;max-width:74ch}
+.ai .gap{font-size:13px;color:var(--amber);background:var(--amber-soft);padding:8px 12px;border-radius:6px}
+.reason{font-size:13.5px;color:var(--teal);margin:0}
+.str{font-size:11px;padding:1px 7px;border-radius:4px;background:var(--teal-soft);color:var(--teal);white-space:nowrap}
+.sec-h{font-size:13px;color:var(--ink-3);margin:18px 0 6px;font-weight:500;letter-spacing:.04em}
+.empty{padding:28px 16px;text-align:center;color:var(--ink-3);background:var(--surface);border:1px dashed var(--line);border-radius:8px}
+.notice{font-size:13px;color:var(--ink-2);padding:10px 12px;border-radius:6px;background:var(--sunk);margin-top:10px}
+.dots::after{content:"…";animation:d 1.2s steps(3) infinite}
+@keyframes d{0%{content:"."}33%{content:".."}66%{content:"..."}}
+@media (prefers-reduced-motion:reduce){.dots::after{animation:none;content:"…"}}
+
+.sheet{position:fixed;inset:0;background:rgba(10,15,20,.45);display:flex;justify-content:center;align-items:flex-start;padding:24px 16px;overflow-y:auto;z-index:20}
+.sheet .box{background:var(--surface);border:1px solid var(--line);border-radius:10px;width:min(640px,100%);padding:18px;display:grid;gap:12px;margin-top:env(safe-area-inset-top,0px)}
+.sheet h2{margin:0;font-size:17px}
+.f{display:grid;gap:4px}
+.f label{font-size:12.5px;color:var(--ink-2);font-weight:500}
+.f input,.f textarea,.f select{font:inherit;font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);width:100%}
+.f textarea{min-height:84px;resize:vertical}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.pick{max-height:200px;overflow-y:auto;border:1px solid var(--line);border-radius:6px;padding:6px 10px;background:var(--paper);display:grid;gap:2px;font-size:13px}
+.pick label{display:flex;gap:6px;align-items:flex-start;font-weight:400;color:var(--ink)}
+.acts{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.err{color:var(--accent);font-size:13px}
+.topics{display:flex;gap:6px;flex-wrap:wrap;margin-top:18px}
+.topic{font-size:14px;padding:6px 14px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);font-weight:500}
+.topic[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.topic .n{font-family:var(--mono);font-size:11px;opacity:.75;margin-left:4px}
+.facets{display:grid;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:12px}
+.facet{display:grid;grid-template-columns:76px 1fr;gap:8px;align-items:start}
+.facet .lab{font-size:12px;color:var(--ink-3);padding-top:3px}
+@media (max-width:480px){.facet{grid-template-columns:1fr}}
+.viewsw{display:flex;gap:4px}
+.viewsw button{font-size:12.5px;padding:4px 10px;border-radius:5px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2)}
+.viewsw button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.tbl table{border-collapse:collapse;width:100%;min-width:860px;font-size:13px;line-height:1.55}
+.tbl th,.tbl td{text-align:left;vertical-align:top;padding:9px 10px;border-bottom:1px solid var(--line-2)}
+.tbl th{font-size:11.5px;font-weight:500;color:var(--ink-3);background:var(--paper);white-space:nowrap;position:sticky;top:0}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td.k{font-weight:700;white-space:nowrap}
+.tbl td.k a{color:inherit}
+.tbl td.m{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums}
+.params{display:flex;gap:6px;flex-wrap:wrap}
+.pchip{font-size:11.5px;padding:0 8px;border-radius:4px;border:1px solid var(--line);color:var(--ink-2)}
+.pchip b{font-weight:500;color:var(--ink-3);margin-right:4px}
+.checks{display:flex;gap:4px 12px;flex-wrap:wrap;font-size:13.5px}
+.checks label{display:flex;gap:5px;align-items:center;font-weight:400;color:var(--ink)}
+.chat{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-top:14px;display:grid;grid-template-rows:auto 1fr auto;max-height:min(78vh,760px)}
+.chat-h{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line-2)}
+.chat-h h2{margin:0;font-size:15px;flex:1}
+.chat-h .hint{margin:0}
+.msgs{overflow-y:auto;padding:14px;display:grid;gap:14px;align-content:start;min-height:120px}
+.msg{display:grid;gap:8px;max-width:100%}
+.msg.user{justify-self:end;max-width:min(560px,92%)}
+.msg.user .bubble{background:var(--ink);color:var(--paper);border-radius:12px 12px 2px 12px;padding:9px 13px;white-space:pre-wrap}
+.msg.bot .bubble{background:var(--sunk);border-radius:12px 12px 12px 2px;padding:11px 14px;white-space:pre-wrap;max-width:74ch}
+.msg.bot .gap{font-size:13px;color:var(--amber);background:var(--amber-soft);padding:8px 12px;border-radius:6px;max-width:74ch}
+.msg.err .bubble{background:var(--accent-soft);color:var(--accent)}
+.cites{display:grid;gap:6px;max-width:74ch}
+.cites .lab{font-size:12px;color:var(--ink-3)}
+.cite{border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.cite summary{list-style:none;cursor:pointer;padding:8px 12px;display:grid;gap:3px}
+.cite summary::-webkit-details-marker{display:none}
+.cite .ct{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;font-size:13.5px;font-weight:700}
+.cite .why{font-size:13px;color:var(--teal)}
+.cite .body{padding:0 12px 10px;display:grid;gap:6px;font-size:13.5px}
+.cite .body a{color:var(--teal)}
+.chat-f{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line-2);align-items:flex-end;flex-wrap:wrap}
+#chatIn{flex:1 1 240px;min-width:0;font:inherit;font-size:16px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);resize:none;min-height:44px;max-height:160px}
+#chatIn:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.typing{color:var(--ink-3);font-size:14px}
+.term{background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.term>summary{list-style:none;cursor:pointer;padding:13px 16px;display:grid;gap:3px}
+.term>summary::-webkit-details-marker{display:none}
+.term>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+.term .tt{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.term .tt h3{margin:0;font-size:16.5px;font-family:var(--head)}
+.term .aka{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+.term .cat{font-size:11.5px;color:var(--teal);background:var(--teal-soft);padding:0 8px;border-radius:4px;white-space:nowrap}
+.term .one{color:var(--ink-2);font-size:14px;margin:0}
+.term .chev{margin-left:auto;color:var(--ink-3);font-size:12px;transition:transform .15s}
+.term[open] .chev{transform:rotate(180deg)}
+.term .tbody{padding:0 16px 16px;display:grid;gap:12px;border-top:1px solid var(--line-2);padding-top:12px}
+.term .sec h4{margin:0 0 2px;font-size:13.5px;color:var(--accent);font-weight:700}
+.term .sec p{margin:0;max-width:70ch;white-space:pre-wrap}
+.term .prac{background:var(--amber-soft);border-radius:6px;padding:10px 12px;max-width:72ch}
+.term .prac b{display:block;font-size:12.5px;color:var(--amber);margin-bottom:2px}
+.term .rel{font-size:13px;color:var(--ink-2);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.term .rel a{color:var(--teal)}
+.termlinks{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12.5px}
+.termlinks button{font-size:12.5px;padding:2px 10px;border-radius:999px;border:1px solid var(--teal);background:var(--teal-soft);color:var(--teal)}
+@media (prefers-reduced-motion:reduce){.term .chev{transition:none}}
+.figs{display:grid;gap:14px}
+.dg{margin:0;background:var(--paper);border:1px solid var(--line-2);border-radius:8px;padding:12px;display:grid;gap:8px}
+.dg .scroll{overflow-x:auto}
+.dg svg{display:block;width:100%;min-width:560px;height:auto;color:var(--ink)}
+.dg figcaption{font-size:13px;color:var(--ink-2);max-width:72ch}
+.dg figcaption b{color:var(--ink)}
+.dg text{fill:currentColor;font-family:var(--body);font-size:12.5px}
+.dg .ttl{font-weight:700;font-size:13px}
+.dg .soft{fill:var(--line-2);stroke:var(--line);stroke-width:1}
+.dg .cord{fill:var(--sunk);stroke:var(--line);stroke-width:1.5}
+.dg .ln{stroke:currentColor;stroke-width:1.5;fill:none}
+.dg .cap{fill:var(--surface);stroke:currentColor;stroke-width:1.5}
+.dg .if{stroke:var(--ink-3);stroke-width:4;stroke-linecap:round;fill:none}
+.dg .ia{stroke:var(--accent);stroke-width:2.2;fill:none}
+.dg text.ia,.dg .iaf{fill:var(--accent);stroke:none}
+.dg .ii{stroke:var(--teal);stroke-width:2.2;fill:none}
+.dg text.ii{fill:var(--teal);stroke:none}
+.dg .gm{stroke:var(--amber);stroke-width:2.2;fill:none}
+.dg .gmw{stroke:var(--amber);stroke-width:6;stroke-linecap:round;fill:none}
+.dg text.gm{fill:var(--amber);stroke:none}
+.dg .mn{fill:var(--surface);stroke:currentColor;stroke-width:1.8}
+.dg .dash{stroke:var(--ink-3);stroke-width:1;stroke-dasharray:4 4;fill:none}
+.dg .muted{fill:var(--ink-3)}
+.dg .ln-fill{fill:currentColor}
+.quiz{display:grid;gap:14px}
+.qhead h2{margin:0;font-family:var(--head);font-size:22px}
+.qhead p{margin:4px 0 0}
+.stages{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.stage{display:grid;gap:4px;text-align:left;padding:14px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
+.stage:hover:not(:disabled){border-color:var(--accent)}
+.stage:disabled{opacity:.55;cursor:default;background:var(--sunk)}
+.stage.done{border-color:var(--teal)}
+.stage .snum{font-size:11.5px;font-weight:700;color:var(--accent);letter-spacing:.04em}
+.stage.done .snum{color:var(--teal)}
+.stage:disabled .snum{color:var(--ink-3)}
+.stage .sname{font-weight:700;font-size:15.5px}
+.stage .sdesc{font-size:13px;color:var(--ink-2)}
+.stage .sbest{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.qbar{display:flex;justify-content:space-between;gap:10px;font-weight:700;font-size:14px;flex-wrap:wrap}
+.prog{height:6px;background:var(--line-2);border-radius:3px;overflow:hidden}
+.prog span{display:block;height:100%;background:var(--accent);transition:width .2s}
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:14px}
+.qcard h3{margin:0;font-size:17px;line-height:1.6}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;padding:12px 14px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:15px;cursor:pointer;line-height:1.6}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt .ol{font-family:var(--mono);font-weight:500;color:var(--ink-3);flex:none;width:1.2em}
+.opt.right{border-color:var(--teal);background:var(--teal-soft)}
+.opt.right .ol{color:var(--teal)}
+.opt.wrong{border-color:var(--accent);background:var(--accent-soft)}
+.opt.wrong .ol{color:var(--accent)}
+.explain{border-radius:8px;padding:12px 14px;font-size:14px;max-width:74ch}
+.explain b{display:block;margin-bottom:2px}
+.explain.ok{background:var(--teal-soft)} .explain.ok b{color:var(--teal)}
+.explain.ng{background:var(--accent-soft)} .explain.ng b{color:var(--accent)}
+.result{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:28px 18px;text-align:center;display:grid;gap:10px}
+.result.pass{border-color:var(--teal)}
+.result .big{font-family:var(--head);font-size:44px;line-height:1.1}
+.result.pass .big{color:var(--teal)}
+.result p{margin:0 auto}
+.wans{font:inherit;font-size:15px;min-height:160px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);resize:vertical;width:100%}
+.musts{display:flex;gap:6px;flex-wrap:wrap}
+.model{background:var(--amber-soft);border-radius:8px;padding:12px 14px;font-size:14px;max-width:74ch}
+.model b{display:block;color:var(--amber);margin-bottom:2px}
+.wl{margin-top:8px;font-size:13.5px}
+.wl span{font-weight:700;font-size:12.5px;color:var(--ink-2)}
+.wl ul{margin:2px 0 0;padding-left:1.2em}
+@media (prefers-reduced-motion:reduce){.prog span{transition:none}}
+
+[hidden]{display:none!important}
+html,body{margin:0}
+body{padding-top:env(safe-area-inset-top)}
+.gate{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:24px 16px;background:var(--paper)}
+.gbox{width:min(420px,100%);background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:28px 22px;display:grid;gap:12px;justify-items:center;text-align:center}
+.gbox img{border-radius:16px}
+.gbox h1{margin:0;font-family:var(--head);font-size:24px}
+.gbox p{margin:0;color:var(--ink-2);font-size:14px}
+#gbody{display:grid;gap:12px;width:100%;justify-items:center}
+.gform{display:grid;gap:8px;width:100%}
+.gform input,.madd input,.madd select,.mrow select{font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);width:100%}
+.gmsg{min-height:1.4em;font-size:13px;color:var(--accent)}
+.acct{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;font-size:12px;color:var(--ink-3);margin-top:6px}
+.acct span{flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acct{flex-wrap:nowrap}.acct .btn{flex:none}
+.madd{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:6px;margin:10px 0 4px}
+@media (max-width:620px){.madd{grid-template-columns:1fr 1fr}}
+.mlist{display:grid;gap:6px;margin-top:8px;max-height:50vh;overflow:auto}
+.mrow{display:grid;grid-template-columns:minmax(0,1fr) 130px auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line-2)}
+.mrow>div{min-width:0}.mrow b{display:block;font-size:14px}.mrow .hint{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mrow select{font-size:14px;padding:6px 8px}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <h1>自分の勉強部屋</h1>
+    <p class="sub">論文・基礎知識・勉強会資料を一か所に。知りたいことを入れると、裏付けになる論文と基礎知識を探します。</p>
+    <div class="counts" id="counts">読み込み中</div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="メニュー">
+    <button class="tab" role="tab" id="tab-papers" aria-selected="true"><img class="ti" src="img/papers-icon.jpg" alt=""><span class="tl">論文</span><span class="n" id="n-papers">0</span></button>
+    <button class="tab" role="tab" id="tab-basics" aria-selected="false"><img class="ti" src="img/basics-icon.jpg" alt=""><span class="tl">基礎知識</span><span class="n" id="n-basics">0</span></button>
+    <button class="tab" role="tab" id="tab-summaries" aria-selected="false"><img class="ti" src="img/summaries-icon.jpg" alt=""><span class="tl">まとめ資料</span><span class="n" id="n-summaries">0</span></button>
+    <button class="tab" role="tab" id="tab-materials" aria-selected="false"><img class="ti" src="img/materials-icon.jpg" alt=""><span class="tl">勉強会資料</span><span class="n" id="n-materials">0</span></button>
+    <button class="tab" role="tab" id="tab-quiz" aria-selected="false"><img class="ti" src="img/quiz-icon.jpg" alt=""><span class="tl">小テスト</span><span class="n">4択・記述</span></button>
+  </nav>
+
+  <div class="searchbar">
+    <div class="qrow">
+      <input id="q" type="search" placeholder="例：肉離れ後、アイソメトリックはどの長さから？" autocomplete="off" aria-label="検索">
+      <button class="btn primary" id="askBtn" hidden>チャットで聞く</button>
+    </div>
+    <div class="examples" id="examples"></div>
+    <div class="hint" id="searchHint">キーワードで書庫を絞り込みます。文章で聞くときは「チャットで聞く」が向いています。</div>
+  </div>
+
+  <div id="aiBox"></div>
+
+  <section class="chat" id="chat" hidden aria-label="書庫に聞くチャット">
+    <div class="chat-h"><h2>書庫に聞く</h2><span class="hint" id="chatScope"></span><button class="btn ghost small" id="chatReset">新しい会話</button></div>
+    <div class="msgs" id="msgs" aria-live="polite"></div>
+    <form class="chat-f" id="chatForm">
+      <textarea id="chatIn" rows="1" placeholder="例：腱を硬くしたい。強度と保持時間はどう組む？"></textarea>
+      <button type="button" class="btn small" id="chatStop" hidden>止める</button>
+      <button type="submit" class="btn primary" id="chatSend">送信</button>
+    </form>
+  </section>
+
+  <div id="content" class="anchor"></div>
+  <div class="hero" id="hero"></div>
+  <div class="topics" id="topics" aria-label="テーマ"></div>
+
+  <div class="toolbar">
+    <div class="viewsw" id="viewsw"><button data-view="cards" aria-pressed="true">カード</button><button data-view="table" aria-pressed="false">処方を表で比べる</button></div>
+    <button class="btn small" id="addBtn" hidden>＋ 追加</button>
+  </div>
+  <div class="facets" id="facets"></div>
+  <div class="list" id="list"></div>
+  <div id="status"></div>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="box" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <h2 id="sheetTitle">論文を追加</h2>
+    <div id="form"></div>
+    <div class="err" id="formErr"></div>
+    <div class="acts">
+      <button class="btn danger" id="delBtn" hidden>削除</button>
+      <span style="flex:1"></span>
+      <button class="btn" id="cancelBtn">やめる</button>
+      <button class="btn primary" id="saveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<script src="shim.js"></script>
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const BASIC_CATS = ["疾患・症状","受容器","神経と反射","脳","感覚器官"];
+  const state = { papers: [], materials: [], basics: [], summaries: [], bcat: null, openTerm: null, tab: "papers", tag: null, q: "", canEdit: false, dbReady: false, ai: null, editing: null,
+    topic: "all", view: "cards", f: { contraction: null, intensityCat: null, freqCat: null } };
+  const CONTRACTIONS = ["アイソメトリック","エキセントリック","コンセントリック","複合（求心＋遠心）","プライオメトリック","ストレッチ・モビライゼーション","その他"];
+  const INTENSITY_CATS = ["高（≥70%MVC・重い負荷）","中〜低（<70%MVC）","自重・最大努力","痛み・耐性で調整","—"];
+  const FREQ_CATS = ["毎日","週3〜4回","週2回","週1回","単回","—"];
+  const TOPIC_ORDER = ["肩の疾患","腱","関節包","感覚・神経","ハムストリングス","FRS"];
+  const topicOf = (x) => String(x.topic || "未分類");
+  const arr = (v) => Array.isArray(v) ? v.map(String) : [];
+  let db = null, sample = null;
+
+  const DESIGNS = ["メタ分析","システマティックレビュー","RCT","コホート","横断研究","介入研究","レビュー","ガイドライン","症例","その他"];
+  const LEVELS = { A: "A 強い", B: "B 中程度", C: "C 弱い・仮説" };
+  const KINDS = ["勉強会資料","レポート","スライド","動画","配布資料","メモ"];
+  const EXAMPLES = ["腱を硬くする強度と保持時間","腱トレの頻度はどれくらい？","関節包は回旋とエンドレンジどっち？","筋紡錘は何を感じている？","どんな声かけが動きを良くする？","ノルディックの頻度は？","再発防止に効くリハ"];
+
+  const SYN = {
+    "ハム": ["ハムストリングス","hamstring","大腿二頭筋","bflh"],
+    "frs": ["frs","内部筋力","internal strength","fra"],
+    "pails": ["pails","rails","pails/rails","mvic","伸張位"],
+    "bioflow": ["bioflow","boflow","結合組織","white tissue"],
+    "cars": ["cars","関節ワークスペース","ワークスペース"],
+    "肉離れ": ["肉離れ","strain","損傷","hsi"],
+    "ノルディック": ["nhe","nordic","ノルディック"],
+    "予防": ["予防","prevention","リスク"],
+    "再発": ["再発","reinjury","recurrence"],
+    "復帰": ["復帰","rtp","return","リハ"],
+    "リハ": ["リハ","rehabilitation","復帰"],
+    "遠心": ["エキセントリック","eccentric","遠心"],
+    "エキセントリック": ["エキセントリック","eccentric","遠心"],
+    "アイソメ": ["アイソメトリック","isometric","等尺"],
+    "アイソメトリック": ["アイソメトリック","isometric","等尺"],
+    "コンセントリック": ["コンセントリック","concentric","求心"],
+    "ストレッチ": ["ストレッチ","柔軟性","stretch"],
+    "スプリント": ["スプリント","sprint","最大速度"],
+    "筋束": ["筋束","fascicle"],
+    "腱": ["腱","tendon","スティフネス","アキレス","膝蓋腱"],
+    "関節包": ["関節包","capsule","靭帯","カプセル"],
+    "カプセル": ["関節包","capsule"],
+    "回旋": ["回旋","rotation","内旋","外旋"],
+    "エンドレンジ": ["エンドレンジ","end range","最終域","可動域の終わり"],
+    "最終域": ["エンドレンジ","最終域"],
+    "頻度": ["頻度","週","毎日"],
+    "強度": ["強度","mvc","rm"],
+    "筋紡錘": ["筋紡錘","spindle","固有受容"],
+    "ゴルジ": ["ゴルジ腱器官","golgi"],
+    "脳": ["脳・運動制御","脳・運動学習","運動野","神経"],
+    "感覚": ["感覚","固有受容","感覚統合","受容器"],
+    "キュー": ["キューイング","外的焦点","指導法"],
+    "意識": ["外的焦点","キューイング"],
+    "バランス": ["バランス","感覚統合","前庭"],
+    "五十肩": ["凍結肩","肩関節周囲炎","関節包"],
+    "四十肩": ["凍結肩","肩関節周囲炎"],
+    "凍結肩": ["凍結肩","肩関節周囲炎","frozen"],
+    "インピンジ": ["インピンジメント","肩峰下","腱板"],
+    "胸郭出口": ["胸郭出口症候群","tos","しびれ"],
+    "しびれ": ["しびれ","胸郭出口症候群","神経"],
+  };
+
+  const norm = (s) => String(s || "").toLowerCase().normalize("NFKC");
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  const tagsOf = (x) => Array.isArray(x.tags) ? x.tags.map(String) : [];
+  const safeUrl = (u) => /^https?:\/\//i.test(String(u || "")) ? String(u) : "";
+
+  function hay(x, kind) {
+    if (kind === "papers") return {
+      hi: norm([x.title, tagsOf(x).join(" "), x.topic].join(" ")),
+      mid: norm([x.finding, x.dose, arr(x.contraction).join(" "), x.intensity, x.volume, x.frequency, x.duration].join(" ")),
+      lo: norm([x.authors, x.journal, x.design, x.year].join(" ")),
+    };
+    if (kind === "summaries") return {
+      hi: norm([x.title, tagsOf(x).join(" "), x.topic].join(" ")),
+      mid: norm([x.lead, ...(Array.isArray(x.sections) ? x.sections.map((s) => `${s.h} ${s.b}`) : [])].join(" ")),
+      lo: norm([x.date].join(" ")),
+    };
+    if (kind === "basics") return {
+      hi: norm([x.title, x.aka, tagsOf(x).join(" ")].join(" ")),
+      mid: norm([x.summary, x.practice, ...(Array.isArray(x.sections) ? x.sections.map((s) => `${s.h} ${s.b}`) : [])].join(" ")),
+      lo: norm([x.category, x.topic].join(" ")),
+    };
+    return { hi: norm([x.title, tagsOf(x).join(" ")].join(" ")), mid: norm(x.summary), lo: norm([x.kind, x.date].join(" ")) };
+  }
+  function expand(q) {
+    const terms = norm(q).split(/[\s、。,，?？!！・/]+/).filter(Boolean);
+    const out = new Set();
+    for (const t of terms) {
+      out.add(t);
+      for (const [k, list] of Object.entries(SYN)) if (t.includes(norm(k))) list.forEach((w) => out.add(norm(w)));
+    }
+    return [...out];
+  }
+  function bigrams(s) { const r = []; for (let i = 0; i < s.length - 1; i++) r.push(s.slice(i, i + 2)); return r; }
+  function score(x, kind, terms) {
+    const h = hay(x, kind); let s = 0;
+    for (const t of terms) {
+      if (h.hi.includes(t)) s += 6; else if (h.mid.includes(t)) s += 3; else if (h.lo.includes(t)) s += 1;
+      else if (t.length >= 3) {
+        const bg = bigrams(t); let hit = 0;
+        for (const b of bg) if (h.hi.includes(b) || h.mid.includes(b)) hit++;
+        if (bg.length && hit / bg.length >= 0.5) s += 2 * hit / bg.length;
+      }
+    }
+    return s;
+  }
+
+  function base(kind) {
+    let items = state[kind].slice();
+    if (state.topic !== "all") items = items.filter((x) => topicOf(x) === state.topic);
+    return items;
+  }
+  function sorted(kind) {
+    let items = base(kind);
+    if (kind === "papers") {
+      const f = state.f;
+      if (f.contraction) items = items.filter((x) => arr(x.contraction).includes(f.contraction));
+      if (f.intensityCat) items = items.filter((x) => x.intensityCat === f.intensityCat);
+      if (f.freqCat) items = items.filter((x) => x.freqCat === f.freqCat);
+    }
+    if (kind === "basics" && state.bcat) items = items.filter((x) => x.category === state.bcat);
+    if (state.tag) items = items.filter((x) => tagsOf(x).includes(state.tag));
+    if (state.q.trim()) {
+      const terms = expand(state.q);
+      items = items.map((x) => [x, score(x, kind, terms)]).filter((p) => p[1] > 0).sort((a, b) => b[1] - a[1]).map((p) => p[0]);
+    } else if (kind === "basics") {
+      const ci = (c) => { const i = BASIC_CATS.indexOf(c); return i < 0 ? 99 : i; };
+      items.sort((a, b) => ci(a.category) - ci(b.category) || (Number(a.order) || 99) - (Number(b.order) || 99));
+    } else if (kind === "papers") {
+      items.sort((a, b) => (Number(b.year) || 0) - (Number(a.year) || 0));
+    } else {
+      items.sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+    }
+    return items;
+  }
+
+  function paperCard(p, extra) {
+    const url = safeUrl(p.url);
+    const lvl = ["A","B","C"].includes(p.level) ? p.level : "";
+    return `<article class="card">
+      <div class="top">
+        ${lvl ? `<span class="lvl ${lvl}" title="エビデンスの強さ">${esc(LEVELS[lvl])}</span>` : ""}
+        ${p.design ? `<span class="design">${esc(p.design)}</span>` : ""}
+        <h3>${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(p.title)}</a>` : esc(p.title)}</h3>
+        ${extra?.strength ? `<span class="str">関連 ${esc(extra.strength)}</span>` : ""}
+      </div>
+      <div class="meta">${esc([p.authors, p.year, p.journal].filter(Boolean).join(" · "))}</div>
+      ${extra?.reason ? `<p class="reason">→ ${esc(extra.reason)}</p>` : ""}
+      ${p.finding ? `<p class="finding">${esc(p.finding)}</p>` : ""}
+      ${paramChips(p)}
+      ${p.dose ? `<div class="dose"><b>処方</b>${esc(p.dose)}</div>` : ""}
+      <div class="top"><div class="tags" style="flex:1">${tagsOf(p).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>
+      ${state.canEdit ? `<div class="rowacts"><button class="btn ghost small" data-edit="papers:${esc(p.id)}">編集</button></div>` : ""}</div>
+    </article>`;
+  }
+  function materialCard(m) {
+    const url = safeUrl(m.url);
+    const linked = (Array.isArray(m.paperIds) ? m.paperIds : []).map((id) => state.papers.find((p) => p.id === id)).filter(Boolean);
+    return `<article class="card">
+      <div class="top"><span class="kind">${esc(m.kind || "資料")}</span>
+        <h3>${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(m.title)}</a>` : esc(m.title)}</h3>
+        <span class="meta">${esc(m.date || "")}</span></div>
+      ${m.summary ? `<p class="finding">${esc(m.summary)}</p>` : ""}
+      ${linked.length ? `<div class="linked">参照論文：${linked.map((p) => esc(shortName(p))).join("、")}</div>` : ""}
+      <div class="top"><div class="tags" style="flex:1">${tagsOf(m).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>
+      ${state.canEdit ? `<div class="rowacts"><button class="btn ghost small" data-edit="materials:${esc(m.id)}">編集</button></div>` : ""}</div>
+    </article>`;
+  }
+  // ---------- Diagrams (built into the page; entries reference them by key) ----------
+  const ARROW = (id, cls) => `<defs><marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" class="${cls}"/></marker></defs>`;
+  const zig = (x0, x1, step, yA, yB) => { const p = []; let up = true; for (let x = x0; x <= x1; x += step) { p.push(`${x},${up ? yA : yB}`); up = !up; } return p.join(" "); };
+  const ticks = (xs, y0, y1, cls) => xs.map((x) => `<line x1="${x}" y1="${y0}" x2="${x}" y2="${y1}" class="${cls}"/>`).join("");
+  const DIAGRAMS = {
+    "spindle-structure": {
+      label: "筋紡錘の構造",
+      aria: "筋紡錘は筋線維と並列に並ぶ。中の錘内筋線維の中央にIa線維が巻きつき、その横にII線維、両端にγ運動ニューロンがつく。",
+      caption: "<b>筋紡錘の構造。</b>左：筋紡錘はふつうの筋線維（錘外筋線維）と並列に埋まっているので、筋が伸びると一緒に伸ばされる。右（拡大）：中の錘内筋線維の中央部にIa線維が巻きつき（長さ＋速さ）、その横にII線維（長さ）。両端の収縮する部分にγ運動ニューロンがつき、張りと感度を調整する。",
+      svg: () => `<svg viewBox="0 0 760 300" role="img" aria-label="筋紡錘の構造">
+        <rect x="14" y="66" width="22" height="168" rx="5" class="soft"/><rect x="324" y="66" width="22" height="168" rx="5" class="soft"/>
+        ${[72, 100, 180, 208].map((y) => `<rect x="36" y="${y}" width="288" height="20" rx="10" class="soft"/>`).join("")}
+        <path d="M58 150 Q180 118 302 150 Q180 182 58 150 Z" class="cap"/>
+        <line x1="72" y1="150" x2="288" y2="150" class="if"/>
+        <text x="180" y="58" text-anchor="middle">錘外筋線維（ふつうの筋線維）</text>
+        <line x1="180" y1="250" x2="180" y2="170" class="ln"/>
+        <text x="180" y="268" text-anchor="middle">筋紡錘：筋線維と並列に並ぶ</text>
+        <text x="25" y="254" text-anchor="middle" class="muted">腱</text><text x="335" y="254" text-anchor="middle" class="muted">腱</text>
+        <line x1="250" y1="140" x2="402" y2="96" class="dash"/><line x1="250" y1="160" x2="402" y2="204" class="dash"/>
+        <path d="M405 150 C470 98, 640 98, 705 150 C640 202, 470 202, 405 150 Z" class="cap"/>
+        ${[136, 150, 164].map((y) => `<line x1="422" y1="${y}" x2="688" y2="${y}" class="if"/>`).join("")}
+        <polyline points="${zig(526, 586, 6, 127, 173)}" class="ia"/>
+        <line x1="556" y1="126" x2="556" y2="48" class="ia"/><line x1="556" y1="48" x2="540" y2="48" class="ia"/>
+        <text x="536" y="52" text-anchor="end" class="ia">Ia（一次終末）：長さ＋速さ</text>
+        <polyline points="${zig(600, 624, 6, 129, 171)}" class="ii"/>
+        <line x1="612" y1="128" x2="612" y2="74" class="ii"/><line x1="612" y1="74" x2="626" y2="74" class="ii"/>
+        <text x="630" y="78" class="ii">II（二次終末）：長さ</text>
+        <rect x="444" y="168" width="14" height="6" class="iaf" style="fill:var(--amber)"/><rect x="652" y="168" width="14" height="6" class="iaf" style="fill:var(--amber)"/>
+        <line x1="451" y1="174" x2="451" y2="240" class="gm"/><line x1="659" y1="174" x2="659" y2="240" class="gm"/>
+        <line x1="451" y1="240" x2="659" y2="240" class="gm"/><line x1="555" y1="240" x2="555" y2="252" class="gm"/>
+        <text x="555" y="270" text-anchor="middle" class="gm">γ運動ニューロン：両端を縮めて感度を保つ</text>
+        <text x="645" y="218" text-anchor="end" class="muted">錘内筋線維</text>
+      </svg>`,
+    },
+    "stretch-reflex": {
+      label: "伸張反射と相反抑制の回路",
+      aria: "伸ばされた筋の筋紡錘からIa線維が脊髄に入り、同じ筋のα運動ニューロンを直接興奮させて縮める。同時に抑制性介在ニューロンを介して拮抗筋のα運動ニューロンを抑え、拮抗筋をゆるめる。",
+      caption: "<b>伸張反射と相反抑制。</b>筋が急に伸ばされる → 筋紡錘のIa線維が発火 → 脊髄で同じ筋のα運動ニューロンを直接（単シナプスで）興奮 → その筋が縮む。同時にIa線維は抑制性の介在ニューロンを介して拮抗筋のα運動ニューロンを抑え、拮抗筋をゆるめる（相反抑制）。速く伸ばすほど強く出る。",
+      svg: () => `<svg viewBox="0 0 760 300" role="img" aria-label="伸張反射と相反抑制の回路">
+        ${ARROW("arIa", "iaf")}${ARROW("arK", "ln-fill")}
+        <rect x="40" y="40" width="200" height="236" rx="60" class="cord"/>
+        <text x="140" y="66" text-anchor="middle" class="ttl">脊髄</text>
+        <circle cx="170" cy="100" r="14" class="mn"/><text x="170" y="105" text-anchor="middle">α</text>
+        <circle cx="170" cy="216" r="14" class="mn"/><text x="170" y="221" text-anchor="middle">α</text>
+        <circle cx="84" cy="164" r="10" class="mn" style="stroke:var(--teal)"/>
+        <text x="84" y="192" text-anchor="middle" class="ii">抑制性</text><text x="84" y="207" text-anchor="middle" class="ii">介在</text>
+        <rect x="430" y="78" width="300" height="36" rx="18" class="soft"/>
+        <text x="580" y="101" text-anchor="middle">拮抗筋 → ゆるむ</text>
+        <rect x="430" y="194" width="300" height="36" rx="18" class="soft"/>
+        <path d="M566 212 Q600 200 634 212 Q600 224 566 212 Z" class="cap"/>
+        <text x="444" y="217">伸ばされた筋 → 縮む</text>
+        <text x="580" y="184" text-anchor="middle" class="muted">⟵ 急に伸ばされる ⟶</text>
+        <polyline points="600,222 600,272 240,272 214,242 186,224" class="ia" marker-end="url(#arIa)"/>
+        <polyline points="214,242 124,242 124,172 97,166" class="ia" marker-end="url(#arIa)"/>
+        <text x="420" y="290" text-anchor="middle" class="ia">Ia線維（筋紡錘から）</text>
+        <text x="226" y="236" class="ia">興奮</text>
+        <line x1="91" y1="155" x2="157" y2="108" class="ii"/><line x1="152" y1="101" x2="162" y2="115" class="ii"/>
+        <text x="112" y="124" text-anchor="end" class="ii">抑制</text>
+        <line x1="184" y1="216" x2="428" y2="212" class="ln" marker-end="url(#arK)"/>
+        <text x="310" y="206" text-anchor="middle">指令 → 縮む</text>
+        <line x1="184" y1="100" x2="428" y2="96" class="ln" marker-end="url(#arK)" style="stroke-dasharray:5 4"/>
+        <text x="310" y="88" text-anchor="middle">指令が減る</text>
+      </svg>`,
+    },
+    "alpha-gamma": {
+      label: "α-γ連関",
+      aria: "γ運動ニューロンが働かないと、筋が縮んだとき筋紡錘がたるみIa線維の発火が止まる。α-γ連関では両端が縮んで張りが保たれ、Ia線維は発火を続ける。",
+      caption: "<b>α-γ連関。</b>左：もしγが働かずαだけで筋が縮むと、並列に並んだ筋紡錘はたるみ、Ia線維の発火が止まって長さの情報が途切れる。右：実際の随意収縮ではαとγが一緒に働き、γが錘内筋線維の両端を縮めて中央の張りを保つので、Ia線維は情報を送り続けられる。",
+      svg: () => `<svg viewBox="0 0 760 250" role="img" aria-label="α-γ連関の比較">
+        <text x="195" y="24" text-anchor="middle" class="ttl">γが働かない場合（仮定）</text>
+        <text x="565" y="24" text-anchor="middle" class="ttl">α-γ連関（実際の収縮）</text>
+        <line x1="380" y1="14" x2="380" y2="236" class="dash"/>
+        <rect x="40" y="56" width="310" height="76" rx="38" class="soft"/>
+        <text x="195" y="48" text-anchor="middle" class="muted">→ 筋が縮む ←</text>
+        <path d="M105 94 Q195 74 285 94 Q195 114 105 94 Z" class="cap"/>
+        <path d="M118 94 q10 -9 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0" class="if" style="stroke-width:3"/>
+        <text x="195" y="150" text-anchor="middle" class="muted">錘内筋線維がたるむ</text>
+        <line x1="60" y1="196" x2="330" y2="196" class="ln"/>${ticks([72, 98], 196, 176, "ia")}
+        <text x="195" y="228" text-anchor="middle" class="ia">Iaの発火が止まる → 長さが分からない</text>
+        <rect x="410" y="56" width="310" height="76" rx="38" class="soft"/>
+        <text x="565" y="48" text-anchor="middle" class="muted">→ 筋が縮む ←</text>
+        <path d="M475 94 Q565 74 655 94 Q565 114 475 94 Z" class="cap"/>
+        <line x1="488" y1="94" x2="642" y2="94" class="if" style="stroke-width:3"/>
+        <line x1="488" y1="94" x2="522" y2="94" class="gmw"/><line x1="608" y1="94" x2="642" y2="94" class="gmw"/>
+        <text x="565" y="150" text-anchor="middle" class="gm">γが両端を縮めて張りを保つ</text>
+        <line x1="430" y1="196" x2="700" y2="196" class="ln"/>${ticks([442, 458, 474, 490, 506, 522, 538, 554, 570, 586, 602, 618, 634, 650, 666, 682], 196, 176, "ia")}
+        <text x="565" y="228" text-anchor="middle" class="ia">Iaは発火を続ける</text>
+      </svg>`,
+    },
+  };
+  const diagramHtml = (key) => {
+    const d = DIAGRAMS[key]; if (!d) return "";
+    return `<figure class="dg"><div class="scroll">${d.svg().replace('role="img"', `role="img" aria-description="${esc(d.aria)}"`)}</div><figcaption>${d.caption}</figcaption></figure>`;
+  };
+
+  function basicCard(b) {
+    const secs = Array.isArray(b.sections) ? b.sections : [];
+    const rel = arr(b.related).map((id) => state.papers.find((p) => p.id === id)).filter(Boolean);
+    return `<details class="term" id="term-${esc(b.id)}" ${state.openTerm === b.id ? "open" : ""}>
+      <summary>
+        <div class="tt"><span class="cat">${esc(b.category || "")}</span><h3>${esc(b.title)}</h3>${b.aka ? `<span class="aka">${esc(b.aka)}</span>` : ""}<span class="chev" aria-hidden="true">▼</span></div>
+        ${b.summary ? `<p class="one">${esc(b.summary)}</p>` : ""}
+      </summary>
+      <div class="tbody">
+        ${arr(b.diagrams).some((k) => DIAGRAMS[k]) ? `<div class="figs">${arr(b.diagrams).map(diagramHtml).join("")}</div>` : ""}
+        ${secs.map((s) => `<div class="sec"><h4>${esc(s.h)}</h4><p>${esc(s.b)}</p></div>`).join("")}
+        ${b.practice ? `<div class="prac"><b>指導へのつながり</b>${esc(b.practice)}</div>` : ""}
+        ${rel.length ? `<div class="rel">関連論文：${rel.map((p) => { const u = safeUrl(p.url); return u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(shortName(p))}</a>` : esc(shortName(p)); }).join("　")}</div>` : ""}
+        <div class="top"><div class="tags" style="flex:1">${tagsOf(b).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>
+        ${state.canEdit ? `<div class="rowacts"><button class="btn ghost small" data-edit="basics:${esc(b.id)}">編集</button></div>` : ""}</div>
+      </div>
+    </details>`;
+  }
+  function summaryCard(m) {
+    const secs = Array.isArray(m.sections) ? m.sections : [];
+    const url = safeUrl(m.url);
+    const rp = arr(m.papers).map((id) => state.papers.find((p) => p.id === id)).filter(Boolean);
+    const rb = arr(m.terms).map((id) => state.basics.find((b) => b.id === id)).filter(Boolean);
+    return `<details class="term" id="sum-${esc(m.id)}">
+      <summary>
+        <div class="tt"><span class="cat" style="color:var(--accent);background:var(--accent-soft)">${esc(m.topic || "まとめ")}</span><h3>${esc(m.title)}</h3><span class="aka">${esc(m.date || "")}</span><span class="chev" aria-hidden="true">▼</span></div>
+        ${m.lead ? `<p class="one">${esc(m.lead)}</p>` : ""}
+      </summary>
+      <div class="tbody">
+        ${secs.map((x) => `<div class="sec">${x.h ? `<h4>${esc(x.h)}</h4>` : ""}<p>${esc(x.b)}</p></div>`).join("")}
+        ${url ? `<div class="rel">資料：<a href="${esc(url)}" target="_blank" rel="noopener">開く</a></div>` : ""}
+        ${rb.length ? `<div class="termlinks"><span class="hint">基礎知識：</span>${rb.map((b) => `<button type="button" data-term="${esc(b.id)}">${esc(b.title)}</button>`).join("")}</div>` : ""}
+        ${rp.length ? `<div class="rel">根拠の論文：${rp.map((p) => { const u = safeUrl(p.url); return u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(shortName(p))}</a>` : esc(shortName(p)); }).join("　")}</div>` : ""}
+        <div class="top"><div class="tags" style="flex:1">${tagsOf(m).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>
+        ${state.canEdit ? `<div class="rowacts"><button class="btn ghost small" data-edit="summaries:${esc(m.id)}">編集</button></div>` : ""}</div>
+      </div>
+    </details>`;
+  }
+  function goTerm(id) {
+    const b = state.basics.find((x) => x.id === id); if (!b) return;
+    state.tab = "basics"; state.tag = null; state.bcat = null; state.openTerm = id;
+    if (state.topic !== "all" && topicOf(b) !== state.topic) state.topic = "all";
+    state.q = ""; $("#q").value = "";
+    render();
+    document.getElementById("term-" + id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  const shortName = (p) => `${String(p.authors || "").split(/[ ,、]/)[0] || p.title.slice(0, 16)} ${p.year || ""}`.trim();
+
+  function paramChips(p) {
+    const bits = [];
+    if (arr(p.contraction).length) bits.push(["収縮", arr(p.contraction).join("・")]);
+    if (p.intensity) bits.push(["強度", p.intensity]);
+    if (p.volume) bits.push(["回数・時間", p.volume]);
+    if (p.frequency) bits.push(["頻度", p.frequency]);
+    if (p.duration) bits.push(["期間", p.duration]);
+    return bits.length ? `<div class="params">${bits.map(([k, v]) => `<span class="pchip"><b>${esc(k)}</b>${esc(v)}</span>`).join("")}</div>` : "";
+  }
+  function chipRow(key, label, values, counts) {
+    const vals = values.filter((v) => counts[v]);
+    if (!vals.length) return "";
+    return `<div class="facet"><span class="lab">${esc(label)}</span><div class="chips">${vals.map((v) =>
+      `<button class="chip" data-facet="${key}" data-val="${esc(v)}" aria-pressed="${state.f[key] === v}">${esc(v)} <span class="meta">${counts[v]}</span></button>`).join("")}</div></div>`;
+  }
+  function renderTopics() {
+    const all = [...state.papers, ...state.basics, ...state.summaries, ...state.materials];
+    const counts = {};
+    for (const x of all) counts[topicOf(x)] = (counts[topicOf(x)] || 0) + 1;
+    const names = Object.keys(counts).sort((a, b) => {
+      const ia = TOPIC_ORDER.indexOf(a), ib = TOPIC_ORDER.indexOf(b);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
+    });
+    if (state.topic !== "all" && !counts[state.topic]) state.topic = "all";
+    $("#topics").innerHTML = [`<button class="topic" data-topic="all" aria-pressed="${state.topic === "all"}">すべて<span class="n">${all.length}</span></button>`,
+      ...names.map((n) => `<button class="topic" data-topic="${esc(n)}" aria-pressed="${state.topic === n}">${esc(n)}<span class="n">${counts[n]}</span></button>`)].join("");
+  }
+  function renderChips() {
+    const items = base(state.tab);
+    const tc = {}, cc = {}, ic = {}, fc = {};
+    for (const x of items) {
+      for (const t of tagsOf(x)) tc[t] = (tc[t] || 0) + 1;
+      if (state.tab === "papers") {
+        for (const c of arr(x.contraction)) cc[c] = (cc[c] || 0) + 1;
+        if (x.intensityCat) ic[x.intensityCat] = (ic[x.intensityCat] || 0) + 1;
+        if (x.freqCat) fc[x.freqCat] = (fc[x.freqCat] || 0) + 1;
+      }
+    }
+    const topTags = Object.entries(tc).filter(([t]) => t !== state.topic).sort((a, b) => b[1] - a[1]).slice(0, 12).map((e) => e[0]);
+    if (state.tag && !topTags.includes(state.tag)) topTags.unshift(state.tag);
+    let html = "";
+    if (state.tab === "basics") {
+      const bc = {}; for (const x of items) if (x.category) bc[x.category] = (bc[x.category] || 0) + 1;
+      const vals = BASIC_CATS.filter((v) => bc[v]);
+      if (vals.length) html += `<div class="facet"><span class="lab">分類</span><div class="chips">${vals.map((v) => `<button class="chip" data-bcat="${esc(v)}" aria-pressed="${state.bcat === v}">${esc(v)} <span class="meta">${bc[v]}</span></button>`).join("")}</div></div>`;
+    }
+    if (state.tab === "papers") {
+      html += chipRow("contraction", "収縮様式", CONTRACTIONS, cc);
+      html += chipRow("intensityCat", "強度", INTENSITY_CATS, ic);
+      html += chipRow("freqCat", "頻度", FREQ_CATS, fc);
+    }
+    if (topTags.length) html += `<div class="facet"><span class="lab">タグ</span><div class="chips">${topTags.map((t) => `<button class="chip" aria-pressed="${t === state.tag}" data-tag="${esc(t)}">${esc(t)}</button>`).join("")}</div></div>`;
+    $("#facets").innerHTML = html;
+    $("#facets").hidden = !html;
+    $("#viewsw").hidden = state.tab !== "papers";
+  }
+  function tableView(items) {
+    return `<div class="tbl"><table><thead><tr><th>論文</th><th>強さ</th><th>収縮様式</th><th>強度</th><th>回数・時間</th><th>頻度</th><th>期間</th><th>結果</th></tr></thead><tbody>${items.map((p) => {
+      const url = safeUrl(p.url);
+      const name = esc(shortName(p));
+      return `<tr><td class="k">${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${name}</a>` : name}<div class="meta" style="font-weight:400">${esc(p.design || "")}</div></td>
+        <td>${["A","B","C"].includes(p.level) ? `<span class="lvl ${p.level}">${p.level}</span>` : ""}</td>
+        <td>${esc(arr(p.contraction).join("・"))}</td><td>${esc(p.intensity || "")}</td><td class="m">${esc(p.volume || "")}</td>
+        <td>${esc(p.frequency || "")}</td><td>${esc(p.duration || "")}</td><td style="min-width:260px">${esc(String(p.finding || "").slice(0, 160))}${String(p.finding || "").length > 160 ? "…" : ""}</td></tr>`;
+    }).join("")}</tbody></table></div>`;
+  }
+  const HERO = {
+    papers: ["論文", "エビデンスの裏付けを探す"],
+    basics: ["基礎知識", "筋紡錘・神経・脳・感覚の土台"],
+    summaries: ["まとめ資料", "調べたことを要点でふり返る"],
+    materials: ["勉強会資料", "これまでの勉強会をまとめて見る"],
+    quiz: ["小テスト", "4択と記述で理解をたしかめる"],
+  };
+  function renderHero() {
+    const h = $("#hero"), k = HERO[state.tab] ? state.tab : "papers";
+    if (h.dataset.k === k) return;
+    h.dataset.k = k;
+    h.innerHTML = `<img src="img/${k}.jpg" alt=""><div class="ht"><b>${HERO[k][0]}</b><span>${HERO[k][1]}</span></div>`;
+  }
+  function render() {
+    renderHero();
+    const quiz = state.tab === "quiz";
+    $("#tab-quiz").setAttribute("aria-selected", quiz);
+    $("#topics").hidden = quiz; $("#addBtn").hidden = quiz || !state.canEdit;
+    if (quiz) {
+      ["papers","basics","materials","summaries"].forEach((k) => $("#tab-" + k).setAttribute("aria-selected", false));
+      $("#facets").hidden = true; $("#viewsw").hidden = true; renderQuiz(); return;
+    }
+    renderTopics();
+    $("#n-papers").textContent = base("papers").length;
+    $("#n-materials").textContent = base("materials").length;
+    $("#n-basics").textContent = base("basics").length;
+    $("#n-summaries").textContent = base("summaries").length;
+    $("#tab-summaries").setAttribute("aria-selected", state.tab === "summaries");
+    $("#tab-basics").setAttribute("aria-selected", state.tab === "basics");
+    document.querySelectorAll("#viewsw button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.view === state.view));
+    $("#counts").textContent = state.dbReady ? `論文 ${state.papers.length} 本 · 基礎知識 ${state.basics.length} 項目 · 資料 ${state.materials.length} 件` : $("#counts").textContent;
+    $("#tab-papers").setAttribute("aria-selected", state.tab === "papers");
+    $("#tab-materials").setAttribute("aria-selected", state.tab === "materials");
+    renderChips();
+    const items = sorted(state.tab);
+    if (!state.dbReady) { $("#list").innerHTML = ""; return; }
+    if (!items.length) {
+      const base = state[state.tab].length === 0;
+      $("#list").innerHTML = `<div class="empty">${base
+        ? ({ papers: "まだ論文がありません。", basics: "まだ基礎知識がありません。", materials: "まだ勉強会資料がありません。", summaries: "まだまとめ資料がありません。チャットの答えの「まとめに保存」からも追加できます。" }[state.tab]) + (state.canEdit ? "「＋ 追加」から登録できます。" : "")
+        : "一致するものがありません。言葉を変えるか、「チャットで聞く」を試してください。"}</div>`;
+      return;
+    }
+    if (state.tab === "papers" && state.view === "table") { $("#list").innerHTML = tableView(items); return; }
+    $("#list").innerHTML = items.map((x) => state.tab === "papers" ? paperCard(x) : state.tab === "basics" ? basicCard(x) : state.tab === "summaries" ? summaryCard(x) : materialCard(x)).join("");
+  }
+  function renderAI() {
+    const a = state.ai, box = $("#aiBox");
+    if (!a) { box.innerHTML = ""; return; }
+    if (a.loading) { box.innerHTML = `<section class="ai"><h2>AIが書庫から探しています<span class="dots"></span></h2><p class="answer" style="color:var(--ink-3)">「${esc(a.q)}」に関係する論文を読んでいます。</p><div class="acts"><button class="btn small" id="stopBtn">止める</button></div></section>`; return; }
+    if (a.error) { box.innerHTML = `<section class="ai"><h2>AIで探せませんでした</h2><p class="answer">${esc(a.error)}</p></section>`; return; }
+    const picks = (a.picks || []).map((pk) => [state.papers.find((p) => p.id === pk.id), pk]).filter((x) => x[0]);
+    box.innerHTML = `<section class="ai">
+      <h2>「${esc(a.q)}」の裏付け</h2>
+      <p class="answer">${esc(a.answer || "")}</p>
+      ${a.gaps ? `<div class="gap">${esc(a.gaps)}</div>` : ""}
+      ${picks.length ? `<div class="list">${picks.map(([p, pk]) => paperCard(p, pk)).join("")}</div>` : `<p class="hint">書庫の中に直接の裏付けになる論文は見つかりませんでした。</p>`}
+      <div class="acts"><button class="btn ghost small" id="clearAi">閉じる</button></div>
+    </section>`;
+  }
+
+  // ---------- AI search ----------
+  let aiCtl = null;
+  async function askAI() {
+    const q = $("#q").value.trim();
+    if (!q || !sample) return;
+    if (!state.papers.length) { state.ai = { q, error: "書庫に論文がまだありません。" }; renderAI(); return; }
+    aiCtl?.abort(); aiCtl = new AbortController();
+    state.ai = { q, loading: true }; renderAI();
+    const lib = state.papers.map((p) => ({
+      id: p.id, t: p.title, y: p.year, d: p.design, lv: p.level, topic: topicOf(p),
+      tags: tagsOf(p).join("/"), f: String(p.finding || "").slice(0, 400),
+      rx: [arr(p.contraction).join("・"), p.intensity, p.volume, p.frequency, p.duration, p.dose].filter(Boolean).join(" | ").slice(0, 300),
+    }));
+    const mats = state.materials.map((m) => ({ title: m.title, summary: String(m.summary || "").slice(0, 200), paperIds: m.paperIds || [] }));
+    const prompt = `あなたはピラティス・運動指導者の調べものを手伝うリサーチアシスタントです。
+以下は指導者本人が作った論文の書庫（JSON）です。質問に対して、この書庫の中から裏付けになる論文を選んでください。
+ルール：
+- 書庫にある論文だけを使う。書庫にない論文や数値を作らない。
+- 各論文の f（要点）と rx（処方）に書かれた内容だけを根拠にする。
+- エビデンスの強さ（lv: A=強い, B=中程度, C=弱い・仮説）と研究デザインを踏まえ、言い過ぎない。
+- 答えは日本語のです・ます調で、断定を避けて提案の形にする（例：「〜が考えられます」「〜はいかがでしょうか」）。
+- 根拠が足りない部分は gaps にはっきり書く。
+
+返すのは次の形のJSONだけ：
+{"answer":"質問への答え（3〜6文。強度・頻度など具体的な数値は書庫にあるものだけ）","picks":[{"id":"論文id","reason":"この質問にどう関係するか（1文）","strength":"強|中|弱"}],"gaps":"書庫だけでは言えないこと（なければ空文字）"}
+picks は関係の強い順に最大6件。
+
+質問：${q}
+
+論文の書庫：
+${JSON.stringify(lib)}
+
+勉強会資料（参考）：
+${JSON.stringify(mats)}`;
+    try {
+      const r = await sample.json(prompt, { signal: aiCtl.signal });
+      const picks = Array.isArray(r?.picks) ? r.picks.filter((x) => x && typeof x.id === "string").slice(0, 6).map((x) => ({ id: x.id, reason: String(x.reason || ""), strength: ["強","中","弱"].includes(x.strength) ? x.strength : "" })) : [];
+      state.ai = { q, answer: String(r?.answer || ""), gaps: String(r?.gaps || ""), picks };
+    } catch (e) {
+      const code = e?.code;
+      if (code === "cancelled") state.ai = null;
+      else if (code === "not_granted" || code === "sampling_disabled" || code === "not_declared" || code === "capability_disabled" || code === "capability_removed") { state.ai = { q, error: "このページではAI検索が使えません。キーワード検索は使えます。" }; $("#askBtn").hidden = true; }
+      else if (code === "rate_limited") state.ai = { q, error: "少し時間をおいてから、もう一度試してください。" };
+      else if (code === "invalid_json") state.ai = { q, error: "答えの形が崩れました。もう一度押すと聞き直します。" };
+      else state.ai = { q, error: "通信がうまくいきませんでした。もう一度試してください。" };
+    }
+    renderAI();
+  }
+
+  // ---------- Chat ----------
+  const CHAT_KEY = "evlib-chat-v1";
+  let chat = [];
+  try { const s = JSON.parse(localStorage.getItem(CHAT_KEY) || "[]"); if (Array.isArray(s)) chat = s.slice(-30); } catch {}
+  let chatCtl = null, chatBusy = false;
+  const saveChat = () => { try { localStorage.setItem(CHAT_KEY, JSON.stringify(chat.slice(-30))); } catch {} };
+  const scopePapers = () => state.topic === "all" ? state.papers : state.papers.filter((p) => topicOf(p) === state.topic);
+  const scopeBasics = () => state.topic === "all" ? state.basics : state.basics.filter((p) => topicOf(p) === state.topic);
+
+  function citeHtml(pk) {
+    const p = state.papers.find((x) => x.id === pk.id);
+    if (!p) return "";
+    const url = safeUrl(p.url);
+    const lvl = ["A","B","C"].includes(p.level) ? p.level : "";
+    return `<details class="cite"><summary>
+        <span class="ct">${lvl ? `<span class="lvl ${lvl}">${lvl}</span>` : ""}${p.design ? `<span class="design">${esc(p.design)}</span>` : ""}${esc(shortName(p))}　<span style="font-weight:400">${esc(p.title)}</span></span>
+        ${pk.reason ? `<span class="why">→ ${esc(pk.reason)}</span>` : ""}
+      </summary><div class="body">
+        ${p.finding ? `<div>${esc(p.finding)}</div>` : ""}
+        ${paramChips(p)}
+        ${p.dose ? `<div class="dose"><b>処方</b>${esc(p.dose)}</div>` : ""}
+        ${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">論文を開く</a>` : ""}
+      </div></details>`;
+  }
+  function renderChat() {
+    if (!sample) return;
+    $("#chatScope").textContent = `対象：${state.topic === "all" ? "すべて" : state.topic}（論文 ${scopePapers().length}本・基礎知識 ${scopeBasics().length}項目）`;
+    const html = chat.map((m, mi) => {
+      if (m.role === "user") return `<div class="msg user"><div class="bubble">${esc(m.text)}</div></div>`;
+      if (m.error) return `<div class="msg bot err"><div class="bubble">${esc(m.text)}</div></div>`;
+      const cites = (m.picks || []).map(citeHtml).filter(Boolean);
+      const terms = arr(m.terms).map((id) => state.basics.find((b) => b.id === id)).filter(Boolean);
+      return `<div class="msg bot"><div class="bubble">${esc(m.text)}</div>
+        ${m.gaps ? `<div class="gap">${esc(m.gaps)}</div>` : ""}
+        ${terms.length ? `<div class="termlinks"><span class="hint">基礎知識：</span>${terms.map((b) => `<button type="button" data-term="${esc(b.id)}">${esc(b.title)}</button>`).join("")}</div>` : ""}
+        ${state.canEdit && db ? `<div><button type="button" class="btn ghost small" data-savesum="${mi}" ${m.saved ? "disabled" : ""}>${m.saved ? "まとめに保存済み" : "まとめに保存"}</button></div>` : ""}
+        ${cites.length ? `<div class="cites"><span class="lab">根拠にした論文（タップで要点）</span>${cites.join("")}</div>` : ""}</div>`;
+    }).join("") + (chatBusy ? `<div class="msg bot"><div class="bubble typing">書庫を読んでいます<span class="dots"></span></div></div>` : "")
+      || `<p class="hint" style="margin:0">基礎知識と書庫の論文だけを根拠に答えます。続けて質問すると、前のやりとりを踏まえて答えます。</p>`;
+    const box = $("#msgs");
+    box.innerHTML = html;
+    box.scrollTop = box.scrollHeight;
+    $("#chatSend").disabled = chatBusy;
+    $("#chatStop").hidden = !chatBusy;
+  }
+  function chatRules(papers) {
+    const lib = papers.map((p) => ({
+      id: p.id, t: p.title, y: p.year, d: p.design, lv: p.level, topic: topicOf(p),
+      tags: tagsOf(p).join("/"), f: String(p.finding || "").slice(0, 450),
+      rx: [arr(p.contraction).join("・"), p.intensity, p.volume, p.frequency, p.duration, p.dose].filter(Boolean).join(" | ").slice(0, 300),
+    }));
+    const mats = state.materials.map((m) => ({ title: m.title, summary: String(m.summary || "").slice(0, 200) }));
+    const basics = scopeBasics().map((b) => ({ id: b.id, t: b.title, cat: b.category, s: b.summary,
+      body: (Array.isArray(b.sections) ? b.sections.map((x) => `${x.h}：${x.b}`).join(" / ") : "").slice(0, 700), practice: String(b.practice || "").slice(0, 250) }));
+    return `あなたはピラティス・運動指導者の調べものを手伝うリサーチアシスタントです。指導者本人が作った論文の書庫と基礎知識のまとめ（JSON）を使って、会話形式で質問に答えます。
+ルール：
+- 仕組みや用語の説明は「基礎知識」を土台にする。効果や数値の根拠は書庫の論文だけ。書庫にない論文・数値・著者名を作らない。論文は f（要点）と rx（処方）に書かれた内容だけを使う。
+- 強度・回数・頻度・期間などの数値は、書庫にあるものだけを、どの論文の数値か分かるように書く。
+- エビデンスの強さ（lv: A=強い, B=中程度, C=弱い・仮説）と研究デザインを踏まえ、言い過ぎない。献体研究・レビュー・試験管内の知見はそうと分かるように書く。
+- 日本語のです・ます調。言い切りを避け、提案は「〜はいかがでしょうか」の形にする。
+- 書庫だけでは答えられない部分は gaps に正直に書く。
+- 前の会話の流れを踏まえて答える。
+
+毎回、次の形のJSONだけを返す：
+{"answer":"答え（3〜8文。必要なら改行で箇条書き風にしてよい）","picks":[{"id":"論文id","reason":"この質問にどう関係するか（1文）"}],"terms":["関係する基礎知識のid"],"gaps":"書庫だけでは言えないこと（なければ空文字）"}
+picks は根拠として使った論文を関係の強い順に最大6件。関係する論文がなければ空配列。terms は説明に使った基礎知識を最大4件。
+
+基礎知識：
+${JSON.stringify(basics)}
+
+論文の書庫：
+${JSON.stringify(lib)}
+
+勉強会資料（参考）：
+${JSON.stringify(mats)}`;
+  }
+  async function sendChat(text) {
+    text = String(text || "").trim();
+    if (!text || !sample || chatBusy) return;
+    $("#chat").hidden = false;
+    const papers = scopePapers();
+    if (!papers.length && !scopeBasics().length) { chat.push({ role: "user", text }, { role: "assistant", error: true, text: "このテーマにはまだ論文がありません。" }); renderChat(); return; }
+    const history = chat.filter((m) => !m.error).slice(-8).map((m) => m.role === "user"
+      ? { role: "user", content: m.text }
+      : { role: "assistant", content: m.text + (m.picks?.length ? `\n（根拠：${m.picks.map((p) => p.id).join(", ")}）` : "") });
+    chat.push({ role: "user", text });
+    chatBusy = true; renderChat();
+    chatCtl = new AbortController();
+    const turns = [{ role: "user", content: chatRules(papers) }, ...history, { role: "user", content: text }];
+    try {
+      const r = await sample.json(turns, { signal: chatCtl.signal, cache: false });
+      const ids = new Set(state.papers.map((p) => p.id));
+      const picks = Array.isArray(r?.picks) ? r.picks.filter((x) => x && ids.has(String(x.id))).slice(0, 6).map((x) => ({ id: String(x.id), reason: String(x.reason || "") })) : [];
+      const bids = new Set(state.basics.map((b) => b.id));
+      const terms = Array.isArray(r?.terms) ? r.terms.map(String).filter((x) => bids.has(x)).slice(0, 4) : [];
+      chat.push({ role: "assistant", text: String(r?.answer || "（答えが空でした）"), picks, terms, gaps: String(r?.gaps || "") });
+    } catch (e) {
+      const code = e?.code;
+      if (code === "cancelled") chat.pop();
+      else if (["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"].includes(code)) chat.push({ role: "assistant", error: true, text: "このページではチャットが使えません。キーワード検索は使えます。" });
+      else if (code === "rate_limited") chat.push({ role: "assistant", error: true, text: "少し時間をおいてから、もう一度送ってください。" });
+      else if (code === "prompt_too_large") chat.push({ role: "assistant", error: true, text: "書庫が大きくなりすぎました。上のテーマを選んで範囲を絞ってから聞いてください。" });
+      else if (code === "invalid_json") chat.push({ role: "assistant", error: true, text: "答えの形が崩れました。もう一度送ると聞き直します。" });
+      else chat.push({ role: "assistant", error: true, text: "通信がうまくいきませんでした。もう一度送ってください。" });
+    } finally {
+      chatBusy = false; saveChat(); renderChat();
+    }
+  }
+
+  async function saveChatToSummary(mi, btn) {
+    const m = chat[mi]; if (!m || m.role !== "assistant" || m.error || !db) return;
+    let q = ""; for (let k = mi - 1; k >= 0; k--) if (chat[k].role === "user") { q = chat[k].text; break; }
+    const body = { title: (q || "チャットのまとめ").slice(0, 60), date: new Date().toISOString().slice(0, 10), topic: state.topic === "all" ? "" : state.topic,
+      lead: "", sections: [{ h: "質問", b: q }, { h: "答え", b: m.text }, ...(m.gaps ? [{ h: "書庫だけでは言えないこと", b: m.gaps }] : [])],
+      url: "", tags: ["チャット"], terms: arr(m.terms), papers: (m.picks || []).map((p) => p.id), addedAt: new Date().toISOString() };
+    btn.disabled = true; btn.textContent = "保存中…";
+    try { await db.collection("summaries").doc(slug(body.title)).set(body); m.saved = true; saveChat(); renderChat(); }
+    catch { btn.disabled = false; btn.textContent = "保存できませんでした。もう一度押してください"; }
+  }
+
+  // ---------- Edit sheet ----------
+  function field(id, label, value, type = "text", ph = "") {
+    if (type === "textarea") return `<div class="f"><label for="${id}">${label}</label><textarea id="${id}" placeholder="${esc(ph)}">${esc(value)}</textarea></div>`;
+    return `<div class="f"><label for="${id}">${label}</label><input id="${id}" type="${type}" value="${esc(value)}" placeholder="${esc(ph)}"></div>`;
+  }
+  function select(id, label, value, opts) {
+    return `<div class="f"><label for="${id}">${label}</label><select id="${id}">${opts.map(([v, t]) => `<option value="${esc(v)}" ${v === value ? "selected" : ""}>${esc(t)}</option>`).join("")}</select></div>`;
+  }
+  function topicField(v) {
+    const names = [...new Set([...TOPIC_ORDER, ...[...state.papers, ...state.basics, ...state.summaries, ...state.materials].map((x) => x.topic).filter(Boolean)])];
+    const cur = v || (state.topic !== "all" ? state.topic : "");
+    return `<div class="f"><label for="f_topic">テーマ</label><input id="f_topic" list="topicList" value="${esc(cur)}" placeholder="腱、関節包など"><datalist id="topicList">${names.map((n) => `<option value="${esc(n)}">`).join("")}</datalist></div>`;
+  }
+  function openSheet(kind, item) {
+    state.editing = { kind, id: item?.id || null };
+    const x = item || {};
+    $("#sheetTitle").textContent = (item ? "編集：" : "追加：") + ({ papers: "論文", basics: "基礎知識", materials: "勉強会資料", summaries: "まとめ資料" }[kind]);
+    if (kind === "summaries") {
+      const secText = (Array.isArray(x.sections) ? x.sections : []).map((s) => s.h ? `■${s.h}\n${s.b}` : s.b).join("\n\n");
+      $("#form").innerHTML = `<div style="display:grid;gap:10px">
+        ${field("f_title", "タイトル", x.title, "text", "収縮様式の使い分け")}
+        <div class="grid2">${field("f_date", "日付", x.date || new Date().toISOString().slice(0, 10), "date")}${topicField(x.topic)}</div>
+        ${field("f_lead", "ひとことで（要点）", x.lead, "text")}
+        ${field("f_sections", "本文（「■見出し」の行で区切る）", secText, "textarea", "■ポイント\n…\n\n■使い方\n…")}
+        ${field("f_url", "資料のリンク（任意）", x.url, "url", "https://")}
+        ${field("f_tags", "タグ（読点かカンマ区切り）", tagsOf(x).join("、"))}
+        <div class="f"><label>関連する基礎知識</label><div class="pick">${state.basics.slice().sort((a, b) => String(a.title).localeCompare(String(b.title))).map((b) => `<label><input type="checkbox" class="f_terms" value="${esc(b.id)}" ${arr(x.terms).includes(b.id) ? "checked" : ""}> ${esc(b.title)}</label>`).join("")}</div></div>
+        <div class="f"><label>根拠の論文</label><div class="pick">${state.papers.slice().sort((a, b) => String(a.title).localeCompare(String(b.title))).map((p) => `<label><input type="checkbox" class="f_rel" value="${esc(p.id)}" ${arr(x.papers).includes(p.id) ? "checked" : ""}> ${esc(shortName(p))}：${esc(p.title)}</label>`).join("")}</div></div>
+      </div>`;
+      $("#f_sections").style.minHeight = "240px";
+    } else if (kind === "basics") {
+      const secText = (Array.isArray(x.sections) ? x.sections : []).map((s) => `■${s.h}\n${s.b}`).join("\n\n");
+      $("#form").innerHTML = `<div style="display:grid;gap:10px">
+        <div class="grid2">${field("f_title", "項目名", x.title, "text", "筋紡錘")}${field("f_aka", "別名・英語", x.aka, "text", "muscle spindle")}</div>
+        <div class="grid2">${select("f_bcat", "分類", x.category || (state.bcat || BASIC_CATS[0]), BASIC_CATS.map((v) => [v, v]))}${topicField(x.topic)}</div>
+        ${field("f_summary", "ひとことで", x.summary, "text", "何をするものか1文で")}
+        ${field("f_sections", "本文（「■見出し」の行で区切る）", secText, "textarea", "■どこにあるか\n…\n\n■何を感じるか\n…")}
+        ${field("f_practice", "指導へのつながり", x.practice, "textarea")}
+        <div class="f"><label>図解</label><div class="checks">${Object.entries(DIAGRAMS).map(([k, d]) => `<label><input type="checkbox" class="f_dg" value="${esc(k)}" ${arr(x.diagrams).includes(k) ? "checked" : ""}>${esc(d.label)}</label>`).join("")}</div></div>
+        ${field("f_tags", "タグ（読点かカンマ区切り）", tagsOf(x).join("、"))}
+        <div class="f"><label>関連論文</label><div class="pick">${state.papers.slice().sort((a, b) => String(a.title).localeCompare(String(b.title))).map((p) => `<label><input type="checkbox" class="f_rel" value="${esc(p.id)}" ${arr(x.related).includes(p.id) ? "checked" : ""}> ${esc(shortName(p))}：${esc(p.title)}</label>`).join("")}</div></div>
+      </div>`;
+      $("#f_sections").style.minHeight = "220px";
+    } else if (kind === "papers") {
+      $("#form").innerHTML = `<div style="display:grid;gap:10px">
+        ${field("f_title", "タイトル", x.title, "text", "論文タイトル")}
+        <div class="grid2">${field("f_authors", "著者", x.authors, "text", "Petersen J ほか")}${field("f_year", "年", x.year ?? "", "number")}</div>
+        <div class="grid2">${field("f_journal", "雑誌", x.journal)}${select("f_design", "研究デザイン", x.design || "RCT", DESIGNS.map((d) => [d, d]))}</div>
+        <div class="grid2">${select("f_level", "エビデンスの強さ", x.level || "B", Object.entries(LEVELS))}${topicField(x.topic)}</div>
+        ${field("f_finding", "要点（結果・数値）", x.finding, "textarea", "何がどれくらい変わったか")}
+        <div class="f"><label>収縮様式</label><div class="checks">${CONTRACTIONS.map((c) => `<label><input type="checkbox" class="f_con" value="${esc(c)}" ${arr(x.contraction).includes(c) ? "checked" : ""}>${esc(c)}</label>`).join("")}</div></div>
+        <div class="grid2">${select("f_icat", "強度の分類", x.intensityCat || "—", INTENSITY_CATS.map((v) => [v, v]))}${select("f_fcat", "頻度の分類", x.freqCat || "—", FREQ_CATS.map((v) => [v, v]))}</div>
+        <div class="grid2">${field("f_intensity", "強度（具体）", x.intensity, "text", "90%MVC")}${field("f_volume", "回数・時間", x.volume, "text", "5×4、3秒負荷/3秒休息")}</div>
+        <div class="grid2">${field("f_frequency", "頻度（具体）", x.frequency, "text", "週4回")}${field("f_duration", "期間", x.duration, "text", "14週")}</div>
+        ${field("f_dose", "処方のメモ", x.dose, "textarea", "任意")}
+        ${field("f_tags", "タグ（読点かカンマ区切り）", tagsOf(x).join("、"), "text", "ハムストリングス、予防")}
+        ${field("f_url", "リンク", x.url, "url", "https://")}
+      </div>`;
+    } else {
+      $("#form").innerHTML = `<div style="display:grid;gap:10px">
+        ${field("f_title", "タイトル", x.title)}
+        <div class="grid2">${field("f_date", "日付", x.date || new Date().toISOString().slice(0, 10), "date")}${select("f_kind", "種類", x.kind || "勉強会資料", KINDS.map((k) => [k, k]))}</div>
+        ${topicField(x.topic)}
+        ${field("f_summary", "概要", x.summary, "textarea", "何を扱った資料か")}
+        ${field("f_tags", "タグ（読点かカンマ区切り）", tagsOf(x).join("、"))}
+        ${field("f_url", "リンク（Googleドライブ、スライドなど）", x.url, "url", "https://")}
+        <div class="f"><label>参照している論文</label><div class="pick">${state.papers.length ? state.papers.slice().sort((a, b) => String(a.title).localeCompare(String(b.title))).map((p) => `<label><input type="checkbox" value="${esc(p.id)}" ${(x.paperIds || []).includes(p.id) ? "checked" : ""}> ${esc(shortName(p))}：${esc(p.title)}</label>`).join("") : `<span class="hint">論文を登録すると選べます。</span>`}</div></div>
+      </div>`;
+    }
+    $("#formErr").textContent = "";
+    $("#delBtn").hidden = !item; $("#delBtn").textContent = "削除"; $("#delBtn").dataset.armed = "";
+    $("#sheet").hidden = false;
+    $("#f_title").focus();
+  }
+  function closeSheet() { $("#sheet").hidden = true; state.editing = null; }
+  const val = (id) => ($("#" + id)?.value || "").trim();
+  const splitTags = (s) => [...new Set(s.split(/[、,，]/).map((t) => t.trim()).filter(Boolean))];
+  const slug = (s) => (norm(s).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "item") + "-" + Math.random().toString(36).slice(2, 7);
+
+  async function save() {
+    const { kind, id } = state.editing || {};
+    if (!kind || !db) return;
+    const title = val("f_title");
+    if (!title) { $("#formErr").textContent = "タイトルを入れてください。"; return; }
+    let body;
+    const parseSecs = () => {
+      const raw = ($("#f_sections")?.value || "").replace(/\r/g, ""); const out = [];
+      if (!/^■/m.test(raw)) { if (raw.trim()) out.push({ h: "", b: raw.trim() }); return out; }
+      const head = raw.split(/^■/m); if (head[0].trim()) out.push({ h: "", b: head[0].trim() });
+      for (const chunk of head.slice(1)) { const c = chunk.trim(); if (!c) continue; const nl = c.indexOf("\n"); out.push(nl < 0 ? { h: c, b: "" } : { h: c.slice(0, nl).trim(), b: c.slice(nl + 1).trim() }); }
+      return out;
+    };
+    if (kind === "summaries") {
+      body = { title, date: val("f_date"), topic: val("f_topic"), lead: val("f_lead"), sections: parseSecs(), url: val("f_url"), tags: splitTags(val("f_tags")),
+        terms: [...document.querySelectorAll(".f_terms:checked")].map((c) => c.value), papers: [...document.querySelectorAll(".f_rel:checked")].map((c) => c.value) };
+    } else if (kind === "basics") {
+      const raw = ($("#f_sections")?.value || "").replace(/\r/g, "");
+      const sections = [];
+      for (const chunk of raw.split(/^■/m)) {
+        const c = chunk.trim(); if (!c) continue;
+        const nl = c.indexOf("\n");
+        sections.push(nl < 0 ? { h: c, b: "" } : { h: c.slice(0, nl).trim(), b: c.slice(nl + 1).trim() });
+      }
+      const prevB = id ? state.basics.find((x) => x.id === id) : null;
+      body = { title, aka: val("f_aka"), category: val("f_bcat"), topic: val("f_topic"), summary: val("f_summary"), sections, practice: val("f_practice"),
+        tags: splitTags(val("f_tags")), related: [...document.querySelectorAll(".f_rel:checked")].map((c) => c.value), order: prevB?.order ?? 99,
+        diagrams: [...document.querySelectorAll(".f_dg:checked")].map((c) => c.value) };
+    } else if (kind === "papers") {
+      const yr = parseInt(val("f_year"), 10);
+      body = { title, authors: val("f_authors"), year: Number.isFinite(yr) ? yr : null, journal: val("f_journal"), design: val("f_design"), level: val("f_level"), finding: val("f_finding"), dose: val("f_dose"), tags: splitTags(val("f_tags")), url: val("f_url"),
+        topic: val("f_topic"), contraction: [...document.querySelectorAll(".f_con:checked")].map((c) => c.value),
+        intensityCat: val("f_icat") === "—" ? "" : val("f_icat"), freqCat: val("f_fcat") === "—" ? "" : val("f_fcat"),
+        intensity: val("f_intensity"), volume: val("f_volume"), frequency: val("f_frequency"), duration: val("f_duration") };
+    } else {
+      body = { title, date: val("f_date"), kind: val("f_kind"), topic: val("f_topic"), summary: val("f_summary"), tags: splitTags(val("f_tags")), url: val("f_url"), paperIds: [...document.querySelectorAll(".pick input:checked")].map((c) => c.value) };
+    }
+    const docId = id || slug(title);
+    const prev = id ? state[kind].find((x) => x.id === id) : null;
+    body.addedAt = prev?.addedAt || new Date().toISOString();
+    $("#saveBtn").disabled = true;
+    try { await db.collection(kind).doc(docId).set(body); closeSheet(); }
+    catch (e) { $("#formErr").textContent = e?.code === "quota_exceeded" ? "保存できる件数の上限に達しました。古いものを削除してください。" : e?.code === "invalid_argument" ? "保存する権限がないか、内容が大きすぎます。" : "保存できませんでした。もう一度試してください。"; }
+    finally { $("#saveBtn").disabled = false; }
+  }
+  async function del() {
+    const btn = $("#delBtn");
+    if (!btn.dataset.armed) { btn.dataset.armed = "1"; btn.textContent = "本当に削除する"; return; }
+    const { kind, id } = state.editing || {};
+    if (!kind || !id) return;
+    try { await db.collection(kind).doc(id).delete(); closeSheet(); }
+    catch { $("#formErr").textContent = "削除できませんでした。"; }
+  }
+
+  // ---------- Quiz ----------
+  const PASS = 8;
+  const Q = (term, q, ok, ng, ex) => ({ term, q, ok, ng, ex });
+  const STAGES = [
+    { id: "s1", name: "ステージ1　受容器", desc: "筋紡錘・ゴルジ腱器官・関節と皮膚の受容器・痛み", qs: [
+      Q("muscle-spindle", "筋紡錘が主に感じているものはどれ？", "筋の長さと、長さが変わる速さ", ["筋が出している張力（力）", "関節包の伸び", "皮膚に伝わる振動"], "筋紡錘は筋線維と並列に並ぶので、筋が伸びると一緒に伸ばされ、長さと速さを伝える。張力を感じるのはゴルジ腱器官。"),
+      Q("golgi-tendon-organ", "ゴルジ腱器官はどこにある？", "筋と腱のつなぎ目に、筋線維と直列に並んでいる", ["筋の中に、筋線維と並列に並んでいる", "関節包の中にある", "皮膚の真皮にある"], "直列に並んでいるので、筋が縮んで腱を引っぱる力（能動的な張力）にとても敏感。"),
+      Q("muscle-spindle", "筋紡錘の一次終末から出ている感覚神経線維は？", "Ia線維", ["Ib線維", "II線維", "C線維"], "一次終末＝Ia（長さ＋速さ）、二次終末＝II（主に長さ）。Ibはゴルジ腱器官。"),
+      Q("golgi-tendon-organ", "ゴルジ腱器官の情報を運ぶ神経線維は？", "Ib線維", ["Ia線維", "Aδ線維", "γ運動ニューロン"], "Ib線維。脊髄の介在ニューロンを介して同じ筋を抑制する経路（Ib抑制）をもつが、状況によっては促通にもなる。"),
+      Q("joint-receptors", "関節受容器の多くが強く発火するのはいつ？", "可動域の端に近づいたとき（限界の15〜30°手前から）", ["可動域の真ん中にあるとき", "関節が完全に止まっているときだけ", "痛みがあるときだけ"], "関節包が伸びるのは主に関節角度の端。中間域の位置は主に筋紡錘が伝える。"),
+      Q("skin-receptors", "振動に敏感で、すぐに慣れる皮膚の受容器は？", "パチニ小体", ["メルケル盤", "ルフィニ終末", "筋紡錘"], "パチニ小体は速順応・広い受容野で振動を感じる。メルケル盤は圧や形、ルフィニ終末は皮膚の伸び。"),
+      Q("skin-receptors", "皮膚の伸びを感じ、ゆっくり慣れる受容器は？", "ルフィニ終末", ["マイスナー小体", "パチニ小体", "自由神経終末"], "ルフィニ終末は遅順応で皮膚の伸びを感じる。関節が動くと皮膚が伸び縮みするので、位置の感覚にも関わる。"),
+      Q("golgi-tendon-organ", "「高い力になるとゴルジ腱器官がブレーキをかけて筋を守る」という説明について、正しいのは？", "広く使われているが、直接の根拠は乏しいとされる", ["多くのRCTで証明されている", "ゴルジ腱器官は高い力でしか反応しないので正しい", "筋トレでゴルジ腱器官がなくなるので筋力が上がる"], "ゴルジ腱器官はごく小さい力から反応する。ブレーキ説やPNFをゴルジ腱器官だけで説明する考え方には疑問が出されている。"),
+      Q("nociceptors", "痛みについて正しいのはどれ？", "痛みは文脈も踏まえて脳がつくる体験で、損傷の大きさと一致しないことがある", ["痛みの強さは損傷の大きさに比例する", "C線維はチクッとした鋭い痛みを速く伝える", "痛みを検出するのはパチニ小体である"], "侵害受容と痛みはイコールではない。C線維は鈍い痛み（遅い）、Aδ線維が鋭い痛み（速い）。"),
+      Q("muscle-spindle", "力を入れている最中に、筋の長さと速さをよく伝えるのはどれ？", "伸ばされる側（拮抗筋）の筋紡錘", ["縮んでいる主動筋の筋紡錘", "関節受容器", "皮膚のメルケル盤"], "収縮中の主動筋の筋紡錘は位置をうまく伝えられず、伸ばされる拮抗筋側の筋紡錘が長さと速さを伝える。"),
+    ] },
+    { id: "s2", name: "ステージ2　神経と反射", desc: "伸張反射・相反抑制・α/γ・運動単位・上行路", qs: [
+      Q("stretch-reflex", "伸張反射の流れとして正しいのは？", "筋紡錘のIa線維 → 脊髄で同じ筋のα運動ニューロンを直接興奮 → その筋が縮む", ["ゴルジ腱器官のIb線維 → 同じ筋を興奮 → その筋が縮む", "筋紡錘のII線維 → 拮抗筋が縮む", "皮膚の受容器 → 小脳 → その筋が縮む"], "単シナプスの反射。膝蓋腱反射が代表例。"),
+      Q("stretch-reflex", "伸張反射の強さに最も影響するのは？", "伸ばす速さ", ["筋の長さの絶対値", "心拍数", "皮膚の温度"], "速度依存。速く伸ばすほど強く出るので、反動をつけたストレッチは抵抗が出やすい。"),
+      Q("alpha-gamma", "γ運動ニューロンの役割は？", "錘内筋線維を縮めて、筋紡錘の感度を調整する", ["錘外筋線維を縮めて力を出す", "痛みを脳へ伝える", "拮抗筋を抑制する"], "筋を縮めて力を出すのはα運動ニューロン。γは筋紡錘の中の錘内筋線維に働く。"),
+      Q("alpha-gamma", "α-γ連関の説明として正しいのは？", "収縮中もαとγが一緒に働き、筋紡錘がたるまずに情報を送り続けられる", ["αが働くとγは止まる", "γだけで動作が起きる", "収縮すると反射が消える"], "γが錘内筋線維の両端を縮めて張りを保つので、筋が縮んでもIa線維は発火を続けられる。"),
+      Q("reciprocal-inhibition", "相反抑制とは？", "主動筋が働くとき、抑制性介在ニューロンを介して拮抗筋をゆるめる仕組み", ["疲れた筋を自動的に休ませる仕組み", "ゴルジ腱器官で同じ筋を抑える仕組み", "左右の同じ筋を同時に縮める仕組み"], "Ia線維 → 抑制性介在ニューロン → 拮抗筋のα運動ニューロン。共収縮が必要な場面では脳がこの抑制を弱める。"),
+      Q("motor-unit", "サイズの原理（ヘンネマンの原理）で正しいのは？", "力を上げるとき、小さい運動単位から順に動員される", ["大きい運動単位から先に動員される", "運動単位はランダムに動員される", "速筋の運動単位だけが動員される"], "小さく疲れにくい運動単位から、必要に応じて大きく力の出る運動単位が加わる。"),
+      Q("motor-unit", "運動単位とは？", "1つのα運動ニューロンと、それが支配する筋線維のまとまり", ["1本の筋線維", "筋紡錘と筋線維の組", "1つの関節を動かす筋すべて"], "繊細な筋は1つの運動単位の筋線維が少なく、大きな筋は数百本以上つながる。"),
+      Q("flexion-crossed", "足の裏に鋭い刺激を受けて脚を引っ込めるとき、反対側の脚では何が起きる？", "伸筋が働いて体重を支える（交叉伸展反射）", ["反対側の脚も引っ込める", "反対側の脚の力が抜ける", "何も起きない"], "脊髄の回路だけで左右を協調させる例。歩行の左右交互の動きの土台にもなる。"),
+      Q("ascending-pathways", "意識できる位置・動きの感覚や触覚を大脳へ運ぶ経路は？", "後索-内側毛帯路", ["脊髄視床路", "皮質脊髄路", "前庭脊髄路"], "脊髄視床路は痛み・温度。意識されない固有受容は脊髄小脳路で小脳へ。皮質脊髄路と前庭脊髄路は下行路。"),
+      Q("nerve-fibers", "最も太く、伝わるのが速い感覚神経線維は？", "Ia線維", ["C線維", "Aδ線維", "II線維"], "固有受容は最も速い線維で運ばれ、素早い姿勢の立て直しに使われる。C線維は細く髄鞘がなく遅い。"),
+    ] },
+    { id: "s3", name: "ステージ3　脳と感覚器官", desc: "小脳・基底核・運動野・APA・運動学習・前庭・感覚統合", qs: [
+      Q("cerebellum", "小脳の主な働きは？", "予測と実際のずれを見つけて、動きを修正し協調させる", ["実行する動きを選んで習慣にする", "皮膚感覚の地図をつくる", "頭の回転を検出する"], "運動指令のコピーと実際の感覚を比べて誤差を修正する。体の同じ側をコントロールする。"),
+      Q("basal-ganglia", "大脳基底核の主な働きは？", "動きの選択と開始、繰り返した動きの習慣化", ["予測と実際のずれの修正", "頭の傾きを感じる", "視線を安定させる"], "障害されるとパーキンソン病のような動き出しにくさなどが出る。"),
+      Q("motor-cortex", "一次運動野の体の地図で、特に広い領域を占めるのは？", "手と顔", ["背中と太もも", "足の裏", "体幹"], "細かい動きが必要な部位ほど広い。地図は練習や痛みで変わる（可塑性）。"),
+      Q("apa", "予測的姿勢調節（APA）とは？", "動く前に体幹や脚が先に働き、バランスの崩れを先回りして防ぐ仕組み", ["崩れてから立て直す反応", "転んだ後に起きる反射", "呼吸を整える仕組み"], "崩れてから立て直すのは代償的姿勢調節。APAは補足運動野などが動きと一緒に計画している。"),
+      Q("motor-learning", "外的焦点の声かけはどれ？", "「動きをなめらかに」", ["「腹筋に意識して」", "「足の裏に意識して」", "「お尻の筋肉を締めて」"], "体の部位ではなく、動きの結果や目印に意識を向けるのが外的焦点。学習と効率を高めるとされる。"),
+      Q("vestibular", "三半規管が感じるものは？", "頭の回転", ["直線の加速と頭の傾き", "音の高さ", "筋の長さ"], "直線の加速と傾き（重力に対する向き）は耳石器が感じる。"),
+      Q("vestibular", "耳石器（卵形嚢・球形嚢）が感じるものは？", "直線の加速と頭の傾き（重力に対する向き）", ["頭の回転", "皮膚の伸び", "関節の痛み"], "卵形嚢は水平方向、球形嚢は上下方向の直線加速。"),
+      Q("sensory-integration", "床が傾く・柔らかいなど、足からの感覚が当てにならないとき脳はどうする？", "前庭など他の感覚の比重を上げる（感覚の重みづけの切り替え）", ["足からの感覚の比重をさらに上げる", "すべての感覚を止める", "視覚だけに頼るよう固定される"], "信頼できる感覚ほど重く使う。前庭機能を失った人ではこの切り替えができない。"),
+      Q("body-schema", "身体図式とは？", "意識にのぼらないまま、動きの計画とコントロールに使われる体の地図", ["自分の体の見た目についての感情", "鏡に映った自分の姿", "体重と身長の記録"], "意識的な認識や感情は身体イメージ。身体図式は感覚で常に更新されている。"),
+      Q("motor-learning", "運動学習ができたかを確かめる方法として適切なのは？", "時間をおいた保持テストや、別の場面への転移で確かめる", ["練習中にいちばん上手くできた回で判断する", "練習した回数で判断する", "練習中の汗の量で判断する"], "練習中に上手くできても学習とは限らない。次の回にもできているかで判断する。"),
+    ] },
+  ];
+  const WRITTEN = [
+    { id: "w-cramp", term: "golgi-tendon-organ", q: "足（ふくらはぎ）が攣るメカニズムを、「筋紡錘」と「ゴルジ腱器官」という言葉を使って説明してください。攣ったときに伸ばすと治まる理由にも触れてください。",
+      must: ["筋紡錘", "ゴルジ腱器官"],
+      model: "有力な説は「神経筋コントロールの変化」説。筋が疲労すると、筋紡錘からの興奮性の入力が増え、ゴルジ腱器官からの抑制性の入力が減る。その結果、脊髄のα運動ニューロンが過剰に興奮し続け、筋が勝手に収縮し続けて攣る。攣った筋を伸ばすと筋の張力が上がり、ゴルジ腱器官からの抑制が強まるので収縮が治まる。脱水や電解質不足が原因という説は、前向き研究で関連が見られず根拠が弱いとされる。",
+      points: ["疲労がきっかけ", "筋紡錘からの興奮性入力が増える", "ゴルジ腱器官からの抑制性入力が減る", "α運動ニューロンの過剰な興奮が続き、収縮が止まらない", "伸ばすと張力が上がり、ゴルジ腱器官の抑制が強まって治まる"] },
+    { id: "w-ballistic", term: "stretch-reflex", q: "反動をつけたストレッチで筋の抵抗が出やすい理由を、「伸張反射」という言葉を使って説明してください。",
+      must: ["伸張反射"],
+      model: "筋が速く伸ばされると、筋紡錘のIa線維が強く発火し、脊髄で同じ筋のα運動ニューロンを直接興奮させる（伸張反射）。伸張反射は伸ばす速さが速いほど強く出るので、反動をつけて素早く伸ばすと、伸ばそうとしている筋そのものが反射的に縮み、抵抗が出やすい。ゆっくり伸ばすと反射が出にくい。",
+      points: ["速く伸ばすと筋紡錘（Ia）が強く発火する", "脊髄で同じ筋のα運動ニューロンが興奮する", "伸ばしている筋自体が縮む", "速度依存なので反動ほど強い"] },
+    { id: "w-gamma", term: "alpha-gamma", q: "筋に力を入れて縮めている最中でも、筋紡錘が情報を送り続けられる理由を、「γ運動ニューロン」という言葉を使って説明してください。",
+      must: ["γ運動ニューロン"],
+      model: "筋紡錘は筋線維と並列に並んでいるので、筋が縮むとそのままではたるんでしまい、Ia線維の発火が止まる。実際の随意収縮では、α運動ニューロンと一緒にγ運動ニューロンも働き（α-γ連関）、筋紡錘の中の錘内筋線維の両端を縮めて中央の張りを保つ。そのため筋が縮んでも筋紡錘は感度を保ち、情報を送り続けられる。",
+      points: ["筋紡錘は並列なので縮むとたるむ", "γ運動ニューロンが錘内筋線維の両端を縮める", "αとγが一緒に働く（α-γ連関）", "張りが保たれ発火が続く"] },
+  ];
+  const QKEY = "evlib-quiz-v1";
+  let qprog = { cleared: [], best: {}, wbest: {} };
+  try { const s = JSON.parse(localStorage.getItem(QKEY) || "null"); if (s && Array.isArray(s.cleared)) qprog = { cleared: s.cleared, best: s.best || {}, wbest: s.wbest || {} }; } catch {}
+  const saveQ = () => { try { localStorage.setItem(QKEY, JSON.stringify(qprog)); } catch {} };
+  let qrun = null; // {stage, order:[{q, opts, ans}], i, picked, score, wrong:[]}
+  let wrun = null; // {i, text, busy, result}
+  const shuffle = (a) => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+  const unlocked = (idx) => idx === 0 || qprog.cleared.includes(STAGES[idx - 1].id);
+  const writtenUnlocked = () => qprog.cleared.includes(STAGES[STAGES.length - 1].id);
+  const termBtn = (id) => state.basics.some((b) => b.id === id) ? `<button type="button" class="btn small" data-qterm="${esc(id)}">基礎知識を読む</button>` : "";
+
+  function startStage(idx, onlyWrong) {
+    const st = STAGES[idx];
+    const pool = onlyWrong && qrun?.wrong?.length ? qrun.wrong : st.qs;
+    qrun = { idx, review: !!onlyWrong, order: shuffle(pool).map((q) => ({ ...q, opts: shuffle([q.ok, ...q.ng]) })), i: 0, picked: null, score: 0, wrong: [] };
+    wrun = null; renderQuiz();
+  }
+  function renderQuiz() {
+    const L = $("#list");
+    const ta = $("#wAns"); if (wrun && ta && Number(ta.dataset.i) === wrun.i) wrun.text = ta.value;
+    if (wrun) return renderWritten();
+    if (!qrun) {
+      L.innerHTML = `<div class="quiz">
+        <div class="qhead"><h2>小テスト</h2><p class="hint">基礎知識タブの内容から出題します。4択は1ステージ10問、${PASS}問以上正解でクリアして次のステージが開きます。全部クリアすると記述問題に進めます。</p></div>
+        <div class="stages">${STAGES.map((s, i) => { const ok = unlocked(i), done = qprog.cleared.includes(s.id), best = qprog.best[s.id];
+          return `<button class="stage ${done ? "done" : ""}" data-stage="${i}" ${ok ? "" : "disabled"}>
+            <span class="snum">${done ? "クリア" : ok ? "挑戦できる" : "ロック中"}</span><span class="sname">${esc(s.name)}</span><span class="sdesc">${esc(s.desc)}</span>
+            ${best != null ? `<span class="sbest">最高 ${best} / 10</span>` : ""}</button>`; }).join("")}
+          <button class="stage ${Object.keys(qprog.wbest).length ? "done" : ""}" data-written="1" ${writtenUnlocked() ? "" : "disabled"}>
+            <span class="snum">${writtenUnlocked() ? "挑戦できる" : "ロック中"}</span><span class="sname">ステージ4　記述</span><span class="sdesc">足が攣るメカニズムなどを、指定の言葉を使って説明する（${sample ? "AIが採点" : "指定の言葉で判定"}）</span>
+            ${Object.keys(qprog.wbest).length ? `<span class="sbest">採点済み ${Object.keys(qprog.wbest).length} / ${WRITTEN.length}</span>` : ""}</button>
+        </div>
+        ${qprog.cleared.length ? `<div class="acts"><button class="btn ghost small" id="qReset">記録をリセット</button></div>` : ""}
+      </div>`;
+      return;
+    }
+    const st = STAGES[qrun.idx];
+    if (qrun.i >= qrun.order.length) {
+      const total = qrun.order.length, pass = !qrun.review && qrun.score >= PASS;
+      if (!qrun.review) {
+        qprog.best[st.id] = Math.max(qprog.best[st.id] ?? 0, qrun.score);
+        if (pass && !qprog.cleared.includes(st.id)) qprog.cleared.push(st.id);
+        saveQ();
+      }
+      const nextIdx = qrun.idx + 1;
+      L.innerHTML = `<div class="quiz"><div class="result ${pass ? "pass" : ""}">
+        <div class="big">${qrun.score} / ${total}</div>
+        <p>${qrun.review ? "復習が終わりました。" : pass ? (nextIdx < STAGES.length ? `クリアです。「${esc(STAGES[nextIdx].name)}」が開きました。` : "クリアです。記述問題が開きました。") : `あと${PASS - qrun.score}問でクリアです。`}</p>
+        <div class="acts" style="justify-content:center">
+          ${qrun.wrong.length ? `<button class="btn" id="qReview">間違えた${qrun.wrong.length}問を復習</button>` : ""}
+          <button class="btn" id="qRetry">もう一度</button>
+          ${pass && nextIdx < STAGES.length ? `<button class="btn primary" data-stage="${nextIdx}">次のステージへ</button>` : ""}
+          ${pass && nextIdx >= STAGES.length ? `<button class="btn primary" data-written="1">記述問題へ</button>` : ""}
+          <button class="btn ghost" id="qHome">ステージ一覧</button>
+        </div></div></div>`;
+      return;
+    }
+    const cur = qrun.order[qrun.i], answered = qrun.picked != null;
+    L.innerHTML = `<div class="quiz">
+      <div class="qbar"><span>${esc(st.name)}${qrun.review ? "（復習）" : ""}</span><span class="meta">${qrun.i + 1} / ${qrun.order.length}　正解 ${qrun.score}</span></div>
+      <div class="prog"><span style="width:${(qrun.i / qrun.order.length) * 100}%"></span></div>
+      <div class="qcard"><h3>${esc(cur.q)}</h3>
+        <div class="opts">${cur.opts.map((o, k) => {
+          let cls = ""; if (answered) { if (o === cur.ok) cls = "right"; else if (k === qrun.picked) cls = "wrong"; }
+          return `<button class="opt ${cls}" data-opt="${k}" ${answered ? "disabled" : ""}><span class="ol">${"ABCD"[k]}</span><span>${esc(o)}</span></button>`; }).join("")}</div>
+        ${answered ? `<div class="explain ${cur.opts[qrun.picked] === cur.ok ? "ok" : "ng"}"><b>${cur.opts[qrun.picked] === cur.ok ? "正解" : "不正解"}</b>${esc(cur.ex)}</div>
+          <div class="acts">${termBtn(cur.term)}<button class="btn primary" id="qNext">${qrun.i + 1 < qrun.order.length ? "次の問題" : "結果を見る"}</button></div>` : ""}
+      </div>
+      <div class="acts"><button class="btn ghost small" id="qHome">ステージ一覧に戻る</button></div>
+    </div>`;
+  }
+  function renderWritten() {
+    const L = $("#list"), w = WRITTEN[wrun.i], r = wrun.result;
+    L.innerHTML = `<div class="quiz">
+      <div class="qbar"><span>ステージ4　記述</span><span class="meta">${wrun.i + 1} / ${WRITTEN.length}</span></div>
+      <div class="qcard"><h3>${esc(w.q)}</h3>
+        <div class="musts">${w.must.map((m) => `<span class="pchip"><b>使う言葉</b>${esc(m)}</span>`).join("")}</div>
+        <textarea id="wAns" data-i="${wrun.i}" class="wans" placeholder="ここに説明を書いてください" ${wrun.busy ? "disabled" : ""}>${esc(wrun.text || "")}</textarea>
+        <div class="acts">
+          <button class="btn primary" id="wGrade" ${wrun.busy ? "disabled" : ""}>${wrun.busy ? "採点中…" : sample ? "採点する" : "言葉が入っているか確認"}</button>
+          <button class="btn" id="wModel">模範解答を見る</button>
+        </div>
+        ${r ? `<div class="explain ${r.score >= 70 ? "ok" : "ng"}"><b>${r.ai ? `${r.score}点` : "キーワード判定"}</b>${esc(r.feedback || "")}
+          ${r.good?.length ? `<div class="wl"><span>できている点</span><ul>${r.good.map((g) => `<li>${esc(g)}</li>`).join("")}</ul></div>` : ""}
+          ${r.missing?.length ? `<div class="wl"><span>足りない点</span><ul>${r.missing.map((g) => `<li>${esc(g)}</li>`).join("")}</ul></div>` : ""}</div>` : ""}
+        ${wrun.showModel ? `<div class="model"><b>模範解答</b>${esc(w.model)}<div class="wl"><span>採点のポイント</span><ul>${w.points.map((p) => `<li>${esc(p)}</li>`).join("")}</ul></div></div>` : ""}
+        <div class="acts">${termBtn(w.term)}
+          ${wrun.i > 0 ? `<button class="btn" id="wPrev">前の問題</button>` : ""}
+          ${wrun.i + 1 < WRITTEN.length ? `<button class="btn primary" id="wNext">次の問題</button>` : ""}</div>
+      </div>
+      <div class="acts"><button class="btn ghost small" id="qHome">ステージ一覧に戻る</button></div>
+    </div>`;
+  }
+  async function gradeWritten() {
+    const w = WRITTEN[wrun.i];
+    const text = ($("#wAns")?.value || "").trim();
+    wrun.text = text;
+    if (!text) { wrun.result = { ai: false, score: 0, feedback: "説明を書いてから採点してください。" }; renderQuiz(); return; }
+    const missingWords = w.must.filter((m) => !norm(text).includes(norm(m)));
+    if (!sample) { wrun.result = { ai: false, score: missingWords.length ? 0 : 70, feedback: missingWords.length ? `「${missingWords.join("」「")}」が使われていません。` : "指定の言葉は使えています。模範解答と見比べてください。" }; renderQuiz(); return; }
+    wrun.busy = true; renderQuiz();
+    const prompt = `あなたはピラティス指導者向けの神経生理学の先生です。受講者の記述回答を、模範解答と採点ポイントに照らして採点してください。
+- 0〜100点。採点ポイントをどれだけ正しく押さえているかで決める。指定の言葉（${w.must.join("、")}）を使っていない場合は60点以下にする。
+- 誤った説明（例：役割の取り違え）があれば減点し、missing に正しい内容を書く。
+- 表現の違いは気にしない。中身が合っていれば加点する。
+- 日本語のです・ます調で、やさしく具体的に。
+返すのは次の形のJSONだけ：
+{"score":数値,"feedback":"全体の講評（2〜3文）","good":["できている点"],"missing":["足りない点・誤り（正しい内容を添えて）"]}
+
+問題：${w.q}
+指定の言葉：${w.must.join("、")}
+模範解答：${w.model}
+採点ポイント：${w.points.join(" / ")}
+
+受講者の回答：
+${text.slice(0, 2000)}`;
+    try {
+      const r = await sample.json(prompt, { cache: false });
+      const score = Math.max(0, Math.min(100, Math.round(Number(r?.score) || 0)));
+      wrun.result = { ai: true, score, feedback: String(r?.feedback || ""), good: Array.isArray(r?.good) ? r.good.map(String).slice(0, 5) : [], missing: Array.isArray(r?.missing) ? r.missing.map(String).slice(0, 5) : [] };
+      qprog.wbest[w.id] = Math.max(qprog.wbest[w.id] ?? 0, score); saveQ();
+    } catch (e) {
+      const code = e?.code;
+      wrun.result = { ai: false, score: missingWords.length ? 0 : 70,
+        feedback: (["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"].includes(code) ? "AI採点が使えないため、指定の言葉が入っているかだけを確認しました。" : code === "rate_limited" ? "少し時間をおいてから、もう一度採点してください。今回は指定の言葉だけを確認しました。" : "採点がうまくいきませんでした。今回は指定の言葉だけを確認しました。")
+          + (missingWords.length ? `「${missingWords.join("」「")}」が使われていません。` : "指定の言葉は使えています。") };
+    } finally { wrun.busy = false; renderQuiz(); }
+  }
+  $("#list").addEventListener("click", (e) => {
+    if (state.tab !== "quiz") return;
+    const t = e.target.closest("button"); if (!t) return;
+    if (t.dataset.stage != null) { startStage(Number(t.dataset.stage)); window.scrollTo({ top: $("#list").offsetTop - 80, behavior: "smooth" }); return; }
+    if (t.dataset.written) { wrun = { i: 0, text: "", busy: false, result: null, showModel: false }; qrun = null; renderQuiz(); return; }
+    if (t.dataset.opt != null && qrun && qrun.picked == null) {
+      qrun.picked = Number(t.dataset.opt);
+      const cur = qrun.order[qrun.i];
+      if (cur.opts[qrun.picked] === cur.ok) qrun.score++; else qrun.wrong.push(cur);
+      renderQuiz(); return;
+    }
+    if (t.dataset.qterm) { goTerm(t.dataset.qterm); return; }
+    switch (t.id) {
+      case "qNext": qrun.i++; qrun.picked = null; renderQuiz(); break;
+      case "qRetry": startStage(qrun.idx); break;
+      case "qReview": startStage(qrun.idx, true); break;
+      case "qHome": qrun = null; wrun = null; renderQuiz(); break;
+      case "qReset": if (t.dataset.armed) { qprog = { cleared: [], best: {}, wbest: {} }; saveQ(); renderQuiz(); } else { t.dataset.armed = "1"; t.textContent = "本当にリセットする"; } break;
+      case "wGrade": gradeWritten(); break;
+      case "wModel": wrun.text = $("#wAns")?.value || ""; wrun.showModel = !wrun.showModel; renderQuiz(); break;
+      case "wNext": wrun = { i: wrun.i + 1, text: "", busy: false, result: null, showModel: false }; renderQuiz(); break;
+      case "wPrev": wrun = { i: wrun.i - 1, text: "", busy: false, result: null, showModel: false }; renderQuiz(); break;
+    }
+  });
+
+  const toContent = () => { const a = $("#content"); if (a && a.getBoundingClientRect().top > window.innerHeight * 0.5 || a.getBoundingClientRect().top < 0) a.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); };
+  document.querySelector(".tabs").addEventListener("click", (e) => { if (e.target.closest(".tab")) setTimeout(toContent, 0); });
+  // ---------- events ----------
+  let t = null;
+  $("#q").addEventListener("input", (e) => { clearTimeout(t); t = setTimeout(() => { state.q = e.target.value; render(); }, 120); });
+  const askFromSearch = () => { const v = $("#q").value.trim(); if (!v) { $("#chat").hidden = false; $("#chatIn").focus(); renderChat(); return; } sendChat(v); $("#chat").scrollIntoView({ behavior: "smooth", block: "start" }); };
+  $("#q").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.isComposing && sample && !$("#askBtn").hidden) askFromSearch(); });
+  $("#askBtn").addEventListener("click", askFromSearch);
+  $("#chatForm").addEventListener("submit", (e) => { e.preventDefault(); const v = $("#chatIn").value; $("#chatIn").value = ""; sendChat(v); });
+  $("#chatIn").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); $("#chatForm").requestSubmit(); } });
+  $("#chatIn").addEventListener("input", (e) => { e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 160) + "px"; });
+  $("#chatStop").addEventListener("click", () => chatCtl?.abort());
+  $("#chatReset").addEventListener("click", () => { chatCtl?.abort(); chat = []; saveChat(); renderChat(); });
+  $("#examples").innerHTML = EXAMPLES.map((x) => `<button class="ex">${esc(x)}</button>`).join("");
+  $("#examples").addEventListener("click", (e) => { const b = e.target.closest(".ex"); if (!b) return; $("#q").value = b.textContent; state.q = b.textContent; render(); });
+  $("#tab-papers").addEventListener("click", () => { state.tab = "papers"; state.tag = null; render(); });
+  $("#tab-materials").addEventListener("click", () => { state.tab = "materials"; state.tag = null; render(); });
+  $("#tab-basics").addEventListener("click", () => { state.tab = "basics"; state.tag = null; render(); });
+  $("#tab-quiz").addEventListener("click", () => { state.tab = "quiz"; render(); });
+  $("#list").addEventListener("toggle", (e) => { const d = e.target; if (d.classList?.contains("term")) { const id = d.id.replace(/^term-/, ""); if (d.open) state.openTerm = id; else if (state.openTerm === id) state.openTerm = null; } }, true);
+  $("#msgs").addEventListener("click", (e) => { const b = e.target.closest("[data-term]"); if (b) goTerm(b.dataset.term); const sv = e.target.closest("[data-savesum]"); if (sv) saveChatToSummary(Number(sv.dataset.savesum), sv); });
+  $("#list").addEventListener("click", (e) => { if (state.tab !== "summaries") return; const b = e.target.closest("[data-term]"); if (b) goTerm(b.dataset.term); });
+  $("#tab-summaries").addEventListener("click", () => { state.tab = "summaries"; state.tag = null; render(); });
+  $("#facets").addEventListener("click", (e) => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    if (b.dataset.bcat) state.bcat = state.bcat === b.dataset.bcat ? null : b.dataset.bcat;
+    else if (b.dataset.facet) { const k = b.dataset.facet; state.f[k] = state.f[k] === b.dataset.val ? null : b.dataset.val; }
+    else state.tag = state.tag === b.dataset.tag ? null : b.dataset.tag;
+    render();
+  });
+  $("#topics").addEventListener("click", (e) => {
+    const b = e.target.closest(".topic"); if (!b) return;
+    state.topic = b.dataset.topic; state.tag = null; state.f = { contraction: null, intensityCat: null, freqCat: null }; render(); renderChat();
+  });
+  $("#viewsw").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; state.view = b.dataset.view; render(); });
+  document.addEventListener("click", (e) => {
+    const ed = e.target.closest("[data-edit]");
+    if (ed) { const [k, id] = ed.dataset.edit.split(":"); const item = state[k].find((x) => x.id === id); if (item) openSheet(k, item); return; }
+    if (e.target.id === "stopBtn") aiCtl?.abort();
+    if (e.target.id === "clearAi") { state.ai = null; renderAI(); }
+  });
+  $("#addBtn").addEventListener("click", () => openSheet(state.tab, null));
+  $("#cancelBtn").addEventListener("click", closeSheet);
+  $("#saveBtn").addEventListener("click", save);
+  $("#delBtn").addEventListener("click", del);
+  $("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") closeSheet(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#sheet").hidden) closeSheet(); });
+
+  render();
+
+  // ---------- boot ----------
+  (async () => {
+    const c = window.claude;
+    if (!c?.use) { $("#counts").textContent = "書庫に接続できません"; return; }
+    const [dbNs, userNs, sampleNs] = await Promise.all([c.use("db"), c.use("user"), c.use("sample")]);
+    sample = sampleNs;
+    $("#askBtn").hidden = !sample;
+    $("#chat").hidden = !sample;
+    renderChat();
+    if (!sample) $("#searchHint").textContent = "キーワードで書庫を絞り込みます。";
+    try { state.canEdit = !!(userNs && ((await userNs.canEdit()) || (await userNs.isOwner()))); } catch { state.canEdit = false; }
+    $("#addBtn").hidden = !state.canEdit;
+    db = dbNs;
+    if (!db) { $("#counts").textContent = "書庫に接続できません"; return; }
+    let got = { papers: false, materials: false, basics: false, summaries: false };
+    for (const k of ["papers", "materials", "basics", "summaries"]) {
+      db.collection(k).onSnapshot((snap) => {
+        state[k] = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        got[k] = true; if (got.papers && got.materials && got.basics && got.summaries) state.dbReady = true;
+        render(); if (state.ai && !state.ai.loading) renderAI(); renderChat();
+      }, () => { $("#status").innerHTML = `<div class="notice">書庫の読み込みが止まりました。ページを開き直してください。</div>`; });
+    }
+  })();
+})();
+</script>
+
+<script>
+if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+</script>
+</body>
+</html>
