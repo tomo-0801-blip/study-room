@@ -72,7 +72,7 @@ button{font:inherit;cursor:pointer}
 .ex{font-size:12.5px;padding:3px 10px;border-radius:999px;border:1px dashed var(--line);background:transparent;color:var(--ink-2)}
 .ex:hover{border-color:var(--accent);color:var(--accent)}
 
-.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding-block:10px;margin-bottom:16px;background:var(--paper);border-bottom:1px solid var(--line)}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding-block:10px;margin-bottom:16px;background:var(--paper);border-bottom:1px solid var(--line)}
 @media (max-width:620px){.tabs{grid-template-columns:repeat(3,1fr)}}
 .tab{display:grid;gap:1px;justify-items:center;align-content:center;min-height:54px;padding:6px 4px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font:inherit}
 .tab .tl{font-size:15px;font-weight:700;white-space:nowrap}
@@ -308,6 +308,11 @@ body{padding-top:env(safe-area-inset-top)}
 .ninput{font:inherit;font-size:16px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);resize:vertical}
 .nacts{display:flex;gap:6px;justify-content:flex-end;width:100%}
 .nmark{font-size:11px;color:var(--amber);background:var(--amber-soft);border-radius:999px;padding:1px 8px;white-space:nowrap}
+.memohead{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.card.memo .note{margin-top:4px}
+.linkish{all:unset;cursor:pointer;color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.linkish:hover{color:var(--accent)}
+@media (max-width:620px){.tabs{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
@@ -326,6 +331,7 @@ body{padding-top:env(safe-area-inset-top)}
     <button class="tab" role="tab" id="tab-summaries" aria-selected="false"><img class="ti" src="img/summaries-icon.jpg" alt=""><span class="tl">まとめ資料</span><span class="n" id="n-summaries">0</span></button>
     <button class="tab" role="tab" id="tab-materials" aria-selected="false"><img class="ti" src="img/materials-icon.jpg" alt=""><span class="tl">勉強会資料</span><span class="n" id="n-materials">0</span></button>
     <button class="tab" role="tab" id="tab-quiz" aria-selected="false"><img class="ti" src="img/quiz-icon.jpg" alt=""><span class="tl">小テスト</span><span class="n">4択・記述</span></button>
+    <button class="tab" role="tab" id="tab-memo" aria-selected="false" hidden><img class="ti" src="img/memo-icon.jpg" alt=""><span class="tl">メモ</span><span class="n" id="n-memo">0</span></button>
   </nav>
 
   <div class="searchbar">
@@ -385,7 +391,7 @@ body{padding-top:env(safe-area-inset-top)}
 (() => {
   const $ = (s) => document.querySelector(s);
   const BASIC_CATS = ["疾患・症状","受容器","神経と反射","脳","感覚器官"];
-  const state = { notes: {}, papers: [], materials: [], basics: [], summaries: [], bcat: null, openTerm: null, tab: "papers", tag: null, q: "", canEdit: false, dbReady: false, ai: null, editing: null,
+  const state = { notes: {}, noteTimes: {}, papers: [], materials: [], basics: [], summaries: [], bcat: null, openTerm: null, tab: "papers", tag: null, q: "", canEdit: false, dbReady: false, ai: null, editing: null,
     topic: "all", view: "cards", f: { contraction: null, intensityCat: null, freqCat: null } };
   const CONTRACTIONS = ["アイソメトリック","エキセントリック","コンセントリック","複合（求心＋遠心）","プライオメトリック","ストレッチ・モビライゼーション","その他"];
   const INTENSITY_CATS = ["高（≥70%MVC・重い負荷）","中〜低（<70%MVC）","自重・最大努力","痛み・耐性で調整","—"];
@@ -548,6 +554,23 @@ body{padding-top:env(safe-area-inset-top)}
     if (!window.studyNotes) return "";
     const key = `${kind}:${id}`, t = state.notes[key] || "";
     return `<div class="note" data-note="${esc(key)}">${t ? `<div class="ntext"><b>自分のメモ</b>${esc(t)}</div>` : ""}<button type="button" class="btn ghost small" data-note-edit="${esc(key)}">${t ? "メモを直す" : "＋ メモを書く"}</button></div>`;
+  }
+  const KIND_JA = { papers: "論文", basics: "基礎知識", summaries: "まとめ資料", materials: "勉強会資料", free: "自由メモ" };
+  function renderMemo() {
+    const q = norm(state.q || "");
+    const items = Object.entries(state.notes).map(([key, text]) => {
+      const i = key.indexOf(":"), kind = key.slice(0, i), id = key.slice(i + 1);
+      const item = kind === "free" ? null : (state[kind] || []).find((x) => x.id === id);
+      const title = kind === "free" ? "" : (item ? item.title : "（削除された項目）");
+      return { key, kind, id, text, title, at: state.noteTimes[key] || "" };
+    }).filter((m) => !q || norm(m.text + " " + m.title).includes(q))
+      .sort((a, b) => String(b.at).localeCompare(String(a.at)));
+    $("#list").innerHTML = `<div class="memohead"><button type="button" class="btn primary small" id="memoNew">＋ 新しいメモ</button><span class="hint">論文や資料に書いたメモも、ここにまとまります。ほかの人には見えません。</span></div>
+      <div id="memoNewBox"></div>
+      ${items.length ? items.map((m) => `<article class="card memo">
+        <div class="top"><span class="kind">${esc(KIND_JA[m.kind] || "メモ")}</span>${m.title ? `<h3><button type="button" class="linkish" data-memo-go="${esc(m.key)}">${esc(m.title)}</button></h3>` : ""}<span class="meta">${esc(String(m.at).slice(0, 10))}</span></div>
+        ${noteBlock(m.kind, m.id)}
+      </article>`).join("") : `<div class="empty">${q ? "一致するメモがありません。" : "まだメモがありません。「＋ 新しいメモ」から書くか、論文や資料の「＋ メモを書く」から書けます。"}</div>`}`;
   }
   const noteMark = (kind, id) => state.notes[`${kind}:${id}`] ? `<span class="nmark">メモあり</span>` : "";
   function materialCard(m) {
@@ -782,6 +805,7 @@ body{padding-top:env(safe-area-inset-top)}
     summaries: ["まとめ資料", "調べたことを要点でふり返る"],
     materials: ["勉強会資料", "これまでの勉強会をまとめて見る"],
     quiz: ["小テスト", "4択と記述で理解をたしかめる"],
+    memo: ["メモ", "自分だけのメモをまとめて見る"],
   };
   function renderHero() {
     const h = $("#hero"), k = HERO[state.tab] ? state.tab : "papers";
@@ -791,6 +815,15 @@ body{padding-top:env(safe-area-inset-top)}
   }
   function render() {
     renderHero();
+    $("#tab-memo").hidden = !window.studyNotes;
+    $("#n-memo").textContent = Object.keys(state.notes).length;
+    const memo = state.tab === "memo";
+    $("#tab-memo").setAttribute("aria-selected", memo);
+    if (memo) {
+      ["papers","basics","materials","summaries","quiz"].forEach((k) => $("#tab-" + k).setAttribute("aria-selected", false));
+      $("#topics").hidden = true; $("#addBtn").hidden = true; $("#bulkBtn").hidden = true; $("#facets").hidden = true; $("#viewsw").hidden = true;
+      renderMemo(); return;
+    }
     const quiz = state.tab === "quiz";
     $("#tab-quiz").setAttribute("aria-selected", quiz);
     $("#topics").hidden = quiz; $("#addBtn").hidden = quiz || !state.canEdit;
@@ -1409,6 +1442,23 @@ ${text.slice(0, 2000)}`;
     try { const u = await window.studyFiles.url(b.dataset.pdf); if (w) w.location.href = u; else location.href = u; }
     catch { if (w) w.close(); $("#status").innerHTML = `<div class="notice">PDFを開けませんでした。もう一度試してください。</div>`; }
   });
+  // メモタブ
+  $("#tab-memo").addEventListener("click", () => { state.tab = "memo"; state.tag = null; render(); });
+  $("#list").addEventListener("click", (e) => {
+    if (e.target.closest("#memoNew")) {
+      const id = "m" + Date.now().toString(36);
+      $("#memoNewBox").innerHTML = `<article class="card memo">${noteBlock("free", id)}</article>`;
+      $("#memoNewBox [data-note-edit]").click();
+      return;
+    }
+    const go = e.target.closest("[data-memo-go]");
+    if (go) {
+      const [kind, id] = splitKey(go.dataset.memoGo);
+      const item = (state[kind] || []).find((x) => x.id === id); if (!item) return;
+      if (kind === "basics") { goTerm(id); return; }
+      state.tab = kind; state.tag = null; state.q = item.title; $("#q").value = item.title; render();
+    }
+  });
   // 自分のメモ
   $("#list").addEventListener("click", async (e) => {
     const ed = e.target.closest("[data-note-edit]");
@@ -1420,15 +1470,15 @@ ${text.slice(0, 2000)}`;
       return;
     }
     const cn = e.target.closest("[data-note-cancel]");
-    if (cn) { const box = cn.closest(".note"); box.outerHTML = noteBlock(...splitKey(cn.dataset.noteCancel)); return; }
+    if (cn) { const box = cn.closest(".note"); if (box.closest("#memoNewBox")) { $("#memoNewBox").innerHTML = ""; return; } box.outerHTML = noteBlock(...splitKey(cn.dataset.noteCancel)); return; }
     const sv = e.target.closest("[data-note-save]");
     if (sv) {
       const key = sv.dataset.noteSave, box = sv.closest(".note"), text = box.querySelector("textarea").value.trim();
       sv.disabled = true;
       try {
         await window.studyNotes.set(...splitKey(key), text);
-        if (text) state.notes[key] = text; else delete state.notes[key];
-        box.outerHTML = noteBlock(...splitKey(key));
+        if (text) { state.notes[key] = text; state.noteTimes[key] = new Date().toISOString(); } else { delete state.notes[key]; delete state.noteTimes[key]; }
+        if (state.tab === "memo") render(); else { box.outerHTML = noteBlock(...splitKey(key)); $("#n-memo").textContent = Object.keys(state.notes).length; }
       } catch { box.querySelector(".nerr").textContent = "保存できませんでした。もう一度試してください。"; sv.disabled = false; }
     }
   });
@@ -1478,7 +1528,7 @@ ${text.slice(0, 2000)}`;
     try { state.canEdit = !!(userNs && ((await userNs.canEdit()) || (await userNs.isOwner()))); } catch { state.canEdit = false; }
     $("#addBtn").hidden = !state.canEdit;
     db = dbNs;
-    if (window.studyNotes) window.studyNotes.all().then((n) => { state.notes = n; render(); }).catch(() => {});
+    if (window.studyNotes) window.studyNotes.all().then((n) => { state.notes = n.notes; state.noteTimes = n.times; render(); }).catch(() => {});
     if (!db) { $("#counts").textContent = "書庫に接続できません"; return; }
     let got = { papers: false, materials: false, basics: false, summaries: false };
     for (const k of ["papers", "materials", "basics", "summaries"]) {

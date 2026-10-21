@@ -234,9 +234,12 @@
     window.studyFiles = role === "viewer" ? { url: files.url } : files;
     window.studyNotes = {
       async all() {
-        const { data, error } = await sb.from("notes").select("collection,doc_id,text");
+        const { data, error } = await sb.from("notes").select("collection,doc_id,text,updated_at");
         if (error) throw error;
-        return Object.fromEntries(data.map((r) => [`${r.collection}:${r.doc_id}`, r.text]));
+        return {
+          notes: Object.fromEntries(data.map((r) => [`${r.collection}:${r.doc_id}`, r.text])),
+          times: Object.fromEntries(data.map((r) => [`${r.collection}:${r.doc_id}`, r.updated_at])),
+        };
       },
       async set(collection, doc_id, text) {
         const q = text
