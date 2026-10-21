@@ -202,6 +202,7 @@
   }
 
   function accountBar(email, role) {
+    document.querySelectorAll(".acct").forEach((x) => x.remove());
     const bar = document.createElement("div");
     bar.className = "acct";
     bar.innerHTML = `<span>${esc(email)}</span>${role === "admin" ? `<button class="btn ghost small" id="membersBtn">メンバー</button>` : ""}<button class="btn ghost small" id="logoutBtn">ログアウト</button>`;
@@ -212,9 +213,13 @@
   }
 
   // ---------- 起動 ----------
-  let started = false;
+  let started = false, busy = false;
   async function start(session) {
-    if (started || !session) return;
+    if (started || busy || !session) return;
+    busy = true;
+    try { await startInner(session); } finally { busy = false; }
+  }
+  async function startInner(session) {
     const email = (session.user?.email || "").toLowerCase();
     const { data: role, error } = await sb.rpc("my_role");
     if (error || !role) {
@@ -229,6 +234,6 @@
     window.studyFiles = role === "viewer" ? { url: files.url } : files;
     resolveReady({ db, user, sample: CFG.ai ? sample : null });
   }
-  sb.auth.onAuthStateChange((_ev, session) => { if (session) start(session); });
+  sb.auth.onAuthStateChange((_ev, session) => { if (session) setTimeout(() => start(session), 0); });
   sb.auth.getSession().then(({ data }) => { if (data.session) start(data.session); else loginForm(); });
 })();
