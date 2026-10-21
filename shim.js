@@ -232,6 +232,20 @@
     accountBar(email, role);
     const user = { canEdit: async () => role === "editor" || role === "admin", isOwner: async () => role === "admin", email, role };
     window.studyFiles = role === "viewer" ? { url: files.url } : files;
+    window.studyNotes = {
+      async all() {
+        const { data, error } = await sb.from("notes").select("collection,doc_id,text");
+        if (error) throw error;
+        return Object.fromEntries(data.map((r) => [`${r.collection}:${r.doc_id}`, r.text]));
+      },
+      async set(collection, doc_id, text) {
+        const q = text
+          ? sb.from("notes").upsert({ email, collection, doc_id, text, updated_at: new Date().toISOString() })
+          : sb.from("notes").delete().eq("email", email).eq("collection", collection).eq("doc_id", doc_id);
+        const { error } = await q;
+        if (error) throw error;
+      },
+    };
     resolveReady({ db, user, sample: CFG.ai ? sample : null });
   }
   sb.auth.onAuthStateChange((_ev, session) => { if (session) setTimeout(() => start(session), 0); });

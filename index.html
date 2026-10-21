@@ -302,6 +302,12 @@ body{padding-top:env(safe-area-inset-top)}
 .mrow{display:grid;grid-template-columns:minmax(0,1fr) 130px auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line-2)}
 .mrow>div{min-width:0}.mrow b{display:block;font-size:14px}.mrow .hint{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mrow select{font-size:14px;padding:6px 8px}
+.note{display:grid;gap:6px;justify-items:start;margin-top:8px}
+.ntext{background:var(--amber-soft);border-radius:8px;padding:10px 12px;font-size:14px;white-space:pre-wrap;width:100%}
+.ntext b{display:block;color:var(--amber);font-size:12px;margin-bottom:2px}
+.ninput{font:inherit;font-size:16px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);resize:vertical}
+.nacts{display:flex;gap:6px;justify-content:flex-end;width:100%}
+.nmark{font-size:11px;color:var(--amber);background:var(--amber-soft);border-radius:999px;padding:1px 8px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -379,7 +385,7 @@ body{padding-top:env(safe-area-inset-top)}
 (() => {
   const $ = (s) => document.querySelector(s);
   const BASIC_CATS = ["疾患・症状","受容器","神経と反射","脳","感覚器官"];
-  const state = { papers: [], materials: [], basics: [], summaries: [], bcat: null, openTerm: null, tab: "papers", tag: null, q: "", canEdit: false, dbReady: false, ai: null, editing: null,
+  const state = { notes: {}, papers: [], materials: [], basics: [], summaries: [], bcat: null, openTerm: null, tab: "papers", tag: null, q: "", canEdit: false, dbReady: false, ai: null, editing: null,
     topic: "all", view: "cards", f: { contraction: null, intensityCat: null, freqCat: null } };
   const CONTRACTIONS = ["アイソメトリック","エキセントリック","コンセントリック","複合（求心＋遠心）","プライオメトリック","ストレッチ・モビライゼーション","その他"];
   const INTENSITY_CATS = ["高（≥70%MVC・重い負荷）","中〜低（<70%MVC）","自重・最大努力","痛み・耐性で調整","—"];
@@ -443,6 +449,12 @@ body{padding-top:env(safe-area-inset-top)}
   const safeUrl = (u) => /^https?:\/\//i.test(String(u || "")) ? String(u) : "";
 
   function hay(x, kind) {
+    const h = hay0(x, kind);
+    const n = state.notes[`${kind}:${x.id}`];
+    if (n) h.hi += " " + norm(n);
+    return h;
+  }
+  function hay0(x, kind) {
     if (kind === "papers") return {
       hi: norm([x.title, tagsOf(x).join(" "), x.topic].join(" ")),
       mid: norm([x.finding, x.dose, arr(x.contraction).join(" "), x.intensity, x.volume, x.frequency, x.duration].join(" ")),
@@ -527,10 +539,17 @@ body{padding-top:env(safe-area-inset-top)}
       ${p.finding ? `<p class="finding">${esc(p.finding)}</p>` : ""}
       ${paramChips(p)}
       ${p.dose ? `<div class="dose"><b>処方</b>${esc(p.dose)}</div>` : ""}
+      ${noteBlock("papers", p.id)}
       <div class="top"><div class="tags" style="flex:1">${tagsOf(p).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>
       ${state.canEdit ? `<div class="rowacts"><button class="btn ghost small" data-edit="papers:${esc(p.id)}">編集</button></div>` : ""}</div>
     </article>`;
   }
+  function noteBlock(kind, id) {
+    if (!window.studyNotes) return "";
+    const key = `${kind}:${id}`, t = state.notes[key] || "";
+    return `<div class="note" data-note="${esc(key)}">${t ? `<div class="ntext"><b>自分のメモ</b>${esc(t)}</div>` : ""}<button type="button" class="btn ghost small" data-note-edit="${esc(key)}">${t ? "メモを直す" : "＋ メモを書く"}</button></div>`;
+  }
+  const noteMark = (kind, id) => state.notes[`${kind}:${id}`] ? `<span class="nmark">メモあり</span>` : "";
   function materialCard(m) {
     const url = safeUrl(m.url);
     const linked = (Array.isArray(m.paperIds) ? m.paperIds : []).map((id) => state.papers.find((p) => p.id === id)).filter(Boolean);
@@ -541,6 +560,7 @@ body{padding-top:env(safe-area-inset-top)}
       ${m.summary ? `<p class="finding">${esc(m.summary)}</p>` : ""}
       ${linked.length ? `<div class="linked">参照論文：${linked.map((p) => esc(shortName(p))).join("、")}</div>` : ""}
       ${m.file ? `<div><button class="btn primary small" data-pdf="${esc(m.file)}">PDFを開く</button> <span class="hint">${esc(m.fileName || "")}</span></div>` : ""}
+      ${noteBlock("materials", m.id)}
       <div class="top"><div class="tags" style="flex:1">${tagsOf(m).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>
       ${state.canEdit ? `<div class="rowacts"><button class="btn ghost small" data-edit="materials:${esc(m.id)}">編集</button></div>` : ""}</div>
     </article>`;
@@ -645,13 +665,14 @@ body{padding-top:env(safe-area-inset-top)}
     const rel = arr(b.related).map((id) => state.papers.find((p) => p.id === id)).filter(Boolean);
     return `<details class="term" id="term-${esc(b.id)}" ${state.openTerm === b.id ? "open" : ""}>
       <summary>
-        <div class="tt"><span class="cat">${esc(b.category || "")}</span><h3>${esc(b.title)}</h3>${b.aka ? `<span class="aka">${esc(b.aka)}</span>` : ""}<span class="chev" aria-hidden="true">▼</span></div>
+        <div class="tt"><span class="cat">${esc(b.category || "")}</span><h3>${esc(b.title)}</h3>${b.aka ? `<span class="aka">${esc(b.aka)}</span>` : ""}${noteMark("basics", b.id)}<span class="chev" aria-hidden="true">▼</span></div>
         ${b.summary ? `<p class="one">${esc(b.summary)}</p>` : ""}
       </summary>
       <div class="tbody">
         ${arr(b.diagrams).some((k) => DIAGRAMS[k]) ? `<div class="figs">${arr(b.diagrams).map(diagramHtml).join("")}</div>` : ""}
         ${secs.map((s) => `<div class="sec"><h4>${esc(s.h)}</h4><p>${esc(s.b)}</p></div>`).join("")}
         ${b.practice ? `<div class="prac"><b>指導へのつながり</b>${esc(b.practice)}</div>` : ""}
+        ${noteBlock("basics", b.id)}
         ${rel.length ? `<div class="rel">関連論文：${rel.map((p) => { const u = safeUrl(p.url); return u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(shortName(p))}</a>` : esc(shortName(p)); }).join("　")}</div>` : ""}
         <div class="top"><div class="tags" style="flex:1">${tagsOf(b).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>
         ${state.canEdit ? `<div class="rowacts"><button class="btn ghost small" data-edit="basics:${esc(b.id)}">編集</button></div>` : ""}</div>
@@ -665,11 +686,12 @@ body{padding-top:env(safe-area-inset-top)}
     const rb = arr(m.terms).map((id) => state.basics.find((b) => b.id === id)).filter(Boolean);
     return `<details class="term" id="sum-${esc(m.id)}">
       <summary>
-        <div class="tt"><span class="cat" style="color:var(--accent);background:var(--accent-soft)">${esc(m.topic || "まとめ")}</span><h3>${esc(m.title)}</h3><span class="aka">${esc(m.date || "")}</span><span class="chev" aria-hidden="true">▼</span></div>
+        <div class="tt"><span class="cat" style="color:var(--accent);background:var(--accent-soft)">${esc(m.topic || "まとめ")}</span><h3>${esc(m.title)}</h3><span class="aka">${esc(m.date || "")}</span>${noteMark("summaries", m.id)}<span class="chev" aria-hidden="true">▼</span></div>
         ${m.lead ? `<p class="one">${esc(m.lead)}</p>` : ""}
       </summary>
       <div class="tbody">
         ${secs.map((x) => `<div class="sec">${x.h ? `<h4>${esc(x.h)}</h4>` : ""}<p>${esc(x.b)}</p></div>`).join("")}
+        ${noteBlock("summaries", m.id)}
         ${url ? `<div class="rel">資料：<a href="${esc(url)}" target="_blank" rel="noopener">開く</a></div>` : ""}
         ${rb.length ? `<div class="termlinks"><span class="hint">基礎知識：</span>${rb.map((b) => `<button type="button" data-term="${esc(b.id)}">${esc(b.title)}</button>`).join("")}</div>` : ""}
         ${rp.length ? `<div class="rel">根拠の論文：${rp.map((p) => { const u = safeUrl(p.url); return u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(shortName(p))}</a>` : esc(shortName(p)); }).join("　")}</div>` : ""}
@@ -1387,6 +1409,30 @@ ${text.slice(0, 2000)}`;
     try { const u = await window.studyFiles.url(b.dataset.pdf); if (w) w.location.href = u; else location.href = u; }
     catch { if (w) w.close(); $("#status").innerHTML = `<div class="notice">PDFを開けませんでした。もう一度試してください。</div>`; }
   });
+  // 自分のメモ
+  $("#list").addEventListener("click", async (e) => {
+    const ed = e.target.closest("[data-note-edit]");
+    if (ed) {
+      const key = ed.dataset.noteEdit, box = ed.closest(".note");
+      box.innerHTML = `<textarea class="ninput" rows="4" placeholder="自分用のメモ（ほかの人には見えません）">${esc(state.notes[key] || "")}</textarea>
+        <div class="nacts"><button type="button" class="btn small" data-note-cancel="${esc(key)}">やめる</button><button type="button" class="btn primary small" data-note-save="${esc(key)}">保存</button></div><div class="err nerr"></div>`;
+      box.querySelector("textarea").focus();
+      return;
+    }
+    const cn = e.target.closest("[data-note-cancel]");
+    if (cn) { const box = cn.closest(".note"); box.outerHTML = noteBlock(...splitKey(cn.dataset.noteCancel)); return; }
+    const sv = e.target.closest("[data-note-save]");
+    if (sv) {
+      const key = sv.dataset.noteSave, box = sv.closest(".note"), text = box.querySelector("textarea").value.trim();
+      sv.disabled = true;
+      try {
+        await window.studyNotes.set(...splitKey(key), text);
+        if (text) state.notes[key] = text; else delete state.notes[key];
+        box.outerHTML = noteBlock(...splitKey(key));
+      } catch { box.querySelector(".nerr").textContent = "保存できませんでした。もう一度試してください。"; sv.disabled = false; }
+    }
+  });
+  const splitKey = (k) => { const i = k.indexOf(":"); return [k.slice(0, i), k.slice(i + 1)]; };
   $("#bulkBtn").addEventListener("click", () => $("#bulkIn").click());
   $("#bulkIn").addEventListener("change", async (e) => {
     const list = [...e.target.files]; e.target.value = "";
@@ -1432,6 +1478,7 @@ ${text.slice(0, 2000)}`;
     try { state.canEdit = !!(userNs && ((await userNs.canEdit()) || (await userNs.isOwner()))); } catch { state.canEdit = false; }
     $("#addBtn").hidden = !state.canEdit;
     db = dbNs;
+    if (window.studyNotes) window.studyNotes.all().then((n) => { state.notes = n; render(); }).catch(() => {});
     if (!db) { $("#counts").textContent = "書庫に接続できません"; return; }
     let got = { papers: false, materials: false, basics: false, summaries: false };
     for (const k of ["papers", "materials", "basics", "summaries"]) {

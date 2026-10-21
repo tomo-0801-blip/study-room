@@ -1,5 +1,5 @@
 // 自分の勉強部屋：オフラインでも画面が開けるように、アプリの外枠を保存しておく
-const CACHE = "study-room-v3";
+const CACHE = "study-room-v4";
 const SHELL = ["./", "index.html", "shim.js", "presets.js", "config.js", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/icon-180.png",
   "img/bg.jpg", "img/papers.jpg", "img/basics.jpg", "img/summaries.jpg", "img/materials.jpg", "img/quiz.jpg",
@@ -14,6 +14,6 @@ self.addEventListener("fetch", (e) => {
   if (isAsset) {
     e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request)));
   } else {
-    e.respondWith(fetch(e.request).then((r) => { const c = r.clone(); caches.open(CACHE).then((ca) => ca.put(e.request, c)); return r; }).catch(() => caches.match(e.request).then((r) => r || caches.match("index.html"))));
+    e.respondWith(fetch(e.request.url, { cache: "no-cache" }).then((r) => { const c = r.clone(); caches.open(CACHE).then((ca) => ca.put(e.request, c)); return r; }).catch(() => caches.match(e.request).then((r) => r || caches.match("index.html"))));
   }
 });
