@@ -313,6 +313,11 @@ body{padding-top:env(safe-area-inset-top)}
 .linkish{all:unset;cursor:pointer;color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
 .linkish:hover{color:var(--accent)}
 @media (max-width:620px){.tabs{grid-template-columns:repeat(3,1fr)}}
+#morning{position:fixed;inset:0;z-index:50;background:var(--paper);overflow:auto;padding:calc(env(safe-area-inset-top) + 16px) 16px 32px}
+#morning .mwrap{max-width:640px;margin:0 auto;display:grid;gap:12px}
+#morning .mhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+#morning .mhead b{font-family:var(--head);font-size:22px}
+#morning .mhead span{font-size:13px;color:var(--ink-3)}
 </style>
 </head>
 <body>
@@ -1263,6 +1268,7 @@ ${JSON.stringify(mats)}`;
     if (wrun) return renderWritten();
     if (!qrun) {
       L.innerHTML = `<div class="quiz">
+        <div class="acts" style="justify-content:flex-start;margin-bottom:8px"><button class="btn primary small" id="mTry">朝の${MCOUNT}問をやってみる</button><span class="hint">${streak() ? `${streak()}日連続` : ""}</span></div>
         <div class="qhead"><h2>小テスト</h2><p class="hint">基礎知識タブの内容から出題します。4択は1ステージ10問、${PASS}問以上正解でクリアして次のステージが開きます。全部クリアすると記述問題に進めます。</p></div>
         <div class="stages">${STAGES.map((s, i) => { const ok = unlocked(i), done = qprog.cleared.includes(s.id), best = qprog.best[s.id];
           return `<button class="stage ${done ? "done" : ""}" data-stage="${i}" ${ok ? "" : "disabled"}>
@@ -1311,6 +1317,68 @@ ${JSON.stringify(mats)}`;
       <div class="acts"><button class="btn ghost small" id="qHome">ステージ一覧に戻る</button></div>
     </div>`;
   }
+  // ---------- 朝の5問 ----------
+  const MKEY = "evlib-morning-v1", MCOUNT = 5;
+  let mstore = { stat: {}, days: [] };
+  try { const s = JSON.parse(localStorage.getItem(MKEY) || "null"); if (s && s.stat) mstore = { stat: s.stat, days: Array.isArray(s.days) ? s.days : [] }; } catch {}
+  const saveM = () => { try { localStorage.setItem(MKEY, JSON.stringify(mstore)); } catch {} };
+  const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+  function streak() {
+    const set = new Set(mstore.days); let n = 0; const d = new Date();
+    while (set.has(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`)) { n++; d.setDate(d.getDate() - 1); }
+    return n;
+  }
+  let mrun = null;
+  function openMorning() {
+    const all = STAGES.flatMap((st) => st.qs.map((q, i) => ({ ...q, key: `${st.id}:${i}` })));
+    const now = Date.now();
+    const prio = (q) => { const t = mstore.stat[q.key]; if (!t) return 2 + Math.random(); const days = (now - (t.seen || 0)) / 864e5;
+      return (t.wrong || 0) * 3 - (t.right || 0) + Math.min(days, 14) / 7 + Math.random(); };
+    const pick = shuffle(all).map((q) => ({ q, p: prio(q) })).sort((a, b) => b.p - a.p).slice(0, MCOUNT).map(({ q }) => ({ ...q, opts: shuffle([q.ok, ...q.ng]) }));
+    mrun = { order: pick, i: 0, picked: null, score: 0 };
+    let box = $("#morning");
+    if (!box) { box = document.createElement("div"); box.id = "morning"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); document.body.appendChild(box); }
+    box.hidden = false; document.body.style.overflow = "hidden";
+    renderMorning();
+  }
+  function renderMorning() {
+    const box = $("#morning"); if (!box || !mrun) return;
+    if (mrun.i >= mrun.order.length) {
+      const d = today(); if (!mstore.days.includes(d)) mstore.days.push(d); mstore.days = mstore.days.slice(-400); saveM();
+      box.innerHTML = `<div class="mwrap"><div class="mhead"><b>おはようございます</b><span>朝の${MCOUNT}問</span></div>
+        <div class="result pass"><div class="big">${mrun.score} / ${mrun.order.length}</div>
+        <p>${mrun.score === mrun.order.length ? "全問正解です。" : "間違えた問題は、明日以降にまた出てきます。"}</p>
+        <p class="hint">${streak()}日続けて取り組んでいます。</p>
+        <div class="acts" style="justify-content:center"><button class="btn primary" id="mDone">アプリを開く</button></div></div></div>`;
+      return;
+    }
+    const cur = mrun.order[mrun.i], answered = mrun.picked != null;
+    box.innerHTML = `<div class="mwrap"><div class="mhead"><b>おはようございます</b><span>朝の${MCOUNT}問　${mrun.i + 1} / ${mrun.order.length}</span></div>
+      <div class="prog"><span style="width:${(mrun.i / mrun.order.length) * 100}%"></span></div>
+      <div class="qcard"><h3>${esc(cur.q)}</h3>
+        <div class="opts">${cur.opts.map((o, k) => {
+          let cls = ""; if (answered) { if (o === cur.ok) cls = "right"; else if (k === mrun.picked) cls = "wrong"; }
+          return `<button class="opt ${cls}" data-mopt="${k}" ${answered ? "disabled" : ""}><span class="ol">${"ABCD"[k]}</span><span>${esc(o)}</span></button>`; }).join("")}</div>
+        ${answered ? `<div class="explain ${cur.opts[mrun.picked] === cur.ok ? "ok" : "ng"}"><b>${cur.opts[mrun.picked] === cur.ok ? "正解" : "不正解"}</b>${esc(cur.ex)}</div>
+          <div class="acts"><button class="btn primary" id="mNext">${mrun.i + 1 < mrun.order.length ? "次の問題" : "結果を見る"}</button></div>` : ""}
+      </div><p class="hint" style="text-align:center">${MCOUNT}問答えると、アプリが開きます。</p></div>`;
+  }
+  document.addEventListener("click", (e) => { if (e.target.closest("#mTry")) openMorning(); });
+  document.addEventListener("click", (e) => {
+    if (!mrun || !e.target.closest("#morning")) return;
+    const o = e.target.closest("[data-mopt]");
+    if (o && mrun.picked == null) {
+      const cur = mrun.order[mrun.i]; mrun.picked = Number(o.dataset.mopt);
+      const ok = cur.opts[mrun.picked] === cur.ok; if (ok) mrun.score++;
+      const t = mstore.stat[cur.key] || {}; t.seen = Date.now(); if (ok) t.right = (t.right || 0) + 1; else t.wrong = (t.wrong || 0) + 1; mstore.stat[cur.key] = t; saveM();
+      renderMorning(); return;
+    }
+    if (e.target.closest("#mNext")) { mrun.i++; mrun.picked = null; renderMorning(); $("#morning").scrollTop = 0; return; }
+    if (e.target.closest("#mDone")) {
+      mrun = null; $("#morning").hidden = true; document.body.style.overflow = "";
+      if (/[?&#]morning/.test(location.href)) history.replaceState(null, "", location.pathname);
+    }
+  });
   function renderWritten() {
     const L = $("#list"), w = WRITTEN[wrun.i], r = wrun.result;
     L.innerHTML = `<div class="quiz">
@@ -1528,6 +1596,7 @@ ${text.slice(0, 2000)}`;
     try { state.canEdit = !!(userNs && ((await userNs.canEdit()) || (await userNs.isOwner()))); } catch { state.canEdit = false; }
     $("#addBtn").hidden = !state.canEdit;
     db = dbNs;
+    if (/[?&#]morning/.test(location.href)) openMorning();
     if (window.studyNotes) window.studyNotes.all().then((n) => { state.notes = n.notes; state.noteTimes = n.times; render(); }).catch(() => {});
     if (!db) { $("#counts").textContent = "書庫に接続できません"; return; }
     let got = { papers: false, materials: false, basics: false, summaries: false };
