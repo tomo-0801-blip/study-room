@@ -824,7 +824,7 @@ body{padding-top:env(safe-area-inset-top)}
       `<button class="chip" data-facet="${key}" data-val="${esc(v)}" aria-pressed="${state.f[key] === v}">${esc(v)} <span class="meta">${counts[v]}</span></button>`).join("")}</div></div>`;
   }
   function renderTopics() {
-    const all = [...state.papers, ...state.basics, ...state.summaries, ...state.materials];
+    const all = Array.isArray(state[state.tab]) ? state[state.tab] : [];
     const counts = {};
     for (const x of all) counts[topicOf(x)] = (counts[topicOf(x)] || 0) + 1;
     const names = Object.keys(counts).sort((a, b) => {
