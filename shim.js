@@ -232,6 +232,28 @@
     accountBar(email, role);
     const user = { canEdit: async () => role === "editor" || role === "admin", isOwner: async () => role === "admin", email, role };
     window.studyFiles = role === "viewer" ? { url: files.url } : files;
+    const editor = role === "editor" || role === "admin";
+    window.studyBlog = {
+      editor,
+      async list() { const { data, error } = await sb.from("posts").select("*").order("updated_at", { ascending: false }); if (error) throw error; return data; },
+      async save(post) { const { error } = await sb.from("posts").upsert({ ...post, updated_at: new Date().toISOString() }); if (error) throw error; },
+      async remove(id) { const { error } = await sb.from("posts").delete().eq("id", id); if (error) throw error; },
+      async comments() { const { data, error } = await sb.from("comments").select("*").order("created_at", { ascending: false }); if (error) throw error; return data; },
+      async approve(id, ok) { const { error } = await sb.from("comments").update({ approved: ok }).eq("id", id); if (error) throw error; },
+      async delComment(id) { const { error } = await sb.from("comments").delete().eq("id", id); if (error) throw error; },
+      async uploadImage(file) {
+        const bmp = await createImageBitmap(file);
+        const scale = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+        const c = document.createElement("canvas"); c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
+        c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+        const blob = await new Promise((r) => c.toBlob(r, "image/jpeg", 0.82));
+        const path = `${new Date().toISOString().slice(0, 10)}/${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}.jpg`;
+        const { error } = await sb.storage.from("blog").upload(path, blob, { contentType: "image/jpeg" });
+        if (error) throw error;
+        return sb.storage.from("blog").getPublicUrl(path).data.publicUrl;
+      },
+      publicUrl(id) { return new URL(`blog.html${id ? `?p=${encodeURIComponent(id)}` : ""}`, location.href).href; },
+    };
     window.studyNotes = {
       async all() {
         const { data, error } = await sb.from("notes").select("collection,doc_id,text,updated_at");

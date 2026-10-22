@@ -72,7 +72,7 @@ button{font:inherit;cursor:pointer}
 .ex{font-size:12.5px;padding:3px 10px;border-radius:999px;border:1px dashed var(--line);background:transparent;color:var(--ink-2)}
 .ex:hover{border-color:var(--accent);color:var(--accent)}
 
-.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding-block:10px;margin-bottom:16px;background:var(--paper);border-bottom:1px solid var(--line)}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;display:grid;grid-template-columns:repeat(8,1fr);gap:6px;padding-block:10px;margin-bottom:16px;background:var(--paper);border-bottom:1px solid var(--line)}
 @media (max-width:620px){.tabs{grid-template-columns:repeat(4,1fr)}}
 .tab{display:grid;gap:1px;justify-items:center;align-content:center;min-height:54px;padding:6px 4px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font:inherit}
 .tab .tl{font-size:15px;font-weight:700;white-space:nowrap}
@@ -325,6 +325,39 @@ body{padding-top:env(safe-area-inset-top)}
 .seg button[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#fff}
 .seg button[aria-pressed="true"] span{color:rgba(255,255,255,.85)}
 .bookhead .chips .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+#blogEd{position:fixed;inset:0;z-index:50;background:var(--paper);overflow:auto;padding:calc(env(safe-area-inset-top) + 16px) 16px 40px}
+#blogEd .mwrap{max-width:760px;margin:0 auto;display:grid;gap:12px}
+#blogEd .mhead{display:flex;justify-content:space-between;align-items:baseline}
+#blogEd .mhead b{font-family:var(--head);font-size:22px}
+#blogEd .mhead span{font-size:13px;color:var(--ink-3)}
+#blogEd input:not([type=checkbox]),#blogEd textarea{font:inherit;font-size:16px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+#blogEd textarea{min-height:320px;line-height:1.8;resize:vertical}
+.btool{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.bcoverrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.bthumb{width:120px;height:68px;object-fit:cover;border-radius:8px;display:block}
+.card.bpost .bthumb{width:100%;height:auto;aspect-ratio:16/7;margin-bottom:8px}
+.bitem{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.bitem img{width:64px;height:44px;object-fit:cover;border-radius:6px}
+.bitem span{font-size:13px;white-space:nowrap;color:var(--ink-2)}
+.bitem .bt{white-space:normal;flex:1}
+.bitem input{flex:1}
+.bpicker{border:1px solid var(--line);border-radius:10px;padding:8px;margin-bottom:8px;background:var(--surface);display:grid;gap:6px;max-height:300px;overflow:auto}
+.bpick{all:unset;cursor:pointer;display:block;padding:6px 8px;border-radius:6px;font-size:14px}
+.bpick:hover{background:var(--sunk)}
+.bpick .kind{margin-right:6px}
+.bpub{display:flex;gap:8px;align-items:center;font-weight:700}
+.bprev{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.bprev h1{font-family:var(--head);font-size:26px;line-height:1.4}
+.bprev h2{font-size:19px;margin:24px 0 8px;padding-left:10px;border-left:4px solid var(--teal)}
+.bcover{width:100%;border-radius:12px;margin:10px 0}
+.bimg{margin:16px 0}.bimg img{width:100%;border-radius:10px;display:block}.bimg figcaption{font-size:13px;color:var(--ink-3);text-align:center}
+.bref{border:1px solid var(--line);border-left:4px solid var(--amber);border-radius:10px;padding:10px 14px;margin:12px 0;font-size:14px}
+.bref-k{font-size:11.5px;color:var(--amber);font-weight:700}.bref-t{font-weight:700}.bref-m{font-size:12px;color:var(--ink-3)}.bref p{margin:4px 0 0}
+.bcms{display:grid;gap:8px;margin-top:8px}
+.bcm{border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:14px}
+.bcm.wait{border-color:var(--amber);background:var(--amber-soft)}
+.bcm p{margin:4px 0;white-space:pre-wrap}
+.bcm .meta{margin-left:8px}
 </style>
 </head>
 <body>
@@ -344,6 +377,7 @@ body{padding-top:env(safe-area-inset-top)}
     <button class="tab" role="tab" id="tab-materials" aria-selected="false"><img class="ti" src="img/materials-icon.jpg" alt=""><span class="tl">勉強会資料</span><span class="n" id="n-materials">0</span></button>
     <button class="tab" role="tab" id="tab-quiz" aria-selected="false"><img class="ti" src="img/quiz-icon.jpg" alt=""><span class="tl">小テスト</span><span class="n">4択・記述</span></button>
     <button class="tab" role="tab" id="tab-books" aria-selected="false"><img class="ti" src="img/books-icon.jpg" alt=""><span class="tl">本</span><span class="n" id="n-books">0</span></button>
+    <button class="tab" role="tab" id="tab-blog" aria-selected="false" hidden><img class="ti" src="img/blog-icon.jpg" alt=""><span class="tl">ブログ</span><span class="n" id="n-blog">—</span></button>
     <button class="tab" role="tab" id="tab-memo" aria-selected="false" hidden><img class="ti" src="img/memo-icon.jpg" alt=""><span class="tl">メモ</span><span class="n" id="n-memo">0</span></button>
   </nav>
 
@@ -400,11 +434,12 @@ body{padding-top:env(safe-area-inset-top)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
 <script src="shim.js"></script>
 <script src="presets.js"></script>
+<script src="blogrender.js"></script>
 <script>
 (() => {
   const $ = (s) => document.querySelector(s);
   const BASIC_CATS = ["疾患・症状","受容器","神経と反射","脳","感覚器官"];
-  const state = { books: [], bookView: "rec", bookGenre: "all", notes: {}, noteTimes: {}, papers: [], materials: [], basics: [], summaries: [], bcat: null, openTerm: null, tab: "papers", tag: null, q: "", canEdit: false, dbReady: false, ai: null, editing: null,
+  const state = { posts: null, comments: [], openComments: null, books: [], bookView: "rec", bookGenre: "all", notes: {}, noteTimes: {}, papers: [], materials: [], basics: [], summaries: [], bcat: null, openTerm: null, tab: "papers", tag: null, q: "", canEdit: false, dbReady: false, ai: null, editing: null,
     topic: "all", view: "cards", f: { contraction: null, intensityCat: null, freqCat: null } };
   const CONTRACTIONS = ["アイソメトリック","エキセントリック","コンセントリック","複合（求心＋遠心）","プライオメトリック","ストレッチ・モビライゼーション","その他"];
   const INTENSITY_CATS = ["高（≥70%MVC・重い負荷）","中〜低（<70%MVC）","自重・最大努力","痛み・耐性で調整","—"];
@@ -847,6 +882,7 @@ body{padding-top:env(safe-area-inset-top)}
     quiz: ["小テスト", "4択と記述で理解をたしかめる"],
     memo: ["メモ", "自分だけのメモをまとめて見る"],
     books: ["本", "読みたい本と、おすすめの本"],
+    blog: ["ブログ", "学びを記事にして、誰でも読めるページへ"],
   };
   function renderHero() {
     const h = $("#hero"), k = HERO[state.tab] ? state.tab : "papers";
@@ -858,18 +894,26 @@ body{padding-top:env(safe-area-inset-top)}
     renderHero();
     $("#tab-memo").hidden = !window.studyNotes;
     $("#n-memo").textContent = Object.keys(state.notes).length;
+    $("#tab-blog").hidden = !window.studyBlog;
+    const blogTab = state.tab === "blog";
+    $("#tab-blog").setAttribute("aria-selected", blogTab);
+    if (blogTab) {
+      ["papers","basics","materials","summaries","quiz","memo","books"].forEach((k) => $("#tab-" + k).setAttribute("aria-selected", false));
+      $("#topics").hidden = true; $("#bulkBtn").hidden = true; $("#facets").hidden = true; $("#viewsw").hidden = true; $("#addBtn").hidden = true;
+      renderBlog(); return;
+    }
     $("#n-books").textContent = state.books.length;
     const booksTab = state.tab === "books";
     $("#tab-books").setAttribute("aria-selected", booksTab);
     if (booksTab) {
-      ["papers","basics","materials","summaries","quiz","memo"].forEach((k) => $("#tab-" + k).setAttribute("aria-selected", false));
+      ["papers","basics","materials","summaries","quiz","memo","blog"].forEach((k) => $("#tab-" + k).setAttribute("aria-selected", false));
       $("#topics").hidden = true; $("#bulkBtn").hidden = true; $("#facets").hidden = true; $("#viewsw").hidden = true; $("#addBtn").hidden = !state.canEdit;
       renderBooks(); return;
     }
     const memo = state.tab === "memo";
     $("#tab-memo").setAttribute("aria-selected", memo);
     if (memo) {
-      ["papers","basics","materials","summaries","quiz","books"].forEach((k) => $("#tab-" + k).setAttribute("aria-selected", false));
+      ["papers","basics","materials","summaries","quiz","books","blog"].forEach((k) => $("#tab-" + k).setAttribute("aria-selected", false));
       $("#topics").hidden = true; $("#addBtn").hidden = true; $("#bulkBtn").hidden = true; $("#facets").hidden = true; $("#viewsw").hidden = true;
       renderMemo(); return;
     }
@@ -878,10 +922,11 @@ body{padding-top:env(safe-area-inset-top)}
     $("#topics").hidden = quiz; $("#addBtn").hidden = quiz || !state.canEdit;
     $("#bulkBtn").hidden = state.tab !== "materials" || !state.canEdit || !window.studyFiles?.upload;
     if (quiz) {
-      ["papers","basics","materials","summaries","books"].forEach((k) => $("#tab-" + k).setAttribute("aria-selected", false));
+      ["papers","basics","materials","summaries","books","blog"].forEach((k) => $("#tab-" + k).setAttribute("aria-selected", false));
       $("#facets").hidden = true; $("#viewsw").hidden = true; renderQuiz(); return;
     }
     $("#tab-books").setAttribute("aria-selected", false);
+    $("#tab-blog").setAttribute("aria-selected", false);
     renderTopics();
     $("#n-papers").textContent = base("papers").length;
     $("#n-materials").textContent = base("materials").length;
@@ -1567,6 +1612,149 @@ ${text.slice(0, 2000)}`;
     try { const u = await window.studyFiles.url(b.dataset.pdf); if (w) w.location.href = u; else location.href = u; }
     catch { if (w) w.close(); $("#status").innerHTML = `<div class="notice">PDFを開けませんでした。もう一度試してください。</div>`; }
   });
+  // ---------- ブログ ----------
+  const fmtD = (d) => d ? String(d).slice(0, 10) : "";
+  async function loadBlog() {
+    if (!window.studyBlog) return;
+    try {
+      state.posts = await window.studyBlog.list();
+      state.comments = window.studyBlog.editor ? await window.studyBlog.comments() : [];
+    } catch { state.posts = state.posts || []; $("#status").innerHTML = `<div class="notice">ブログを読み込めませんでした。Supabaseの準備（blog.sql）が済んでいるか確認してください。</div>`; }
+    $("#n-blog").textContent = state.posts ? state.posts.length : "—";
+    if (state.tab === "blog") render();
+  }
+  function renderBlog() {
+    const B = window.studyBlog, ed = B?.editor;
+    if (state.posts == null) { $("#list").innerHTML = `<div class="empty">読み込み中…</div>`; loadBlog(); return; }
+    const q = norm(state.q || "");
+    const posts = state.posts.filter((p) => !q || norm(p.title + " " + p.body).includes(q));
+    const cOf = (id) => state.comments.filter((c) => c.post_id === id);
+    $("#list").innerHTML = `<div class="memohead">${ed ? `<button type="button" class="btn primary small" id="blogNew">＋ 新しい記事</button>` : ""}
+        <a class="btn small" href="${esc(B.publicUrl())}" target="_blank" rel="noopener">公開ページを見る</a>
+        <span class="hint">公開した記事は、ログインしていない人も読めます。</span></div>
+      ${posts.length ? posts.map((p) => { const cs = cOf(p.id), wait = cs.filter((c) => !c.approved).length;
+        return `<article class="card bpost">
+          ${blogSafe(p.cover) ? `<img class="bthumb" src="${esc(p.cover)}" alt="">` : ""}
+          <div class="top"><span class="kind" style="${p.published ? "" : "color:var(--ink-3);background:var(--sunk)"}">${p.published ? "公開中" : "下書き"}</span><h3>${esc(p.title)}</h3><span class="meta">${fmtD(p.published_at || p.updated_at)}</span></div>
+          <div class="rowacts" style="justify-content:flex-start;flex-wrap:wrap;gap:6px">
+            ${p.published ? `<a class="btn ghost small" href="${esc(B.publicUrl(p.id))}" target="_blank" rel="noopener">公開ページで見る</a>` : ""}
+            ${ed ? `<button class="btn ghost small" data-bcm="${esc(p.id)}">コメント ${cs.length}件${wait ? `（確認待ち ${wait}）` : ""}</button><button class="btn ghost small" data-bed="${esc(p.id)}">編集</button>` : ""}
+          </div>
+          ${state.openComments === p.id ? `<div class="bcms">${cs.length ? cs.map((c) => `<div class="bcm ${c.approved ? "" : "wait"}"><b>${esc(c.name)}</b><span class="meta">${fmtD(c.created_at)}${c.approved ? "　表示中" : "　確認待ち"}</span><p>${esc(c.body)}</p>
+            <div class="rowacts">${c.approved ? `<button class="btn ghost small" data-bcok="${c.id}" data-v="0">表示をやめる</button>` : `<button class="btn primary small" data-bcok="${c.id}" data-v="1">表示する</button>`}<button class="btn ghost small" data-bcdel="${c.id}">削除</button></div></div>`).join("") : `<p class="hint">まだコメントはありません。</p>`}</div>` : ""}
+        </article>`; }).join("") : `<div class="empty">${ed ? "まだ記事がありません。「＋ 新しい記事」から書けます。" : "まだ公開された記事がありません。"}</div>`}`;
+  }
+  const blogSafe = (u) => /^https?:\/\//i.test(String(u || ""));
+  // 記事を書く画面
+  let draft = null;
+  function openEditor(post) {
+    draft = post ? JSON.parse(JSON.stringify(post)) : { id: "p" + Date.now().toString(36), title: "", body: "", cover: "", images: [], refs: [], tags: [], published: false, published_at: null, _new: true };
+    let box = $("#blogEd");
+    if (!box) { box = document.createElement("div"); box.id = "blogEd"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); document.body.appendChild(box); }
+    box.hidden = false; document.body.style.overflow = "hidden";
+    renderEditor();
+  }
+  function renderEditor(preview) {
+    const box = $("#blogEd"), d = draft;
+    box.innerHTML = `<div class="mwrap">
+      <div class="mhead"><b>${d._new ? "新しい記事" : "記事を直す"}</b><span>${d.published ? "公開中" : "下書き"}</span></div>
+      ${preview ? `<div class="bprev"><button type="button" class="btn small" id="bePrevOff">← 書く画面に戻る</button>
+          ${blogSafe(d.cover) ? `<img class="bcover" src="${esc(d.cover)}" alt="">` : ""}<h1>${esc(d.title || "（タイトルなし）")}</h1>${window.renderPostBody(d)}</div>` : `
+      <div class="f"><label for="beTitle">タイトル</label><input id="beTitle" value="${esc(d.title)}" placeholder="例：肉離れのリハ、最初の1週間で大事なこと"></div>
+      <div class="f"><label>表紙の写真</label><div class="bcoverrow">${blogSafe(d.cover) ? `<img class="bthumb" src="${esc(d.cover)}" alt="">` : `<span class="hint">まだありません</span>`}
+        <button type="button" class="btn small" id="beCoverBtn">写真を選ぶ</button>${d.cover ? `<button type="button" class="btn ghost small" id="beCoverDel">外す</button>` : ""}<input type="file" id="beCoverIn" accept="image/*" hidden></div></div>
+      <div class="f"><label for="beBody">本文</label>
+        <div class="btool"><button type="button" class="btn small" id="beH">＋ 見出し</button><button type="button" class="btn small" id="beImg">＋ 写真</button><button type="button" class="btn small" id="beRef">＋ 論文・基礎知識</button><input type="file" id="beImgIn" accept="image/*" hidden></div>
+        <div id="beRefBox"></div>
+        <textarea id="beBody" rows="14" placeholder="ここに本文を書きます。&#10;「■」で始まる行は見出しになります。&#10;空いた行で段落が分かれます。">${esc(d.body)}</textarea>
+        <span class="hint">【写真1】【参考1】の文字は、その場所に写真や論文の紹介が入るしるしです。</span></div>
+      ${d.images.length ? `<div class="f"><label>写真</label>${d.images.map((im, i) => `<div class="bitem"><img src="${esc(im.url)}" alt=""><span>【写真${i + 1}】</span><input data-cap="${i}" value="${esc(im.caption || "")}" placeholder="説明（任意）"><button type="button" class="btn ghost small" data-imdel="${i}">外す</button></div>`).join("")}</div>` : ""}
+      ${d.refs.length ? `<div class="f"><label>参考</label>${d.refs.map((r, i) => `<div class="bitem"><span>【参考${i + 1}】</span><span class="bt">${esc(r.title)}</span><button type="button" class="btn ghost small" data-refdel="${i}">外す</button></div>`).join("")}</div>` : ""}
+      <div class="f"><label for="beTags">タグ（読点区切り）</label><input id="beTags" value="${esc((d.tags || []).join("、"))}" placeholder="ハムストリングス、リハビリ"></div>
+      <label class="bpub"><input type="checkbox" id="bePub" ${d.published ? "checked" : ""}> 公開する（誰でも読めるようになります）</label>`}
+      <div class="err" id="beErr"></div>
+      <div class="acts">${!d._new ? `<button type="button" class="btn danger" id="beDel">削除</button>` : ""}<span style="flex:1"></span>
+        ${preview ? "" : `<button type="button" class="btn" id="bePrev">見た目を確認</button>`}<button type="button" class="btn" id="beCancel">やめる</button><button type="button" class="btn primary" id="beSave">保存</button></div>
+    </div>`;
+  }
+  function syncDraft() {
+    if (!$("#beTitle")) return;
+    draft.title = $("#beTitle").value.trim(); draft.body = $("#beBody").value;
+    draft.tags = splitTags($("#beTags").value); draft.published = $("#bePub").checked;
+    document.querySelectorAll("#blogEd [data-cap]").forEach((i) => { draft.images[Number(i.dataset.cap)].caption = i.value; });
+  }
+  function insertAtCursor(text, block) {
+    const ta = $("#beBody"); if (!ta) return;
+    let a = draft._pos ?? ta.value.length; if (a > ta.value.length) a = ta.value.length;
+    if (block) { const before = ta.value.slice(0, a), after = ta.value.slice(a);
+      text = (before && !before.endsWith("\n\n") ? (before.endsWith("\n") ? "\n" : "\n\n") : "") + text + (after && !after.startsWith("\n") ? "\n\n" : ""); }
+    ta.value = ta.value.slice(0, a) + text + ta.value.slice(a); ta.focus(); ta.selectionStart = ta.selectionEnd = draft._pos = a + text.length;
+  }
+  ["keyup", "click", "input", "select"].forEach((ev) => document.addEventListener(ev, (e) => { if (e.target.id === "beBody" && draft) draft._pos = e.target.selectionStart; }));
+  function closeEditor() { draft = null; $("#blogEd").hidden = true; document.body.style.overflow = ""; }
+  function refPicker(qstr) {
+    const q = norm(qstr || "");
+    const pool = [...state.papers.map((x) => ({ kind: "papers", x })), ...state.basics.map((x) => ({ kind: "basics", x })), ...state.summaries.map((x) => ({ kind: "summaries", x }))]
+      .filter(({ x }) => !q || norm([x.title, x.authors, (x.tags || []).join(" "), x.topic].join(" ")).includes(q)).slice(0, 15);
+    return pool.map(({ kind, x }) => `<button type="button" class="bpick" data-pick="${kind}:${esc(x.id)}"><span class="kind">${{ papers: "論文", basics: "基礎知識", summaries: "まとめ" }[kind]}</span>${esc(x.title)}</button>`).join("") || `<p class="hint">見つかりません。</p>`;
+  }
+  document.addEventListener("input", (e) => { if (e.target.id === "beRefQ") $("#beRefList").innerHTML = refPicker(e.target.value); });
+  document.addEventListener("change", async (e) => {
+    if (e.target.id !== "beCoverIn" && e.target.id !== "beImgIn") return;
+    const f = e.target.files?.[0]; e.target.value = ""; if (!f) return;
+    syncDraft(); $("#beErr").textContent = "写真を送っています…";
+    try {
+      const url = await window.studyBlog.uploadImage(f);
+      if (e.target.id === "beCoverIn") draft.cover = url;
+      else { draft.images.push({ url, caption: "" }); renderEditor(); insertAtCursor(`【写真${draft.images.length}】`, true); syncDraft(); return; }
+      renderEditor();
+    } catch { $("#beErr").textContent = "写真を送れませんでした。もう一度試してください。"; }
+  });
+  document.addEventListener("click", async (e) => {
+    if (e.target.closest("#blogNew")) { openEditor(null); return; }
+    const be = e.target.closest("[data-bed]"); if (be) { openEditor(state.posts.find((p) => p.id === be.dataset.bed)); return; }
+    const bc = e.target.closest("[data-bcm]"); if (bc) { state.openComments = state.openComments === bc.dataset.bcm ? null : bc.dataset.bcm; render(); return; }
+    const ok = e.target.closest("[data-bcok]"); if (ok) { await window.studyBlog.approve(Number(ok.dataset.bcok), ok.dataset.v === "1").catch(() => {}); loadBlog(); return; }
+    const cd = e.target.closest("[data-bcdel]"); if (cd) { if (cd.dataset.sure !== "1") { cd.dataset.sure = "1"; cd.textContent = "本当に削除"; return; } await window.studyBlog.delComment(Number(cd.dataset.bcdel)).catch(() => {}); loadBlog(); return; }
+    if (!e.target.closest("#blogEd")) return;
+    const id = e.target.closest("button")?.id;
+    if (id === "beH") { insertAtCursor("\n■ "); return; }
+    if (id === "beImg") { $("#beImgIn").click(); return; }
+    if (id === "beCoverBtn") { $("#beCoverIn").click(); return; }
+    if (id === "beCoverDel") { syncDraft(); draft.cover = ""; renderEditor(); return; }
+    if (id === "beRef") { const b = $("#beRefBox"); b.innerHTML = b.innerHTML ? "" : `<div class="bpicker"><input id="beRefQ" placeholder="論文・基礎知識を検索"><div id="beRefList">${refPicker("")}</div></div>`; $("#beRefQ")?.focus(); return; }
+    const pk = e.target.closest("[data-pick]");
+    if (pk) {
+      const [kind, pid] = splitKey(pk.dataset.pick); const x = (state[kind] || []).find((y) => y.id === pid); if (!x) return;
+      const snap = kind === "papers" ? { kind, id: pid, title: x.title, meta: [x.authors, x.year, x.journal].filter(Boolean).join(" · "), url: x.url || "", text: String(x.finding || "").slice(0, 160) }
+        : { kind, id: pid, title: x.title, meta: kind === "basics" ? "基礎知識" : "まとめ", url: "", text: String(x.summary || x.lead || "").slice(0, 160) };
+      draft.refs.push(snap); insertAtCursor(`【参考${draft.refs.length}】`, true); syncDraft(); renderEditor(); return;
+    }
+    const imd = e.target.closest("[data-imdel]"); if (imd) { syncDraft(); const i = Number(imd.dataset.imdel); draft.images.splice(i, 1); draft.body = renumber(draft.body, "写真", i); renderEditor(); return; }
+    const rfd = e.target.closest("[data-refdel]"); if (rfd) { syncDraft(); const i = Number(rfd.dataset.refdel); draft.refs.splice(i, 1); draft.body = renumber(draft.body, "参考", i); renderEditor(); return; }
+    if (id === "bePrev") { syncDraft(); renderEditor(true); return; }
+    if (id === "bePrevOff") { renderEditor(); return; }
+    if (id === "beCancel") { closeEditor(); return; }
+    if (id === "beDel") { const b = e.target.closest("button"); if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "本当に削除する"; return; }
+      try { await window.studyBlog.remove(draft.id); closeEditor(); loadBlog(); } catch { $("#beErr").textContent = "削除できませんでした。"; } return; }
+    if (id === "beSave") {
+      if ($("#beTitle")) syncDraft();
+      if (!draft.title) { $("#beErr").textContent = "タイトルを入れてください。"; return; }
+      const { _new, _pos, ...post } = draft;
+      if (post.published && !post.published_at) post.published_at = new Date().toISOString();
+      const b = e.target.closest("button"); b.disabled = true;
+      try { await window.studyBlog.save(post); closeEditor(); loadBlog(); }
+      catch { $("#beErr").textContent = "保存できませんでした。もう一度試してください。"; b.disabled = false; }
+    }
+  });
+  // 【写真3】を消したら、後ろの番号を1つずつ詰める
+  function renumber(body, k, removed) {
+    return String(body).replace(new RegExp(`【${k}([0-9０-９]+)】\\n?`, "g"), (m, d) => {
+      const n = Number(String(d).replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))) - 1;
+      if (n === removed) return ""; return n > removed ? m.replace(/[0-9０-９]+/, String(n)) : m;
+    });
+  }
+  $("#tab-blog").addEventListener("click", () => { state.tab = "blog"; state.tag = null; if (state.posts == null) loadBlog(); render(); });
   // 本タブ
   $("#tab-books").addEventListener("click", () => { state.tab = "books"; state.tag = null; render(); });
   $("#list").addEventListener("click", async (e) => {

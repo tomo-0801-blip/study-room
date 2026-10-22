@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#22626c">
+<title>勉強部屋ブログ</title>
+<meta name="description" content="ピラティス・運動と体の学びを、論文や基礎知識とあわせて書いていくブログ">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@700&display=swap">
+<style>
+:root{--paper:#f4f6f7;--surface:#fff;--ink:#17222c;--ink-2:#465460;--ink-3:#6c7986;--line:#d6dde3;--accent:#a8323f;--teal:#2b6a6e;--teal-soft:#e0eeef;--amber:#875811;--amber-soft:#f6edd9;
+--body:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;--head:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho",serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#10161c;--surface:#18212a;--ink:#e5ebef;--ink-2:#b3bfc9;--ink-3:#8593a0;--line:#2b3742;--accent:#e0717d;--teal:#71b6bb;--teal-soft:#1a2f32;--amber:#e1b262;--amber-soft:#33281a}}
+:root[data-theme="dark"]{--paper:#10161c;--surface:#18212a;--ink:#e5ebef;--ink-2:#b3bfc9;--ink-3:#8593a0;--line:#2b3742;--accent:#e0717d;--teal:#71b6bb;--teal-soft:#1a2f32;--amber:#e1b262;--amber-soft:#33281a}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.9;padding:env(safe-area-inset-top) 16px 64px}
+a{color:var(--teal)}
+.wrap{max-width:760px;margin:0 auto}
+header.site{display:flex;align-items:center;gap:12px;padding:20px 0 12px;border-bottom:1px solid var(--line);margin-bottom:20px}
+header.site img{width:40px;height:40px;border-radius:10px}
+header.site a{color:inherit;text-decoration:none}
+header.site b{font-family:var(--head);font-size:22px;display:block;line-height:1.3}
+header.site span{font-size:12.5px;color:var(--ink-3)}
+.list{display:grid;gap:14px}
+.pcard{display:grid;grid-template-columns:160px 1fr;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;color:inherit;text-decoration:none}
+.pcard:hover{border-color:var(--teal)}
+.pcard .ph{background:var(--teal-soft) center/cover no-repeat;min-height:120px}
+.pcard .pt{padding:14px 14px 14px 0}
+.pcard h2{margin:0 0 4px;font-size:18px;line-height:1.5}
+.pcard p{margin:0;font-size:14px;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+@media (max-width:560px){.pcard{grid-template-columns:1fr}.pcard .ph{min-height:160px}.pcard .pt{padding:0 14px 14px}}
+.date{font-size:12.5px;color:var(--ink-3)}
+article .cover{width:100%;aspect-ratio:16/8;object-fit:cover;border-radius:14px;margin-bottom:14px;display:block}
+article h1{font-family:var(--head);font-size:clamp(24px,5vw,32px);line-height:1.4;margin:6px 0 18px}
+article h2{font-size:20px;margin:28px 0 8px;padding-left:10px;border-left:4px solid var(--teal);line-height:1.5}
+article p{margin:0 0 14px}
+.bimg{margin:18px 0}.bimg img{width:100%;border-radius:10px;display:block}.bimg figcaption{font-size:13px;color:var(--ink-3);margin-top:4px;text-align:center}
+.bref{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--amber);border-radius:10px;padding:10px 14px;margin:14px 0;font-size:14.5px}
+.bref-k{font-size:11.5px;color:var(--amber);font-weight:700}.bref-t{font-weight:700}.bref-m{font-size:12.5px;color:var(--ink-3)}.bref p{margin:6px 0 0;color:var(--ink-2)}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 0}.tag{font-size:12px;background:var(--teal-soft);color:var(--teal);border-radius:999px;padding:1px 10px}
+.back{display:inline-block;margin:8px 0 14px;font-size:14px}
+.comments{margin-top:36px;border-top:1px solid var(--line);padding-top:18px}
+.comments h2{font-size:18px;margin:0 0 10px;border:0;padding:0}
+.cm{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:14.5px;white-space:pre-wrap}
+.cm b{display:block;font-size:13px}
+form.cf{display:grid;gap:8px;margin-top:12px}
+form.cf input,form.cf textarea{font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:100%}
+form.cf textarea{min-height:110px;resize:vertical}
+.hp{position:absolute;left:-9999px}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;padding:10px 16px;font-weight:700;justify-self:start}
+button:disabled{opacity:.5}
+.msg{font-size:13.5px;color:var(--ink-2)}
+.empty{color:var(--ink-3);padding:30px 0;text-align:center}
+footer{margin-top:40px;font-size:12px;color:var(--ink-3);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="site"><a href="blog.html"><img src="icons/icon-192.png" alt=""></a><a href="blog.html"><b id="siteTitle">勉強部屋ブログ</b><span>体と運動の学びを、根拠とあわせて</span></a></header>
+  <main id="main"><div class="empty">読み込み中…</div></main>
+  <footer>© 勉強部屋ブログ</footer>
+</div>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<script src="blogrender.js"></script>
+<script>
+(() => {
+  const CFG = window.STUDY_CONFIG || {};
+  const esc = window.blogEsc, safeUrl = window.blogSafeUrl;
+  const $ = (s) => document.querySelector(s);
+  if (CFG.blogTitle) { $("#siteTitle").textContent = CFG.blogTitle; document.title = CFG.blogTitle; document.querySelector("footer").textContent = "© " + CFG.blogTitle; }
+  const sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  const fmt = (d) => d ? new Date(d).toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric" }) : "";
+  const excerpt = (b) => String(b || "").replace(/【(写真|参考)[0-9０-９]+】/g, "").replace(/^■.*$/gm, "").replace(/\s+/g, " ").trim().slice(0, 120);
+
+  async function showList() {
+    const { data, error } = await sb.from("posts").select("id,title,body,cover,published_at,tags").eq("published", true).order("published_at", { ascending: false });
+    if (error) { $("#main").innerHTML = `<div class="empty">記事を読み込めませんでした。</div>`; return; }
+    $("#main").innerHTML = data.length ? `<div class="list">${data.map((p) => `<a class="pcard" href="?p=${encodeURIComponent(p.id)}">
+        <div class="ph" ${safeUrl(p.cover) ? `style="background-image:url('${esc(p.cover)}')"` : ""}></div>
+        <div class="pt"><span class="date">${fmt(p.published_at)}</span><h2>${esc(p.title)}</h2><p>${esc(excerpt(p.body))}</p></div></a>`).join("")}</div>`
+      : `<div class="empty">まだ記事がありません。</div>`;
+  }
+
+  async function showPost(id) {
+    const { data: p } = await sb.from("posts").select("*").eq("id", id).eq("published", true).maybeSingle();
+    if (!p) { $("#main").innerHTML = `<a class="back" href="blog.html">← 記事の一覧</a><div class="empty">この記事は見つかりませんでした。</div>`; return; }
+    document.title = `${p.title} | ${CFG.blogTitle || "勉強部屋ブログ"}`;
+    const tags = Array.isArray(p.tags) ? p.tags : [];
+    $("#main").innerHTML = `<a class="back" href="blog.html">← 記事の一覧</a>
+      <article>${safeUrl(p.cover) ? `<img class="cover" src="${esc(p.cover)}" alt="">` : ""}
+        <span class="date">${fmt(p.published_at)}</span><h1>${esc(p.title)}</h1>
+        ${window.renderPostBody(p)}
+        ${tags.length ? `<div class="tags">${tags.map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>` : ""}
+      </article>
+      <section class="comments"><h2>コメント</h2><div id="clist"></div>
+        <form class="cf" id="cform">
+          <input name="name" maxlength="40" required placeholder="お名前（ニックネーム可）" aria-label="お名前">
+          <textarea name="body" maxlength="1000" required placeholder="感想やご質問をどうぞ" aria-label="コメント"></textarea>
+          <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button type="submit">送る</button><div class="msg" id="cmsg">いただいたコメントは、確認してから表示します。</div>
+        </form></section>`;
+    loadComments(id);
+    $("#cform").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const f = e.target; if (f.website.value) return;
+      const btn = f.querySelector("button"); btn.disabled = true;
+      const { error } = await sb.from("comments").insert({ post_id: id, name: f.name.value.trim().slice(0, 40), body: f.body.value.trim().slice(0, 1000) });
+      btn.disabled = false;
+      $("#cmsg").textContent = error ? "送れませんでした。少し時間をおいて、もう一度お試しください。" : "ありがとうございます。確認してから表示します。";
+      if (!error) f.reset();
+    });
+  }
+  async function loadComments(id) {
+    const { data } = await sb.from("comments").select("name,body,created_at").eq("post_id", id).eq("approved", true).order("created_at");
+    $("#clist").innerHTML = (data || []).length ? data.map((c) => `<div class="cm"><b>${esc(c.name)}　<span class="date">${fmt(c.created_at)}</span></b>${esc(c.body)}</div>`).join("") : `<p class="msg">まだコメントはありません。</p>`;
+  }
+
+  const id = new URLSearchParams(location.search).get("p");
+  if (id) showPost(id); else showList();
+})();
+</script>
+</body>
+</html>
