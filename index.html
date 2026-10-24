@@ -1647,17 +1647,28 @@ ${text.slice(0, 2000)}`;
   const blogSafe = (u) => /^https?:\/\//i.test(String(u || ""));
   // 記事を書く画面
   let draft = null;
+  const AKEY = "evlib-blog-autosave";
+  const autoGet = () => { try { return JSON.parse(localStorage.getItem(AKEY) || "null"); } catch { return null; } };
+  const autoClear = () => { try { localStorage.removeItem(AKEY); } catch {} };
+  let autoT = null;
+  function autoSave() { clearTimeout(autoT); autoT = setTimeout(() => { if (!draft) return; syncDraft(); if (!draft.title && !draft.body && !draft.images.length && !draft.cover) return; try { localStorage.setItem(AKEY, JSON.stringify({ ...draft, _savedAt: Date.now() })); } catch {} }, 600); }
+  document.addEventListener("input", (e) => { if (draft && e.target.closest("#blogEd") && e.target.id !== "beRefQ") autoSave(); });
   function openEditor(post) {
-    draft = post ? JSON.parse(JSON.stringify(post)) : { id: "p" + Date.now().toString(36), title: "", body: "", cover: "", images: [], refs: [], tags: [], published: false, published_at: null, _new: true };
+    const saved = autoGet();
+    const fresh = { id: "p" + Date.now().toString(36), title: "", body: "", cover: "", images: [], refs: [], tags: [], published: false, published_at: null, _new: true };
+    if (post) draft = (saved && saved.id === post.id) ? { ...saved, _restored: true } : JSON.parse(JSON.stringify(post));
+    else draft = (saved && saved._new) ? { ...saved, _restored: true } : fresh;
     let box = $("#blogEd");
     if (!box) { box = document.createElement("div"); box.id = "blogEd"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); document.body.appendChild(box); }
     box.hidden = false; document.body.style.overflow = "hidden";
     renderEditor();
   }
   function renderEditor(preview) {
+    if (!preview) setTimeout(autoSave, 0);
     const box = $("#blogEd"), d = draft;
     box.innerHTML = `<div class="mwrap">
       <div class="mhead"><button type="button" class="btn small" id="beBack">← 戻る</button><b>${d._new ? "新しい記事" : "記事を直す"}</b><span>${d.published ? "公開中" : "下書き"}</span></div>
+      ${d._restored ? `<div class="notice">書きかけの内容を戻しました。${d._new ? ` <button type="button" class="btn ghost small" id="beFresh">白紙から書く</button>` : ""}</div>` : ""}
       ${preview ? `<div class="bprev"><button type="button" class="btn small" id="bePrevOff">← 書く画面に戻る</button>
           ${blogSafe(d.cover) ? `<img class="bcover" src="${esc(d.cover)}" alt="">` : ""}<h1>${esc(d.title || "（タイトルなし）")}</h1>${window.renderPostBody(d)}</div>` : `
       <div class="f"><label for="beTitle">タイトル</label><input id="beTitle" value="${esc(d.title)}" placeholder="例：肉離れのリハ、最初の1週間で大事なこと"></div>
@@ -1671,16 +1682,19 @@ ${text.slice(0, 2000)}`;
       ${d.images.length ? `<div class="f"><label>写真</label>${d.images.map((im, i) => `<div class="bitem"><img src="${esc(im.url)}" alt=""><span>【写真${i + 1}】</span><input data-cap="${i}" value="${esc(im.caption || "")}" placeholder="説明（任意）"><button type="button" class="btn ghost small" data-imdel="${i}">外す</button></div>`).join("")}</div>` : ""}
       ${d.refs.length ? `<div class="f"><label>参考</label>${d.refs.map((r, i) => `<div class="bitem"><span>【参考${i + 1}】</span><span class="bt">${esc(r.title)}</span><button type="button" class="btn ghost small" data-refdel="${i}">外す</button></div>`).join("")}</div>` : ""}
       <div class="f"><label for="beTags">タグ（読点区切り）</label><input id="beTags" value="${esc((d.tags || []).join("、"))}" placeholder="ハムストリングス、リハビリ"></div>
-      <label class="bpub"><input type="checkbox" id="bePub" ${d.published ? "checked" : ""}> 公開する（誰でも読めるようになります）</label>`}
+      <p class="hint">書いている途中の内容は、この端末に自動で残ります。「下書き保存」すると、公開されずにアプリに保存されます。</p>`}
       <div class="err" id="beErr"></div>
       <div class="acts">${!d._new ? `<button type="button" class="btn danger" id="beDel">削除</button>` : ""}<span style="flex:1"></span>
-        ${preview ? "" : `<button type="button" class="btn" id="bePrev">見た目を確認</button>`}<button type="button" class="btn" id="beCancel">やめる</button><button type="button" class="btn primary" id="beSave">保存</button></div>
+        ${preview ? "" : `<button type="button" class="btn" id="bePrev">見た目を確認</button>`}<button type="button" class="btn" id="beCancel">やめる</button>
+        ${d.published ? `<button type="button" class="btn" data-save="draft">下書きに戻す</button><button type="button" class="btn primary" data-save="pub">更新する</button>`
+          : `<button type="button" class="btn" data-save="draft">下書き保存</button><button type="button" class="btn primary" data-save="pub">公開する</button>`}</div>
     </div>`;
   }
+  const _re = () => autoSave();
   function syncDraft() {
     if (!$("#beTitle")) return;
     draft.title = $("#beTitle").value.trim(); draft.body = $("#beBody").value;
-    draft.tags = splitTags($("#beTags").value); draft.published = $("#bePub").checked;
+    draft.tags = splitTags($("#beTags").value);
     document.querySelectorAll("#blogEd [data-cap]").forEach((i) => { draft.images[Number(i.dataset.cap)].caption = i.value; });
   }
   function insertAtCursor(text, block) {
@@ -1691,7 +1705,8 @@ ${text.slice(0, 2000)}`;
     ta.value = ta.value.slice(0, a) + text + ta.value.slice(a); ta.focus(); ta.selectionStart = ta.selectionEnd = draft._pos = a + text.length;
   }
   ["keyup", "click", "input", "select"].forEach((ev) => document.addEventListener(ev, (e) => { if (e.target.id === "beBody" && draft) draft._pos = e.target.selectionStart; }));
-  function closeEditor() { draft = null; $("#blogEd").hidden = true; document.body.style.overflow = ""; }
+  function flushAuto() { clearTimeout(autoT); if (!draft) return; if ($("#beTitle")) syncDraft(); if (!draft.title && !draft.body && !draft.images.length && !draft.cover) return; try { localStorage.setItem(AKEY, JSON.stringify({ ...draft, _savedAt: Date.now() })); } catch {} }
+  function closeEditor(keep) { if (keep) flushAuto(); else clearTimeout(autoT); draft = null; $("#blogEd").hidden = true; document.body.style.overflow = ""; }
   function refPicker(qstr) {
     const q = norm(qstr || "");
     const pool = [...state.papers.map((x) => ({ kind: "papers", x })), ...state.basics.map((x) => ({ kind: "basics", x })), ...state.summaries.map((x) => ({ kind: "summaries", x }))]
@@ -1734,16 +1749,19 @@ ${text.slice(0, 2000)}`;
     const rfd = e.target.closest("[data-refdel]"); if (rfd) { syncDraft(); const i = Number(rfd.dataset.refdel); draft.refs.splice(i, 1); draft.body = renumber(draft.body, "参考", i); renderEditor(); return; }
     if (id === "bePrev") { syncDraft(); renderEditor(true); return; }
     if (id === "bePrevOff") { renderEditor(); return; }
-    if (id === "beCancel" || id === "beBack") { closeEditor(); return; }
+    if (id === "beCancel" || id === "beBack") { closeEditor(true); return; }
     if (id === "beDel") { const b = e.target.closest("button"); if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "本当に削除する"; return; }
-      try { await window.studyBlog.remove(draft.id); closeEditor(); loadBlog(); } catch { $("#beErr").textContent = "削除できませんでした。"; } return; }
-    if (id === "beSave") {
+      try { await window.studyBlog.remove(draft.id); autoClear(); closeEditor(); loadBlog(); } catch { $("#beErr").textContent = "削除できませんでした。"; } return; }
+    if (id === "beFresh") { autoClear(); openEditor(null); return; }
+    const sv = e.target.closest("[data-save]");
+    if (sv) {
       if ($("#beTitle")) syncDraft();
+      draft.published = sv.dataset.save === "pub";
       if (!draft.title) { $("#beErr").textContent = "タイトルを入れてください。"; return; }
-      const { _new, _pos, ...post } = draft;
+      const { _new, _pos, _restored, _savedAt, ...post } = draft;
       if (post.published && !post.published_at) post.published_at = new Date().toISOString();
-      const b = e.target.closest("button"); b.disabled = true;
-      try { await window.studyBlog.save(post); closeEditor(); loadBlog(); }
+      const b = sv; b.disabled = true;
+      try { await window.studyBlog.save(post); autoClear(); closeEditor(); loadBlog(); }
       catch { $("#beErr").textContent = "保存できませんでした。もう一度試してください。"; b.disabled = false; }
     }
   });
