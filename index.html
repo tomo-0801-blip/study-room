@@ -378,7 +378,7 @@ body{padding-top:env(safe-area-inset-top)}
     <button class="tab" role="tab" id="tab-quiz" aria-selected="false"><img class="ti" src="img/quiz-icon.jpg" alt=""><span class="tl">小テスト</span><span class="n">4択・記述</span></button>
     <button class="tab" role="tab" id="tab-books" aria-selected="false"><img class="ti" src="img/books-icon.jpg" alt=""><span class="tl">本</span><span class="n" id="n-books">0</span></button>
     <button class="tab" role="tab" id="tab-blog" aria-selected="false" hidden><img class="ti" src="img/blog-icon.jpg" alt=""><span class="tl">ブログ</span><span class="n" id="n-blog">—</span></button>
-    <button class="tab" role="tab" id="tab-memo" aria-selected="false" hidden><img class="ti" src="img/memo-icon.jpg" alt=""><span class="tl">メモ</span><span class="n" id="n-memo">0</span></button>
+    <button class="tab" role="tab" id="tab-memo" aria-selected="false" hidden><img class="ti" src="img/memo-icon.jpg" alt=""><span class="tl">考察</span><span class="n" id="n-memo">0</span></button>
   </nav>
 
   <div class="searchbar">
@@ -601,7 +601,7 @@ body{padding-top:env(safe-area-inset-top)}
   function noteBlock(kind, id) {
     if (!window.studyNotes) return "";
     const key = `${kind}:${id}`, t = state.notes[key] || "";
-    return `<div class="note" data-note="${esc(key)}">${t ? `<div class="ntext"><b>自分のメモ</b>${esc(t)}</div>` : ""}<button type="button" class="btn ghost small" data-note-edit="${esc(key)}">${t ? "メモを直す" : "＋ メモを書く"}</button></div>`;
+    return `<div class="note" data-note="${esc(key)}">${t ? `<div class="ntext"><b>自分の考察</b>${esc(t)}</div>` : ""}<button type="button" class="btn ghost small" data-note-edit="${esc(key)}">${t ? "考察を直す" : "＋ 考察を書く"}</button></div>`;
   }
   const BOOK_GENRES = ["解剖学", "生理学", "専門書", "ビジネス書", "その他"];
   const BOOK_STATUS = { rec: "おすすめ", want: "読みたい" };
@@ -630,7 +630,7 @@ body{padding-top:env(safe-area-inset-top)}
       <div class="top"><div style="flex:1"></div>${state.canEdit ? `<div class="rowacts">${(b.status || "おすすめ") === "読みたい" ? `<button class="btn ghost small" data-bmove="${esc(b.id)}">読んだ → おすすめへ</button>` : ""}<button class="btn ghost small" data-edit="books:${esc(b.id)}">編集</button></div>` : ""}</div>
     </article>`;
   }
-  const KIND_JA = { papers: "論文", basics: "基礎知識", summaries: "まとめ資料", materials: "勉強会資料", books: "本", free: "自由メモ" };
+  const KIND_JA = { papers: "論文", basics: "基礎知識", summaries: "まとめ資料", materials: "勉強会資料", books: "本", free: "自由な考察" };
   function renderMemo() {
     const q = norm(state.q || "");
     const items = Object.entries(state.notes).map(([key, text]) => {
@@ -640,14 +640,14 @@ body{padding-top:env(safe-area-inset-top)}
       return { key, kind, id, text, title, at: state.noteTimes[key] || "" };
     }).filter((m) => !q || norm(m.text + " " + m.title).includes(q))
       .sort((a, b) => String(b.at).localeCompare(String(a.at)));
-    $("#list").innerHTML = `<div class="memohead"><button type="button" class="btn primary small" id="memoNew">＋ 新しいメモ</button><span class="hint">論文や資料に書いたメモも、ここにまとまります。ほかの人には見えません。</span></div>
+    $("#list").innerHTML = `<div class="memohead"><button type="button" class="btn primary small" id="memoNew">＋ 新しい考察</button><span class="hint">論文や資料に書いた考察も、ここにまとまります。ほかの人には見えません。</span></div>
       <div id="memoNewBox"></div>
       ${items.length ? items.map((m) => `<article class="card memo">
-        <div class="top"><span class="kind">${esc(KIND_JA[m.kind] || "メモ")}</span>${m.title ? `<h3><button type="button" class="linkish" data-memo-go="${esc(m.key)}">${esc(m.title)}</button></h3>` : ""}<span class="meta">${esc(String(m.at).slice(0, 10))}</span></div>
+        <div class="top"><span class="kind">${esc(KIND_JA[m.kind] || "考察")}</span>${m.title ? `<h3><button type="button" class="linkish" data-memo-go="${esc(m.key)}">${esc(m.title)}</button></h3>` : ""}<span class="meta">${esc(String(m.at).slice(0, 10))}</span></div>
         ${noteBlock(m.kind, m.id)}
-      </article>`).join("") : `<div class="empty">${q ? "一致するメモがありません。" : "まだメモがありません。「＋ 新しいメモ」から書くか、論文や資料の「＋ メモを書く」から書けます。"}</div>`}`;
+      </article>`).join("") : `<div class="empty">${q ? "一致する考察がありません。" : "まだ考察がありません。「＋ 新しい考察」から書くか、論文や資料の「＋ 考察を書く」から書けます。"}</div>`}`;
   }
-  const noteMark = (kind, id) => state.notes[`${kind}:${id}`] ? `<span class="nmark">メモあり</span>` : "";
+  const noteMark = (kind, id) => state.notes[`${kind}:${id}`] ? `<span class="nmark">考察あり</span>` : "";
   function materialCard(m) {
     const url = safeUrl(m.url);
     const linked = (Array.isArray(m.paperIds) ? m.paperIds : []).map((id) => state.papers.find((p) => p.id === id)).filter(Boolean);
@@ -880,7 +880,7 @@ body{padding-top:env(safe-area-inset-top)}
     summaries: ["まとめ資料", "調べたことを要点でふり返る"],
     materials: ["勉強会資料", "これまでの勉強会をまとめて見る"],
     quiz: ["小テスト", "4択と記述で理解をたしかめる"],
-    memo: ["メモ", "自分だけのメモをまとめて見る"],
+    memo: ["考察", "自分の考察をまとめて見る"],
     books: ["本", "読みたい本と、おすすめの本"],
     blog: ["ブログ", "学びを記事にして、誰でも読めるページへ"],
   };
@@ -1804,12 +1804,12 @@ ${text.slice(0, 2000)}`;
       state.tab = kind; state.tag = null; state.q = item.title; $("#q").value = item.title; render();
     }
   });
-  // 自分のメモ
+  // 自分の考察
   $("#list").addEventListener("click", async (e) => {
     const ed = e.target.closest("[data-note-edit]");
     if (ed) {
       const key = ed.dataset.noteEdit, box = ed.closest(".note");
-      box.innerHTML = `<textarea class="ninput" rows="4" placeholder="自分用のメモ（ほかの人には見えません）">${esc(state.notes[key] || "")}</textarea>
+      box.innerHTML = `<textarea class="ninput" rows="4" placeholder="自分の考察（ほかの人には見えません）">${esc(state.notes[key] || "")}</textarea>
         <div class="nacts"><button type="button" class="btn small" data-note-cancel="${esc(key)}">やめる</button><button type="button" class="btn primary small" data-note-save="${esc(key)}">保存</button></div><div class="err nerr"></div>`;
       box.querySelector("textarea").focus();
       return;
