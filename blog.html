@@ -55,6 +55,7 @@ form.cf textarea{min-height:110px;resize:vertical}
 button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;padding:10px 16px;font-weight:700;justify-self:start}
 button:disabled{opacity:.5}
 .msg{font-size:13.5px;color:var(--ink-2)}
+.appback{display:inline-block;margin:0 0 10px;padding:8px 14px;border-radius:999px;background:var(--teal);color:#fff;text-decoration:none;font-weight:700;font-size:14px}
 .empty{color:var(--ink-3);padding:30px 0;text-align:center}
 footer{margin-top:40px;font-size:12px;color:var(--ink-3);text-align:center}
 </style>
@@ -62,6 +63,7 @@ footer{margin-top:40px;font-size:12px;color:var(--ink-3);text-align:center}
 <body>
 <div class="wrap">
   <header class="site"><a href="blog.html"><img src="icons/icon-192.png" alt=""></a><a href="blog.html"><b id="siteTitle">勉強部屋ブログ</b><span>体と運動の学びを、根拠とあわせて</span></a></header>
+  <a class="appback" id="appBack" href="index.html" hidden>← アプリに戻る</a>
   <main id="main"><div class="empty">読み込み中…</div></main>
   <footer>© 勉強部屋ブログ</footer>
 </div>
@@ -81,7 +83,7 @@ footer{margin-top:40px;font-size:12px;color:var(--ink-3);text-align:center}
   async function showList() {
     const { data, error } = await sb.from("posts").select("id,title,body,cover,published_at,tags").eq("published", true).order("published_at", { ascending: false });
     if (error) { $("#main").innerHTML = `<div class="empty">記事を読み込めませんでした。</div>`; return; }
-    $("#main").innerHTML = data.length ? `<div class="list">${data.map((p) => `<a class="pcard" href="?p=${encodeURIComponent(p.id)}">
+    $("#main").innerHTML = data.length ? `<div class="list">${data.map((p) => `<a class="pcard" href="?${q}p=${encodeURIComponent(p.id)}">
         <div class="ph" ${safeUrl(p.cover) ? `style="background-image:url('${esc(p.cover)}')"` : ""}></div>
         <div class="pt"><span class="date">${fmt(p.published_at)}</span><h2>${esc(p.title)}</h2><p>${esc(excerpt(p.body))}</p></div></a>`).join("")}</div>`
       : `<div class="empty">まだ記事がありません。</div>`;
@@ -89,10 +91,10 @@ footer{margin-top:40px;font-size:12px;color:var(--ink-3);text-align:center}
 
   async function showPost(id) {
     const { data: p } = await sb.from("posts").select("*").eq("id", id).eq("published", true).maybeSingle();
-    if (!p) { $("#main").innerHTML = `<a class="back" href="blog.html">← 記事の一覧</a><div class="empty">この記事は見つかりませんでした。</div>`; return; }
+    if (!p) { $("#main").innerHTML = `<a class="back" href="blog.html${fromApp ? "?from=app" : ""}">← 記事の一覧</a><div class="empty">この記事は見つかりませんでした。</div>`; return; }
     document.title = `${p.title} | ${CFG.blogTitle || "勉強部屋ブログ"}`;
     const tags = Array.isArray(p.tags) ? p.tags : [];
-    $("#main").innerHTML = `<a class="back" href="blog.html">← 記事の一覧</a>
+    $("#main").innerHTML = `<a class="back" href="blog.html${fromApp ? "?from=app" : ""}">← 記事の一覧</a>
       <article>${safeUrl(p.cover) ? `<img class="cover" src="${esc(p.cover)}" alt="">` : ""}
         <span class="date">${fmt(p.published_at)}</span><h1>${esc(p.title)}</h1>
         ${window.renderPostBody(p)}
@@ -121,6 +123,9 @@ footer{margin-top:40px;font-size:12px;color:var(--ink-3);text-align:center}
     $("#clist").innerHTML = (data || []).length ? data.map((c) => `<div class="cm"><b>${esc(c.name)}　<span class="date">${fmt(c.created_at)}</span></b>${esc(c.body)}</div>`).join("") : `<p class="msg">まだコメントはありません。</p>`;
   }
 
+  const fromApp = new URLSearchParams(location.search).get("from") === "app" || matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  const q = fromApp ? "from=app&" : "";
+  if (fromApp) { $("#appBack").hidden = false; document.querySelectorAll('header.site a').forEach((a) => a.href = "blog.html?from=app"); }
   const id = new URLSearchParams(location.search).get("p");
   if (id) showPost(id); else showList();
 })();

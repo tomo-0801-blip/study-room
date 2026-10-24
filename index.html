@@ -327,7 +327,7 @@ body{padding-top:env(safe-area-inset-top)}
 .bookhead .chips .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
 #blogEd{position:fixed;inset:0;z-index:50;background:var(--paper);overflow:auto;padding:calc(env(safe-area-inset-top) + 16px) 16px 40px}
 #blogEd .mwrap{max-width:760px;margin:0 auto;display:grid;gap:12px}
-#blogEd .mhead{display:flex;justify-content:space-between;align-items:baseline}
+#blogEd .mhead{display:flex;gap:10px;align-items:center;flex-wrap:wrap}#blogEd .mhead b{flex:1}
 #blogEd .mhead b{font-family:var(--head);font-size:22px}
 #blogEd .mhead span{font-size:13px;color:var(--ink-3)}
 #blogEd input:not([type=checkbox]),#blogEd textarea{font:inherit;font-size:16px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
@@ -1630,14 +1630,14 @@ ${text.slice(0, 2000)}`;
     const posts = state.posts.filter((p) => !q || norm(p.title + " " + p.body).includes(q));
     const cOf = (id) => state.comments.filter((c) => c.post_id === id);
     $("#list").innerHTML = `<div class="memohead">${ed ? `<button type="button" class="btn primary small" id="blogNew">＋ 新しい記事</button>` : ""}
-        <a class="btn small" href="${esc(B.publicUrl())}" target="_blank" rel="noopener">公開ページを見る</a>
+        <a class="btn small" href="${esc(B.publicUrl())}">公開ページを見る</a>
         <span class="hint">公開した記事は、ログインしていない人も読めます。</span></div>
       ${posts.length ? posts.map((p) => { const cs = cOf(p.id), wait = cs.filter((c) => !c.approved).length;
         return `<article class="card bpost">
           ${blogSafe(p.cover) ? `<img class="bthumb" src="${esc(p.cover)}" alt="">` : ""}
           <div class="top"><span class="kind" style="${p.published ? "" : "color:var(--ink-3);background:var(--sunk)"}">${p.published ? "公開中" : "下書き"}</span><h3>${esc(p.title)}</h3><span class="meta">${fmtD(p.published_at || p.updated_at)}</span></div>
           <div class="rowacts" style="justify-content:flex-start;flex-wrap:wrap;gap:6px">
-            ${p.published ? `<a class="btn ghost small" href="${esc(B.publicUrl(p.id))}" target="_blank" rel="noopener">公開ページで見る</a>` : ""}
+            ${p.published ? `<a class="btn ghost small" href="${esc(B.publicUrl(p.id))}">公開ページで見る</a>` : ""}
             ${ed ? `<button class="btn ghost small" data-bcm="${esc(p.id)}">コメント ${cs.length}件${wait ? `（確認待ち ${wait}）` : ""}</button><button class="btn ghost small" data-bed="${esc(p.id)}">編集</button>` : ""}
           </div>
           ${state.openComments === p.id ? `<div class="bcms">${cs.length ? cs.map((c) => `<div class="bcm ${c.approved ? "" : "wait"}"><b>${esc(c.name)}</b><span class="meta">${fmtD(c.created_at)}${c.approved ? "　表示中" : "　確認待ち"}</span><p>${esc(c.body)}</p>
@@ -1657,7 +1657,7 @@ ${text.slice(0, 2000)}`;
   function renderEditor(preview) {
     const box = $("#blogEd"), d = draft;
     box.innerHTML = `<div class="mwrap">
-      <div class="mhead"><b>${d._new ? "新しい記事" : "記事を直す"}</b><span>${d.published ? "公開中" : "下書き"}</span></div>
+      <div class="mhead"><button type="button" class="btn small" id="beBack">← 戻る</button><b>${d._new ? "新しい記事" : "記事を直す"}</b><span>${d.published ? "公開中" : "下書き"}</span></div>
       ${preview ? `<div class="bprev"><button type="button" class="btn small" id="bePrevOff">← 書く画面に戻る</button>
           ${blogSafe(d.cover) ? `<img class="bcover" src="${esc(d.cover)}" alt="">` : ""}<h1>${esc(d.title || "（タイトルなし）")}</h1>${window.renderPostBody(d)}</div>` : `
       <div class="f"><label for="beTitle">タイトル</label><input id="beTitle" value="${esc(d.title)}" placeholder="例：肉離れのリハ、最初の1週間で大事なこと"></div>
@@ -1734,7 +1734,7 @@ ${text.slice(0, 2000)}`;
     const rfd = e.target.closest("[data-refdel]"); if (rfd) { syncDraft(); const i = Number(rfd.dataset.refdel); draft.refs.splice(i, 1); draft.body = renumber(draft.body, "参考", i); renderEditor(); return; }
     if (id === "bePrev") { syncDraft(); renderEditor(true); return; }
     if (id === "bePrevOff") { renderEditor(); return; }
-    if (id === "beCancel") { closeEditor(); return; }
+    if (id === "beCancel" || id === "beBack") { closeEditor(); return; }
     if (id === "beDel") { const b = e.target.closest("button"); if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "本当に削除する"; return; }
       try { await window.studyBlog.remove(draft.id); closeEditor(); loadBlog(); } catch { $("#beErr").textContent = "削除できませんでした。"; } return; }
     if (id === "beSave") {

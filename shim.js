@@ -252,7 +252,7 @@
         if (error) throw error;
         return sb.storage.from("blog").getPublicUrl(path).data.publicUrl;
       },
-      publicUrl(id) { return new URL(`blog.html${id ? `?p=${encodeURIComponent(id)}` : ""}`, location.href).href; },
+      publicUrl(id) { return new URL(`blog.html?from=app${id ? `&p=${encodeURIComponent(id)}` : ""}`, location.href).href; },
     };
     window.studyNotes = {
       async all() {
