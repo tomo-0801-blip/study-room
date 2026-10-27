@@ -358,6 +358,15 @@ body{padding-top:env(safe-area-inset-top)}
 .bcm.wait{border-color:var(--amber);background:var(--amber-soft)}
 .bcm p{margin:4px 0;white-space:pre-wrap}
 .bcm .meta{margin-left:8px}
+.guide{display:flex;align-items:flex-end;gap:10px;margin:2px 0 12px}
+.guide img{width:72px;height:auto;flex:none}
+.gbubble{position:relative;background:var(--teal-soft);border-radius:14px;padding:10px 34px 10px 12px;font-size:14px;line-height:1.65;min-width:0;margin-bottom:12px}
+.gbubble::before{content:"";position:absolute;left:-7px;bottom:14px;border:7px solid transparent;border-right-color:var(--teal-soft);border-left:0}
+.guide.warn .gbubble{background:var(--amber-soft)}.guide.warn .gbubble::before{border-right-color:var(--amber-soft)}
+.guide.center{justify-content:center}.guide.center .gbubble{padding-right:12px;text-align:left}
+#morning .guide .gbubble,.result .guide .gbubble{padding-right:12px}
+.gclose{position:absolute;top:4px;right:6px;border:0;background:none;color:var(--ink-3);font-size:16px;cursor:pointer;padding:4px 6px}
+.gshow{font-size:12.5px;color:var(--ink-3);margin:0 0 10px}
 </style>
 </head>
 <body>
@@ -404,6 +413,7 @@ body{padding-top:env(safe-area-inset-top)}
 
   <div id="content" class="anchor"></div>
   <div class="hero" id="hero"></div>
+  <div id="guideTip"></div>
   <div class="topics" id="topics" aria-label="テーマ"></div>
 
   <div class="toolbar">
@@ -884,8 +894,33 @@ body{padding-top:env(safe-area-inset-top)}
     books: ["本", "読みたい本と、おすすめの本"],
     blog: ["ブログ", "学びを記事にして、誰でも読めるページへ"],
   };
+  // ---------- 案内キャラ ----------
+  const GUIDE_TIPS = {
+    papers: "気になる言葉を上の欄に入れると、裏付けの論文が出てきます。毎週月曜に新着も増えますよ。",
+    basics: "項目の名前を押すと中が開きます。図があるものは、図から見るとわかりやすいです。",
+    summaries: "調べたことの要点をまとめています。「＋ 考察を書く」で自分の考えも残せます。",
+    materials: "これまでの勉強会の資料です。「PDFを開く」でスライドがそのまま見られます。",
+    quiz: "4択は8問正解でクリア。朝の5問もここから試せます。",
+    books: "読みたい本とおすすめの本を分けて残せます。読み終わったら「おすすめへ」。",
+    blog: "学びを記事にしてみましょう。下書き保存しておけば、続きはいつでも書けます。",
+    memo: "論文や資料に書いた考察が、ここにまとまります。自分だけが見られます。",
+  };
+  const GKEY = "evlib-guide-off";
+  const guideOff = () => { try { return localStorage.getItem(GKEY) === "1"; } catch { return false; } };
+  const guideHtml = (text, cls = "") => `<div class="guide ${cls}"><img src="img/guide.png" alt="向トレーナー"><div class="gbubble">${text}</div></div>`;
+  function renderGuideTip() {
+    const g = $("#guideTip"); if (!g) return;
+    const k = state.tab;
+    if (guideOff() || !GUIDE_TIPS[k]) { g.innerHTML = guideOff() ? `<button type="button" class="linkish gshow" id="guideOn">向トレーナーの案内を表示する</button>` : ""; return; }
+    g.innerHTML = guideHtml(`${esc(GUIDE_TIPS[k])}<button type="button" class="gclose" id="guideOff" aria-label="案内を閉じる">×</button>`);
+  }
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("#guideOff")) { try { localStorage.setItem(GKEY, "1"); } catch {} renderGuideTip(); }
+    if (e.target.closest("#guideOn")) { try { localStorage.removeItem(GKEY); } catch {} renderGuideTip(); }
+  });
   function renderHero() {
     const h = $("#hero"), k = HERO[state.tab] ? state.tab : "papers";
+    renderGuideTip();
     if (h.dataset.k === k) return;
     h.dataset.k = k;
     h.innerHTML = `<img src="img/${k}.jpg" alt=""><div class="ht"><b>${HERO[k][0]}</b><span>${HERO[k][1]}</span></div>`;
@@ -1394,6 +1429,7 @@ ${JSON.stringify(mats)}`;
       }
       const nextIdx = qrun.idx + 1;
       L.innerHTML = `<div class="quiz"><div class="result ${pass ? "pass" : ""}">
+        ${guideHtml(qrun.review ? "復習おつかれさまでした！" : pass ? (qrun.score === total ? "満点！完璧です！" : "クリア！その調子です！") : "あと少し！間違えたところを見直してもう一度いきましょう。", "center")}
         <div class="big">${qrun.score} / ${total}</div>
         <p>${qrun.review ? "復習が終わりました。" : pass ? (nextIdx < STAGES.length ? `クリアです。「${esc(STAGES[nextIdx].name)}」が開きました。` : "クリアです。記述問題が開きました。") : `あと${PASS - qrun.score}問でクリアです。`}</p>
         <div class="acts" style="justify-content:center">
@@ -1448,6 +1484,7 @@ ${JSON.stringify(mats)}`;
     if (mrun.i >= mrun.order.length) {
       const d = today(); if (!mstore.days.includes(d)) mstore.days.push(d); mstore.days = mstore.days.slice(-400); saveM();
       box.innerHTML = `<div class="mwrap"><div class="mhead"><b>おはようございます</b><span>朝の${MCOUNT}問</span></div>
+        ${guideHtml(mrun.score === mrun.order.length ? `全問正解！${streak()}日連続です。今日もいい一日を！` : `おつかれさまでした！${streak()}日連続です。間違えた問題は、また明日出しますね。`)}
         <div class="result pass"><div class="big">${mrun.score} / ${mrun.order.length}</div>
         <p>${mrun.score === mrun.order.length ? "全問正解です。" : "間違えた問題は、明日以降にまた出てきます。"}</p>
         <p class="hint">${streak()}日続けて取り組んでいます。</p>
@@ -1456,6 +1493,7 @@ ${JSON.stringify(mats)}`;
     }
     const cur = mrun.order[mrun.i], answered = mrun.picked != null;
     box.innerHTML = `<div class="mwrap"><div class="mhead"><b>おはようございます</b><span>朝の${MCOUNT}問　${mrun.i + 1} / ${mrun.order.length}</span></div>
+      ${guideHtml(!answered ? (mrun.i === 0 ? "おはようございます！今日も5問いきましょう。" : `${mrun.i + 1}問目！あと${mrun.order.length - mrun.i}問です。`) : cur.opts[mrun.picked] === cur.ok ? "正解！その調子です！" : "おっと！下の説明で確認しておきましょう。", answered && cur.opts[mrun.picked] !== cur.ok ? "warn" : "")}
       <div class="prog"><span style="width:${(mrun.i / mrun.order.length) * 100}%"></span></div>
       <div class="qcard"><h3>${esc(cur.q)}</h3>
         <div class="opts">${cur.opts.map((o, k) => {

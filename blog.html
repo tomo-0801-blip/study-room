@@ -44,6 +44,9 @@ article p{margin:0 0 14px}
 .bref-k{font-size:11.5px;color:var(--amber);font-weight:700}.bref-t{font-weight:700}.bref-m{font-size:12.5px;color:var(--ink-3)}.bref p{margin:6px 0 0;color:var(--ink-2)}
 .tags{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 0}.tag{font-size:12px;background:var(--teal-soft);color:var(--teal);border-radius:999px;padding:1px 10px}
 .back{display:inline-block;margin:8px 0 14px;font-size:14px}
+.author{display:flex;gap:12px;align-items:center;margin-top:24px;padding-top:14px;border-top:1px solid var(--line)}
+.author img{width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:top;background:var(--teal-soft);flex:none}
+.author b{display:block;font-size:14px}.author span{font-size:13px;color:var(--ink-3)}
 .comments{margin-top:36px;border-top:1px solid var(--line);padding-top:18px}
 .comments h2{font-size:18px;margin:0 0 10px;border:0;padding:0}
 .cm{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:14.5px;white-space:pre-wrap}
@@ -99,6 +102,7 @@ footer{margin-top:40px;font-size:12px;color:var(--ink-3);text-align:center}
         <span class="date">${fmt(p.published_at)}</span><h1>${esc(p.title)}</h1>
         ${window.renderPostBody(p)}
         ${tags.length ? `<div class="tags">${tags.map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>` : ""}
+        <div class="author"><img src="img/guide-face.png" alt=""><div><b>この記事を書いた人</b><span>向 智彦｜マスターピース チーフトレーナー × ストレングスコーチ</span></div></div>
       </article>
       <section class="comments"><h2>コメント</h2><div id="clist"></div>
         <form class="cf" id="cform">
