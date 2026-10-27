@@ -369,6 +369,14 @@ body{padding-top:env(safe-area-inset-top)}
 #morning .guide .gbubble,.result .guide .gbubble{padding-right:12px}
 .gclose{position:absolute;top:4px;right:6px;border:0;background:none;color:var(--ink-3);font-size:16px;cursor:pointer;padding:4px 6px}
 .gshow{font-size:12.5px;color:var(--ink-3);margin:0 0 10px}
+.tab{position:relative}
+.newdot{position:absolute;top:4px;right:4px;background:var(--accent);color:#fff;font-size:10px;font-weight:700;border-radius:999px;padding:0 6px;line-height:18px}
+.newbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 10px}
+.newday{display:flex;align-items:baseline;gap:8px;font-size:15px;margin:14px 0 6px;color:var(--teal)}
+.newday span{font-size:12px;color:var(--ink-3);font-weight:400}
+.newwrap{position:relative}
+.newwrap.unread>.card{border-color:var(--accent)}
+.unreadmark{position:absolute;top:-8px;right:10px;z-index:1;background:var(--accent);color:#fff;font-size:11px;font-weight:700;border-radius:999px;padding:0 8px;line-height:20px}
 </style>
 </head>
 <body>
@@ -382,7 +390,7 @@ body{padding-top:env(safe-area-inset-top)}
   </header>
 
   <nav class="tabs" role="tablist" aria-label="メニュー">
-    <button class="tab" role="tab" id="tab-papers" aria-selected="true"><img class="ti" src="img/papers-icon.jpg" alt=""><span class="tl">論文</span><span class="n" id="n-papers">0</span></button>
+    <button class="tab" role="tab" id="tab-papers" aria-selected="true"><img class="ti" src="img/papers-icon.jpg" alt=""><span class="tl">論文</span><span class="n" id="n-papers">0</span><span class="newdot" id="newDot" hidden></span></button>
     <button class="tab" role="tab" id="tab-basics" aria-selected="false"><img class="ti" src="img/basics-icon.jpg" alt=""><span class="tl">基礎知識</span><span class="n" id="n-basics">0</span></button>
     <button class="tab" role="tab" id="tab-summaries" aria-selected="false"><img class="ti" src="img/summaries-icon.jpg" alt=""><span class="tl">まとめ資料</span><span class="n" id="n-summaries">0</span></button>
     <button class="tab" role="tab" id="tab-materials" aria-selected="false"><img class="ti" src="img/materials-icon.jpg" alt=""><span class="tl">勉強会資料</span><span class="n" id="n-materials">0</span></button>
@@ -451,7 +459,7 @@ body{padding-top:env(safe-area-inset-top)}
 (() => {
   const $ = (s) => document.querySelector(s);
   const BASIC_CATS = ["疾患・症状","受容器","神経と反射","脳","感覚器官"];
-  const state = { posts: null, comments: [], openComments: null, books: [], bookView: "rec", bookGenre: "all", notes: {}, noteTimes: {}, papers: [], materials: [], basics: [], summaries: [], bcat: null, openTerm: null, tab: "papers", tag: null, q: "", canEdit: false, dbReady: false, ai: null, editing: null,
+  const state = { newOnly: false, posts: null, comments: [], openComments: null, books: [], bookView: "rec", bookGenre: "all", notes: {}, noteTimes: {}, papers: [], materials: [], basics: [], summaries: [], bcat: null, openTerm: null, tab: "papers", tag: null, q: "", canEdit: false, dbReady: false, ai: null, editing: null,
     topic: "all", view: "cards", f: { contraction: null, intensityCat: null, freqCat: null } };
   const CONTRACTIONS = ["アイソメトリック","エキセントリック","コンセントリック","複合（求心＋遠心）","プライオメトリック","ストレッチ・モビライゼーション","その他"];
   const INTENSITY_CATS = ["高（≥70%MVC・重い負荷）","中〜低（<70%MVC）","自重・最大努力","痛み・耐性で調整","—"];
@@ -977,6 +985,8 @@ body{padding-top:env(safe-area-inset-top)}
     $("#tab-papers").setAttribute("aria-selected", state.tab === "papers");
     $("#tab-materials").setAttribute("aria-selected", state.tab === "materials");
     renderChips();
+    renderNewBar();
+    if (state.tab === "papers" && state.newOnly && state.dbReady) { renderNewPapers(); return; }
     const items = sorted(state.tab);
     if (!state.dbReady) { $("#list").innerHTML = ""; return; }
     if (!items.length) {
@@ -989,6 +999,39 @@ body{padding-top:env(safe-area-inset-top)}
     if (state.tab === "papers" && state.view === "table") { $("#list").innerHTML = tableView(items); return; }
     $("#list").innerHTML = items.map((x) => state.tab === "papers" ? paperCard(x) : state.tab === "basics" ? basicCard(x) : state.tab === "summaries" ? summaryCard(x) : materialCard(x)).join("");
   }
+  // ---------- 新着の論文 ----------
+  const SEENKEY = "evlib-new-seen";
+  const seenSet = () => { try { return new Set(JSON.parse(localStorage.getItem(SEENKEY) || "[]")); } catch { return new Set(); } };
+  const saveSeen = (set) => { try { localStorage.setItem(SEENKEY, JSON.stringify([...set].slice(-2000))); } catch {} };
+  const isNewPaper = (p) => p.source === "PubMed自動追加" || tagsOf(p).includes("新着");
+  const newPapers = () => state.papers.filter(isNewPaper).sort((a, b) => String(b.addedAt || "").localeCompare(String(a.addedAt || "")));
+  function renderNewBar() {
+    const all = newPapers(), seen = seenSet(), unread = all.filter((p) => !seen.has(p.id)).length;
+    const dot = $("#newDot"); if (dot) { dot.hidden = !unread; dot.textContent = unread ? `新着${unread}` : ""; }
+    let bar = $("#newBar");
+    if (!bar) { bar = document.createElement("div"); bar.id = "newBar"; $("#topics").before(bar); }
+    if (state.tab !== "papers" || !all.length) { bar.innerHTML = ""; return; }
+    bar.innerHTML = `<div class="newbar ${state.newOnly ? "on" : ""}">
+      <button type="button" class="btn ${state.newOnly ? "" : "primary"} small" id="newToggle">${state.newOnly ? "← すべての論文に戻る" : `新着の論文を見る（${all.length}本${unread ? `・未読${unread}` : ""}）`}</button>
+      ${state.newOnly && unread ? `<button type="button" class="btn ghost small" id="newReadAll">すべて既読にする</button>` : ""}
+      <span class="hint">毎週月曜の朝に、自動で追加されます。</span></div>`;
+  }
+  function renderNewPapers() {
+    const q = (state.q || "").trim(), seen = seenSet();
+    const list = sorted("papers").filter(isNewPaper).sort((a, b) => String(b.addedAt || "").localeCompare(String(a.addedAt || "")));
+    if (!list.length) { $("#list").innerHTML = `<div class="empty">${q ? "一致する新着の論文がありません。" : "まだ新着の論文はありません。"}</div>`; return; }
+    const groups = new Map();
+    for (const p of list) { const d = String(p.addedAt || "").slice(0, 10) || "日付なし"; if (!groups.has(d)) groups.set(d, []); groups.get(d).push(p); }
+    const fmt = (d) => { const m = d.match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? `${Number(m[2])}月${Number(m[3])}日に追加` : d; };
+    $("#list").innerHTML = [...groups].map(([d, ps]) => `<h3 class="newday">${esc(fmt(d))}<span>${ps.length}本</span></h3>` +
+      ps.map((p) => `<div class="newwrap ${seen.has(p.id) ? "" : "unread"}">${seen.has(p.id) ? "" : `<span class="unreadmark">未読</span>`}${paperCard(p)}</div>`).join("")).join("");
+    // 表示したものは既読にする（次に開いたときから未読の印が消える）
+    const s2 = seenSet(); list.forEach((p) => s2.add(p.id)); saveSeen(s2);
+  }
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("#newToggle")) { state.newOnly = !state.newOnly; state.tag = null; render(); return; }
+    if (e.target.closest("#newReadAll")) { const s2 = seenSet(); newPapers().forEach((p) => s2.add(p.id)); saveSeen(s2); render(); }
+  });
   function renderAI() {
     const a = state.ai, box = $("#aiBox");
     if (!a) { box.innerHTML = ""; return; }
