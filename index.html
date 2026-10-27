@@ -360,6 +360,8 @@ body{padding-top:env(safe-area-inset-top)}
 .bcm .meta{margin-left:8px}
 .guide{display:flex;align-items:flex-end;gap:10px;margin:2px 0 12px}
 .guide img{width:72px;height:auto;flex:none}
+.guide.wide img{width:132px}
+@media (max-width:420px){.guide.wide img{width:104px}}
 .gbubble{position:relative;background:var(--teal-soft);border-radius:14px;padding:10px 34px 10px 12px;font-size:14px;line-height:1.65;min-width:0;margin-bottom:12px}
 .gbubble::before{content:"";position:absolute;left:-7px;bottom:14px;border:7px solid transparent;border-right-color:var(--teal-soft);border-left:0}
 .guide.warn .gbubble{background:var(--amber-soft)}.guide.warn .gbubble::before{border-right-color:var(--amber-soft)}
@@ -907,12 +909,13 @@ body{padding-top:env(safe-area-inset-top)}
   };
   const GKEY = "evlib-guide-off";
   const guideOff = () => { try { return localStorage.getItem(GKEY) === "1"; } catch { return false; } };
-  const guideHtml = (text, cls = "") => `<div class="guide ${cls}"><img src="img/guide.png" alt="向トレーナー"><div class="gbubble">${text}</div></div>`;
+  const guideHtml = (text, cls = "", pose = "wave") => `<div class="guide ${cls} ${pose === "pilates" ? "wide" : ""}"><img src="img/guide-${pose}.png" alt="向トレーナー"><div class="gbubble">${text}</div></div>`;
+  const GUIDE_POSE = { papers: "read", basics: "think", summaries: "think", materials: "read", quiz: "scheme", books: "read", blog: "pilates", memo: "think" };
   function renderGuideTip() {
     const g = $("#guideTip"); if (!g) return;
     const k = state.tab;
     if (guideOff() || !GUIDE_TIPS[k]) { g.innerHTML = guideOff() ? `<button type="button" class="linkish gshow" id="guideOn">向トレーナーの案内を表示する</button>` : ""; return; }
-    g.innerHTML = guideHtml(`${esc(GUIDE_TIPS[k])}<button type="button" class="gclose" id="guideOff" aria-label="案内を閉じる">×</button>`);
+    g.innerHTML = guideHtml(`${esc(GUIDE_TIPS[k])}<button type="button" class="gclose" id="guideOff" aria-label="案内を閉じる">×</button>`, "", GUIDE_POSE[k] || "wave");
   }
   document.addEventListener("click", (e) => {
     if (e.target.closest("#guideOff")) { try { localStorage.setItem(GKEY, "1"); } catch {} renderGuideTip(); }
@@ -1429,7 +1432,7 @@ ${JSON.stringify(mats)}`;
       }
       const nextIdx = qrun.idx + 1;
       L.innerHTML = `<div class="quiz"><div class="result ${pass ? "pass" : ""}">
-        ${guideHtml(qrun.review ? "復習おつかれさまでした！" : pass ? (qrun.score === total ? "満点！完璧です！" : "クリア！その調子です！") : "あと少し！間違えたところを見直してもう一度いきましょう。", "center")}
+        ${guideHtml(qrun.review ? "復習おつかれさまでした！" : pass ? (qrun.score === total ? "満点！完璧です！" : "クリア！その調子です！") : "あと少し！間違えたところを見直してもう一度いきましょう。", "center", qrun.review ? "wave" : pass ? "good" : "oops")}
         <div class="big">${qrun.score} / ${total}</div>
         <p>${qrun.review ? "復習が終わりました。" : pass ? (nextIdx < STAGES.length ? `クリアです。「${esc(STAGES[nextIdx].name)}」が開きました。` : "クリアです。記述問題が開きました。") : `あと${PASS - qrun.score}問でクリアです。`}</p>
         <div class="acts" style="justify-content:center">
@@ -1444,6 +1447,7 @@ ${JSON.stringify(mats)}`;
     const cur = qrun.order[qrun.i], answered = qrun.picked != null;
     L.innerHTML = `<div class="quiz">
       <div class="qbar"><span>${esc(st.name)}${qrun.review ? "（復習）" : ""}</span><span class="meta">${qrun.i + 1} / ${qrun.order.length}　正解 ${qrun.score}</span></div>
+      ${guideHtml(!answered ? "ふっふっふ…この問題、解けるかな？" : cur.opts[qrun.picked] === cur.ok ? "正解！その調子です！" : "おっと！説明を読んで、基礎知識も確認しておきましょう。", answered && cur.opts[qrun.picked] !== cur.ok ? "warn" : "", !answered ? "scheme" : cur.opts[qrun.picked] === cur.ok ? "good" : "oops")}
       <div class="prog"><span style="width:${(qrun.i / qrun.order.length) * 100}%"></span></div>
       <div class="qcard"><h3>${esc(cur.q)}</h3>
         <div class="opts">${cur.opts.map((o, k) => {
@@ -1484,7 +1488,7 @@ ${JSON.stringify(mats)}`;
     if (mrun.i >= mrun.order.length) {
       const d = today(); if (!mstore.days.includes(d)) mstore.days.push(d); mstore.days = mstore.days.slice(-400); saveM();
       box.innerHTML = `<div class="mwrap"><div class="mhead"><b>おはようございます</b><span>朝の${MCOUNT}問</span></div>
-        ${guideHtml(mrun.score === mrun.order.length ? `全問正解！${streak()}日連続です。今日もいい一日を！` : `おつかれさまでした！${streak()}日連続です。間違えた問題は、また明日出しますね。`)}
+        ${guideHtml(mrun.score === mrun.order.length ? `全問正解！${streak()}日連続です。今日もいい一日を！` : `おつかれさまでした！${streak()}日連続です。間違えた問題は、また明日出しますね。`, "", "pilates")}
         <div class="result pass"><div class="big">${mrun.score} / ${mrun.order.length}</div>
         <p>${mrun.score === mrun.order.length ? "全問正解です。" : "間違えた問題は、明日以降にまた出てきます。"}</p>
         <p class="hint">${streak()}日続けて取り組んでいます。</p>
@@ -1493,7 +1497,7 @@ ${JSON.stringify(mats)}`;
     }
     const cur = mrun.order[mrun.i], answered = mrun.picked != null;
     box.innerHTML = `<div class="mwrap"><div class="mhead"><b>おはようございます</b><span>朝の${MCOUNT}問　${mrun.i + 1} / ${mrun.order.length}</span></div>
-      ${guideHtml(!answered ? (mrun.i === 0 ? "おはようございます！今日も5問いきましょう。" : `${mrun.i + 1}問目！あと${mrun.order.length - mrun.i}問です。`) : cur.opts[mrun.picked] === cur.ok ? "正解！その調子です！" : "おっと！下の説明で確認しておきましょう。", answered && cur.opts[mrun.picked] !== cur.ok ? "warn" : "")}
+      ${guideHtml(!answered ? (mrun.i === 0 ? "おはようございます！今日も5問いきましょう。" : `ふっふっふ…${mrun.i + 1}問目、解けるかな？`) : cur.opts[mrun.picked] === cur.ok ? "正解！その調子です！" : "おっと！下の説明で確認しておきましょう。", answered && cur.opts[mrun.picked] !== cur.ok ? "warn" : "", !answered ? (mrun.i === 0 ? "wave" : "scheme") : cur.opts[mrun.picked] === cur.ok ? "good" : "oops")}
       <div class="prog"><span style="width:${(mrun.i / mrun.order.length) * 100}%"></span></div>
       <div class="qcard"><h3>${esc(cur.q)}</h3>
         <div class="opts">${cur.opts.map((o, k) => {
