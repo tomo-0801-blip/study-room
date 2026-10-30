@@ -1,5 +1,5 @@
 // 自分の勉強部屋：オフラインでも画面が開けるように、アプリの外枠を保存しておく
-const CACHE = "study-room-v15";
+const CACHE = "study-room-v16";
 const SHELL = ["./", "index.html", "shim.js", "presets.js", "blogrender.js", "atlas.js", "blog.html", "config.js", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/icon-180.png",
   "img/bg.jpg", "img/papers.jpg", "img/basics.jpg", "img/summaries.jpg", "img/materials.jpg", "img/quiz.jpg",

@@ -72,7 +72,7 @@ button{font:inherit;cursor:pointer}
 .ex{font-size:12.5px;padding:3px 10px;border-radius:999px;border:1px dashed var(--line);background:transparent;color:var(--ink-2)}
 .ex:hover{border-color:var(--accent);color:var(--accent)}
 
-.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;display:grid;grid-template-columns:repeat(10,1fr);gap:6px;padding-block:10px;margin-bottom:16px;background:var(--paper);border-bottom:1px solid var(--line)}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;display:grid;grid-template-columns:repeat(9,1fr);gap:6px;padding-block:10px;margin-bottom:16px;background:var(--paper);border-bottom:1px solid var(--line)}
 @media (max-width:620px){.tabs{grid-template-columns:repeat(5,1fr)}}
 .tab{display:grid;gap:1px;justify-items:center;align-content:center;min-height:54px;padding:6px 4px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font:inherit}
 .tab .tl{font-size:15px;font-weight:700;white-space:nowrap}
@@ -414,6 +414,7 @@ body{padding-top:env(safe-area-inset-top)}
 .tbwarn b{color:var(--amber,#b7791f)}
 .tbq h4{margin:0;font-size:13px;color:var(--teal)}
 .tbdeep{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:10px}
+.docsw{margin-bottom:10px}
 .tbrefs{font-size:13.5px;line-height:1.6;display:grid;gap:4px}
 .tbrefs ul{margin:0;padding-left:1.2em;display:grid;gap:4px}
 .tbrefs a{color:var(--teal);word-break:break-word}
@@ -433,8 +434,9 @@ body{padding-top:env(safe-area-inset-top)}
   <nav class="tabs" role="tablist" aria-label="メニュー">
     <button class="tab" role="tab" id="tab-papers" aria-selected="true"><img class="ti" src="img/papers-icon.jpg" alt=""><span class="tl">論文</span><span class="n" id="n-papers">0</span><span class="newdot" id="newDot" hidden></span></button>
     <button class="tab" role="tab" id="tab-basics" aria-selected="false"><img class="ti" src="img/basics-icon.jpg" alt=""><span class="tl">基礎知識</span><span class="n" id="n-basics">0</span></button>
-    <button class="tab" role="tab" id="tab-summaries" aria-selected="false"><img class="ti" src="img/summaries-icon.jpg" alt=""><span class="tl">まとめ資料</span><span class="n" id="n-summaries">0</span></button>
-    <button class="tab" role="tab" id="tab-materials" aria-selected="false"><img class="ti" src="img/materials-icon.jpg" alt=""><span class="tl">勉強会資料</span><span class="n" id="n-materials">0</span></button>
+    <button class="tab" role="tab" id="tab-docs" aria-selected="false"><img class="ti" src="img/materials-icon.jpg" alt=""><span class="tl">資料</span><span class="n" id="n-docs">0</span></button>
+    <button class="tab" role="tab" id="tab-summaries" aria-selected="false" hidden><img class="ti" src="img/summaries-icon.jpg" alt=""><span class="tl">まとめ資料</span><span class="n" id="n-summaries">0</span></button>
+    <button class="tab" role="tab" id="tab-materials" aria-selected="false" hidden><img class="ti" src="img/materials-icon.jpg" alt=""><span class="tl">勉強会資料</span><span class="n" id="n-materials">0</span></button>
     <button class="tab" role="tab" id="tab-quiz" aria-selected="false"><img class="ti" src="img/quiz-icon.jpg" alt=""><span class="tl">小テスト</span><span class="n">4択・記述</span></button>
     <button class="tab" role="tab" id="tab-textbook" aria-selected="false"><img class="ti" src="img/basics-icon.jpg" alt=""><span class="tl">教科書</span><span class="n" id="n-textbook">—</span></button>
     <button class="tab" role="tab" id="tab-atlas" aria-selected="false"><img class="ti" src="img/summaries-icon.jpg" alt=""><span class="tl">Atlas</span><span class="n" id="n-atlas">—</span></button>
@@ -1090,8 +1092,18 @@ body{padding-top:env(safe-area-inset-top)}
     h.dataset.k = k;
     h.innerHTML = `<img src="img/${k === "textbook" ? "basics" : k === "atlas" ? "summaries" : k}.jpg" alt=""><div class="ht"><b>${HERO[k][0]}</b><span>${HERO[k][1]}</span></div>`;
   }
+  function renderDocSw() {
+    let sw = $("#docSw");
+    if (!sw) { sw = document.createElement("div"); sw.id = "docSw"; $("#topics").before(sw); }
+    const on = state.tab === "materials" || state.tab === "summaries";
+    if (on) state.lastDoc = state.tab;
+    sw.innerHTML = on ? `<div class="seg docsw">${[["materials", "勉強会資料"], ["summaries", "まとめ資料"]].map(([k, t]) => `<button type="button" data-doc="${k}" aria-pressed="${state.tab === k}">${t}<span>${base(k).length}</span></button>`).join("")}</div>` : "";
+  }
+  document.addEventListener("click", (e) => { const b = e.target.closest("[data-doc]"); if (b) { state.tab = b.dataset.doc; state.tag = null; render(); } });
   function render() {
     renderHero();
+    $("#tab-docs").setAttribute("aria-selected", state.tab === "materials" || state.tab === "summaries");
+    if (!["materials", "summaries"].includes(state.tab) && $("#docSw")) $("#docSw").innerHTML = "";
     const tbTab = state.tab === "textbook", atTab = state.tab === "atlas";
     $("#tab-textbook").setAttribute("aria-selected", tbTab);
     $("#tab-atlas").setAttribute("aria-selected", atTab);
@@ -1149,6 +1161,8 @@ body{padding-top:env(safe-area-inset-top)}
     $("#n-basics").textContent = base("basics").length;
     $("#n-summaries").textContent = base("summaries").length;
     $("#tab-summaries").setAttribute("aria-selected", state.tab === "summaries");
+    $("#n-docs").textContent = base("materials").length + base("summaries").length;
+    renderDocSw();
     $("#tab-basics").setAttribute("aria-selected", state.tab === "basics");
     document.querySelectorAll("#viewsw button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.view === state.view));
     $("#counts").textContent = state.dbReady ? `論文 ${state.papers.length} 本 · 基礎知識 ${state.basics.length} 項目 · 資料 ${state.materials.length} 件` : $("#counts").textContent;
@@ -1845,6 +1859,7 @@ ${text.slice(0, 2000)}`;
   $("#examples").innerHTML = EXAMPLES.map((x) => `<button class="ex">${esc(x)}</button>`).join("");
   $("#examples").addEventListener("click", (e) => { const b = e.target.closest(".ex"); if (!b) return; $("#q").value = b.textContent; state.q = b.textContent; render(); });
   $("#tab-papers").addEventListener("click", () => { state.tab = "papers"; state.tag = null; render(); });
+  $("#tab-docs").addEventListener("click", () => { state.tab = state.lastDoc || "materials"; state.tag = null; render(); });
   $("#tab-materials").addEventListener("click", () => { state.tab = "materials"; state.tag = null; render(); });
   $("#tab-basics").addEventListener("click", () => { state.tab = "basics"; state.tag = null; render(); });
   $("#tab-quiz").addEventListener("click", () => { state.tab = "quiz"; render(); });
