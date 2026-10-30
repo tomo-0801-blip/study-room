@@ -503,7 +503,7 @@
         established: [], supported: [], unresolved: [],
         practice: pg.pilates.map((x) => "・" + x).join("\n") + (pg.caution ? `\n\n【注意】${pg.caution}` : ""),
         reflection: "", status: "未検証", certainty: "未評価",
-        limitations: "Claude が一般的な教科書の知識から作った下書き（教科書 " + tbId + "）。参考文献は付いていない。主張ごとに文献で確かめる必要がある。",
+        limitations: "Claude が一般的な教科書の知識から作った下書き（教科書 " + tbId + "）。主張ごとの参考文献は付いていない。主張ごとに文献で確かめる必要がある。" + (arr(pg.refs).length ? "\n\n数字や基準の確認に使った公開資料：\n" + pg.refs.map((r) => `・${r.t} ${r.u}`).join("\n") : ""),
         aiDraft: true, fromTextbook: tbId, createdAt: t, updatedAt: t });
       A.art = aid; A.view = "article"; A.cat = catId;
       A.msg = "教科書のページを下書きとして取り込みました。「編集」から主張を1文ずつ書き出して、文献を付けていきましょう。";

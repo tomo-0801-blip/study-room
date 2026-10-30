@@ -414,6 +414,9 @@ body{padding-top:env(safe-area-inset-top)}
 .tbwarn b{color:var(--amber,#b7791f)}
 .tbq h4{margin:0;font-size:13px;color:var(--teal)}
 .tbdeep{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:10px}
+.tbrefs{font-size:13.5px;line-height:1.6;display:grid;gap:4px}
+.tbrefs ul{margin:0;padding-left:1.2em;display:grid;gap:4px}
+.tbrefs a{color:var(--teal);word-break:break-word}
 .tbref{font:inherit;font-size:.92em;color:var(--teal);background:none;border:0;border-bottom:1px dashed var(--teal);padding:0;cursor:pointer}
 </style>
 </head>
@@ -743,6 +746,7 @@ body{padding-top:env(safe-area-inset-top)}
       <div class="tbpil"><b>ピラティスでの関わり</b><ul>${pg.pilates.map((t) => `<li>${tbRefs(t)}</li>`).join("")}</ul></div>
       ${pg.caution ? `<div class="tbwarn"><b>注意</b>${tbRefs(pg.caution)}</div>` : ""}
       ${state.tbPil ? `<button type="button" class="linkish" id="tbAll">仕組みの説明も読む</button>` : ""}
+      ${!state.tbPil && pg.refs && pg.refs.length ? `<div class="tbrefs"><b>参考にした公開資料</b><span class="hint">数字や基準を確かめるために見た資料です。ページ全体の裏付けではありません。</span><ul>${pg.refs.map((r) => `<li><a href="${esc(r.u)}" target="_blank" rel="noopener">${esc(r.t)}</a></li>`).join("")}</ul></div>` : ""}
       ${qz ? `<div class="qcard tbq"><h4>確認問題</h4><h3>${esc(qz.q)}</h3><div class="opts">${opts.map((o, k) => {
           let cls = ""; if (ans != null) { if (o === qz.ok) cls = "right"; else if (k === ans) cls = "wrong"; }
           return `<button class="opt ${cls}" data-tbq="${k}" ${ans != null ? "disabled" : ""}><span class="ol">${"ABCD"[k]}</span><span>${esc(o)}</span></button>`; }).join("")}</div>
