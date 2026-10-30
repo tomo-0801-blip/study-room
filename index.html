@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#22626c">
-<meta name="description" content="論文・基礎知識・まとめ資料・勉強会資料と小テストをまとめた勉強用アプリ">
+<meta name="description" content="論文・症状の知識・まとめ資料・勉強会資料と小テストをまとめた勉強用アプリ">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="勉強部屋">
@@ -427,18 +427,18 @@ body{padding-top:env(safe-area-inset-top)}
 <div class="wrap">
   <header>
     <h1>自分の勉強部屋</h1>
-    <p class="sub">論文・基礎知識・勉強会資料を一か所に。知りたいことを入れると、裏付けになる論文と基礎知識を探します。</p>
+    <p class="sub">論文・症状の知識・勉強会資料を一か所に。知りたいことを入れると、裏付けになる論文と症状の知識を探します。</p>
     <div class="counts" id="counts">読み込み中</div>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="メニュー">
     <button class="tab" role="tab" id="tab-papers" aria-selected="true"><img class="ti" src="img/papers-icon.jpg" alt=""><span class="tl">論文</span><span class="n" id="n-papers">0</span><span class="newdot" id="newDot" hidden></span></button>
-    <button class="tab" role="tab" id="tab-basics" aria-selected="false"><img class="ti" src="img/basics-icon.jpg" alt=""><span class="tl">基礎知識</span><span class="n" id="n-basics">0</span></button>
+    <button class="tab" role="tab" id="tab-textbook" aria-selected="false"><img class="ti" src="img/basics-icon.jpg" alt=""><span class="tl">教科書</span><span class="n" id="n-textbook">—</span></button>
+    <button class="tab" role="tab" id="tab-basics" aria-selected="false"><img class="ti" src="img/basics-icon.jpg" alt=""><span class="tl">症状の知識</span><span class="n" id="n-basics">0</span></button>
     <button class="tab" role="tab" id="tab-docs" aria-selected="false"><img class="ti" src="img/materials-icon.jpg" alt=""><span class="tl">資料</span><span class="n" id="n-docs">0</span></button>
     <button class="tab" role="tab" id="tab-summaries" aria-selected="false" hidden><img class="ti" src="img/summaries-icon.jpg" alt=""><span class="tl">まとめ資料</span><span class="n" id="n-summaries">0</span></button>
     <button class="tab" role="tab" id="tab-materials" aria-selected="false" hidden><img class="ti" src="img/materials-icon.jpg" alt=""><span class="tl">勉強会資料</span><span class="n" id="n-materials">0</span></button>
     <button class="tab" role="tab" id="tab-quiz" aria-selected="false"><img class="ti" src="img/quiz-icon.jpg" alt=""><span class="tl">小テスト</span><span class="n">4択・記述</span></button>
-    <button class="tab" role="tab" id="tab-textbook" aria-selected="false"><img class="ti" src="img/basics-icon.jpg" alt=""><span class="tl">教科書</span><span class="n" id="n-textbook">—</span></button>
     <button class="tab" role="tab" id="tab-atlas" aria-selected="false"><img class="ti" src="img/summaries-icon.jpg" alt=""><span class="tl">Atlas</span><span class="n" id="n-atlas">—</span></button>
     <button class="tab" role="tab" id="tab-books" aria-selected="false"><img class="ti" src="img/books-icon.jpg" alt=""><span class="tl">本</span><span class="n" id="n-books">0</span></button>
     <button class="tab" role="tab" id="tab-blog" aria-selected="false" hidden><img class="ti" src="img/blog-icon.jpg" alt=""><span class="tl">ブログ</span><span class="n" id="n-blog">—</span></button>
@@ -802,7 +802,7 @@ body{padding-top:env(safe-area-inset-top)}
   });
   document.addEventListener("change", (e) => { if (e.target.id === "tbPil") { state.tbPil = e.target.checked; render(); } });
   document.addEventListener("toggle", (e) => { const d = e.target.closest && e.target.closest("[data-tbch]"); if (d && d.open) state.tbChOpen = Number(d.dataset.tbch); }, true);
-  const KIND_JA = { papers: "論文", basics: "基礎知識", summaries: "まとめ資料", materials: "勉強会資料", books: "本", textbook: "教科書", free: "自由な考察" };
+  const KIND_JA = { papers: "論文", basics: "症状の知識", summaries: "まとめ資料", materials: "勉強会資料", books: "本", textbook: "教科書", free: "自由な考察" };
   function renderMemo() {
     const q = norm(state.q || "");
     const items = Object.entries(state.notes).map(([key, text]) => {
@@ -963,7 +963,7 @@ body{padding-top:env(safe-area-inset-top)}
         ${secs.map((x) => `<div class="sec">${x.h ? `<h4>${esc(x.h)}</h4>` : ""}<p>${esc(x.b)}</p></div>`).join("")}
         ${noteBlock("summaries", m.id)}
         ${url ? `<div class="rel">資料：<a href="${esc(url)}" target="_blank" rel="noopener">開く</a></div>` : ""}
-        ${rb.length ? `<div class="termlinks"><span class="hint">基礎知識：</span>${rb.map((b) => `<button type="button" data-term="${esc(b.id)}">${esc(b.title)}</button>`).join("")}</div>` : ""}
+        ${rb.length ? `<div class="termlinks"><span class="hint">症状の知識：</span>${rb.map((b) => `<button type="button" data-term="${esc(b.id)}">${esc(b.title)}</button>`).join("")}</div>` : ""}
         ${rp.length ? `<div class="rel">根拠の論文：${rp.map((p) => { const u = safeUrl(p.url); return u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(shortName(p))}</a>` : esc(shortName(p)); }).join("　")}</div>` : ""}
         <div class="top"><div class="tags" style="flex:1">${tagsOf(m).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>
         ${state.canEdit ? `<div class="rowacts"><button class="btn ghost small" data-edit="summaries:${esc(m.id)}">編集</button></div>` : ""}</div>
@@ -1048,7 +1048,7 @@ body{padding-top:env(safe-area-inset-top)}
   }
   const HERO = {
     papers: ["論文", "エビデンスの裏付けを探す"],
-    basics: ["基礎知識", "筋紡錘・神経・脳・感覚の土台"],
+    basics: ["症状の知識", "筋紡錘・神経・脳・感覚の土台"],
     summaries: ["まとめ資料", "調べたことを要点でふり返る"],
     materials: ["勉強会資料", "これまでの勉強会をまとめて見る"],
     quiz: ["小テスト", "4択と記述で理解をたしかめる"],
@@ -1165,7 +1165,7 @@ body{padding-top:env(safe-area-inset-top)}
     renderDocSw();
     $("#tab-basics").setAttribute("aria-selected", state.tab === "basics");
     document.querySelectorAll("#viewsw button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.view === state.view));
-    $("#counts").textContent = state.dbReady ? `論文 ${state.papers.length} 本 · 基礎知識 ${state.basics.length} 項目 · 資料 ${state.materials.length} 件` : $("#counts").textContent;
+    $("#counts").textContent = state.dbReady ? `論文 ${state.papers.length} 本 · 症状の知識 ${state.basics.length} 項目 · 資料 ${state.materials.length} 件` : $("#counts").textContent;
     $("#tab-papers").setAttribute("aria-selected", state.tab === "papers");
     $("#tab-materials").setAttribute("aria-selected", state.tab === "materials");
     renderChips();
@@ -1176,7 +1176,7 @@ body{padding-top:env(safe-area-inset-top)}
     if (!items.length) {
       const base = state[state.tab].length === 0;
       $("#list").innerHTML = `<div class="empty">${base
-        ? ({ papers: "まだ論文がありません。", basics: "まだ基礎知識がありません。", materials: "まだ勉強会資料がありません。", summaries: "まだまとめ資料がありません。チャットの答えの「まとめに保存」からも追加できます。" }[state.tab]) + (state.canEdit ? "「＋ 追加」から登録できます。" : "")
+        ? ({ papers: "まだ論文がありません。", basics: "まだ症状の知識がありません。", materials: "まだ勉強会資料がありません。", summaries: "まだまとめ資料がありません。チャットの答えの「まとめに保存」からも追加できます。" }[state.tab]) + (state.canEdit ? "「＋ 追加」から登録できます。" : "")
         : "一致するものがありません。言葉を変えるか、「チャットで聞く」を試してください。"}</div>`;
       return;
     }
@@ -1306,7 +1306,7 @@ ${JSON.stringify(mats)}`;
   }
   function renderChat() {
     if (!sample) return;
-    $("#chatScope").textContent = `対象：${state.topic === "all" ? "すべて" : state.topic}（論文 ${scopePapers().length}本・基礎知識 ${scopeBasics().length}項目）`;
+    $("#chatScope").textContent = `対象：${state.topic === "all" ? "すべて" : state.topic}（論文 ${scopePapers().length}本・症状の知識 ${scopeBasics().length}項目）`;
     const html = chat.map((m, mi) => {
       if (m.role === "user") return `<div class="msg user"><div class="bubble">${esc(m.text)}</div></div>`;
       if (m.error) return `<div class="msg bot err"><div class="bubble">${esc(m.text)}</div></div>`;
@@ -1314,11 +1314,11 @@ ${JSON.stringify(mats)}`;
       const terms = arr(m.terms).map((id) => state.basics.find((b) => b.id === id)).filter(Boolean);
       return `<div class="msg bot"><div class="bubble">${esc(m.text)}</div>
         ${m.gaps ? `<div class="gap">${esc(m.gaps)}</div>` : ""}
-        ${terms.length ? `<div class="termlinks"><span class="hint">基礎知識：</span>${terms.map((b) => `<button type="button" data-term="${esc(b.id)}">${esc(b.title)}</button>`).join("")}</div>` : ""}
+        ${terms.length ? `<div class="termlinks"><span class="hint">症状の知識：</span>${terms.map((b) => `<button type="button" data-term="${esc(b.id)}">${esc(b.title)}</button>`).join("")}</div>` : ""}
         ${state.canEdit && db ? `<div><button type="button" class="btn ghost small" data-savesum="${mi}" ${m.saved ? "disabled" : ""}>${m.saved ? "まとめに保存済み" : "まとめに保存"}</button></div>` : ""}
         ${cites.length ? `<div class="cites"><span class="lab">根拠にした論文（タップで要点）</span>${cites.join("")}</div>` : ""}</div>`;
     }).join("") + (chatBusy ? `<div class="msg bot"><div class="bubble typing">書庫を読んでいます<span class="dots"></span></div></div>` : "")
-      || `<p class="hint" style="margin:0">基礎知識と書庫の論文だけを根拠に答えます。続けて質問すると、前のやりとりを踏まえて答えます。</p>`;
+      || `<p class="hint" style="margin:0">症状の知識と書庫の論文だけを根拠に答えます。続けて質問すると、前のやりとりを踏まえて答えます。</p>`;
     const box = $("#msgs");
     box.innerHTML = html;
     box.scrollTop = box.scrollHeight;
@@ -1334,9 +1334,9 @@ ${JSON.stringify(mats)}`;
     const mats = state.materials.map((m) => ({ title: m.title, summary: String(m.summary || "").slice(0, 200) }));
     const basics = scopeBasics().map((b) => ({ id: b.id, t: b.title, cat: b.category, s: b.summary,
       body: (Array.isArray(b.sections) ? b.sections.map((x) => `${x.h}：${x.b}`).join(" / ") : "").slice(0, 700), practice: String(b.practice || "").slice(0, 250) }));
-    return `あなたはピラティス・運動指導者の調べものを手伝うリサーチアシスタントです。指導者本人が作った論文の書庫と基礎知識のまとめ（JSON）を使って、会話形式で質問に答えます。
+    return `あなたはピラティス・運動指導者の調べものを手伝うリサーチアシスタントです。指導者本人が作った論文の書庫と症状の知識のまとめ（JSON）を使って、会話形式で質問に答えます。
 ルール：
-- 仕組みや用語の説明は「基礎知識」を土台にする。効果や数値の根拠は書庫の論文だけ。書庫にない論文・数値・著者名を作らない。論文は f（要点）と rx（処方）に書かれた内容だけを使う。
+- 仕組みや用語の説明は「症状の知識」を土台にする。効果や数値の根拠は書庫の論文だけ。書庫にない論文・数値・著者名を作らない。論文は f（要点）と rx（処方）に書かれた内容だけを使う。
 - 強度・回数・頻度・期間などの数値は、書庫にあるものだけを、どの論文の数値か分かるように書く。
 - エビデンスの強さ（lv: A=強い, B=中程度, C=弱い・仮説）と研究デザインを踏まえ、言い過ぎない。献体研究・レビュー・試験管内の知見はそうと分かるように書く。
 - 日本語のです・ます調。言い切りを避け、提案は「〜はいかがでしょうか」の形にする。
@@ -1344,10 +1344,10 @@ ${JSON.stringify(mats)}`;
 - 前の会話の流れを踏まえて答える。
 
 毎回、次の形のJSONだけを返す：
-{"answer":"答え（3〜8文。必要なら改行で箇条書き風にしてよい）","picks":[{"id":"論文id","reason":"この質問にどう関係するか（1文）"}],"terms":["関係する基礎知識のid"],"gaps":"書庫だけでは言えないこと（なければ空文字）"}
-picks は根拠として使った論文を関係の強い順に最大6件。関係する論文がなければ空配列。terms は説明に使った基礎知識を最大4件。
+{"answer":"答え（3〜8文。必要なら改行で箇条書き風にしてよい）","picks":[{"id":"論文id","reason":"この質問にどう関係するか（1文）"}],"terms":["関係する症状の知識のid"],"gaps":"書庫だけでは言えないこと（なければ空文字）"}
+picks は根拠として使った論文を関係の強い順に最大6件。関係する論文がなければ空配列。terms は説明に使った症状の知識を最大4件。
 
-基礎知識：
+症状の知識：
 ${JSON.stringify(basics)}
 
 論文の書庫：
@@ -1416,7 +1416,7 @@ ${JSON.stringify(mats)}`;
   function openSheet(kind, item) {
     state.editing = { kind, id: item?.id || null };
     const x = item || {};
-    $("#sheetTitle").textContent = (item ? "編集：" : "追加：") + ({ papers: "論文", basics: "基礎知識", materials: "勉強会資料", summaries: "まとめ資料", books: "本" }[kind]);
+    $("#sheetTitle").textContent = (item ? "編集：" : "追加：") + ({ papers: "論文", basics: "症状の知識", materials: "勉強会資料", summaries: "まとめ資料", books: "本" }[kind]);
     if (kind === "summaries") {
       const secText = (Array.isArray(x.sections) ? x.sections : []).map((s) => s.h ? `■${s.h}\n${s.b}` : s.b).join("\n\n");
       $("#form").innerHTML = `<div style="display:grid;gap:10px">
@@ -1426,7 +1426,7 @@ ${JSON.stringify(mats)}`;
         ${field("f_sections", "本文（「■見出し」の行で区切る）", secText, "textarea", "■ポイント\n…\n\n■使い方\n…")}
         ${field("f_url", "資料のリンク（任意）", x.url, "url", "https://")}
         ${field("f_tags", "タグ（読点かカンマ区切り）", tagsOf(x).join("、"))}
-        <div class="f"><label>関連する基礎知識</label><div class="pick">${state.basics.slice().sort((a, b) => String(a.title).localeCompare(String(b.title))).map((b) => `<label><input type="checkbox" class="f_terms" value="${esc(b.id)}" ${arr(x.terms).includes(b.id) ? "checked" : ""}> ${esc(b.title)}</label>`).join("")}</div></div>
+        <div class="f"><label>関連する症状の知識</label><div class="pick">${state.basics.slice().sort((a, b) => String(a.title).localeCompare(String(b.title))).map((b) => `<label><input type="checkbox" class="f_terms" value="${esc(b.id)}" ${arr(x.terms).includes(b.id) ? "checked" : ""}> ${esc(b.title)}</label>`).join("")}</div></div>
         <div class="f"><label>根拠の論文</label><div class="pick">${state.papers.slice().sort((a, b) => String(a.title).localeCompare(String(b.title))).map((p) => `<label><input type="checkbox" class="f_rel" value="${esc(p.id)}" ${arr(x.papers).includes(p.id) ? "checked" : ""}> ${esc(shortName(p))}：${esc(p.title)}</label>`).join("")}</div></div>
       </div>`;
       $("#f_sections").style.minHeight = "240px";
@@ -1621,7 +1621,7 @@ ${JSON.stringify(mats)}`;
   const shuffle = (a) => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
   const unlocked = (idx) => idx === 0 || qprog.cleared.includes(STAGES[idx - 1].id);
   const writtenUnlocked = () => qprog.cleared.includes(STAGES[STAGES.length - 1].id);
-  const termBtn = (id) => state.basics.some((b) => b.id === id) ? `<button type="button" class="btn small" data-qterm="${esc(id)}">基礎知識を読む</button>` : "";
+  const termBtn = (id) => state.basics.some((b) => b.id === id) ? `<button type="button" class="btn small" data-qterm="${esc(id)}">症状の知識を読む</button>` : "";
 
   function startStage(idx, onlyWrong) {
     const st = STAGES[idx];
@@ -1636,7 +1636,7 @@ ${JSON.stringify(mats)}`;
     if (!qrun) {
       L.innerHTML = `<div class="quiz">
         <div class="acts" style="justify-content:flex-start;margin-bottom:8px"><button class="btn primary small" id="mTry">朝の${MCOUNT}問をやってみる</button><span class="hint">${streak() ? `${streak()}日連続` : ""}</span></div>
-        <div class="qhead"><h2>小テスト</h2><p class="hint">基礎知識タブの内容から出題します。4択は1ステージ10問、${PASS}問以上正解でクリアして次のステージが開きます。全部クリアすると記述問題に進めます。</p></div>
+        <div class="qhead"><h2>小テスト</h2><p class="hint">症状の知識タブの内容から出題します。4択は1ステージ10問、${PASS}問以上正解でクリアして次のステージが開きます。全部クリアすると記述問題に進めます。</p></div>
         <div class="stages">${STAGES.map((s, i) => { const ok = unlocked(i), done = qprog.cleared.includes(s.id), best = qprog.best[s.id];
           return `<button class="stage ${done ? "done" : ""}" data-stage="${i}" ${ok ? "" : "disabled"}>
             <span class="snum">${done ? "クリア" : ok ? "挑戦できる" : "ロック中"}</span><span class="sname">${esc(s.name)}</span><span class="sdesc">${esc(s.desc)}</span>
@@ -1674,7 +1674,7 @@ ${JSON.stringify(mats)}`;
     const cur = qrun.order[qrun.i], answered = qrun.picked != null;
     L.innerHTML = `<div class="quiz">
       <div class="qbar"><span>${esc(st.name)}${qrun.review ? "（復習）" : ""}</span><span class="meta">${qrun.i + 1} / ${qrun.order.length}　正解 ${qrun.score}</span></div>
-      ${guideHtml(!answered ? "ふっふっふ…この問題、解けるかな？" : cur.opts[qrun.picked] === cur.ok ? "正解！その調子です！" : "おっと！説明を読んで、基礎知識も確認しておきましょう。", answered && cur.opts[qrun.picked] !== cur.ok ? "warn" : "", !answered ? "scheme" : cur.opts[qrun.picked] === cur.ok ? "good" : "oops")}
+      ${guideHtml(!answered ? "ふっふっふ…この問題、解けるかな？" : cur.opts[qrun.picked] === cur.ok ? "正解！その調子です！" : "おっと！説明を読んで、症状の知識も確認しておきましょう。", answered && cur.opts[qrun.picked] !== cur.ok ? "warn" : "", !answered ? "scheme" : cur.opts[qrun.picked] === cur.ok ? "good" : "oops")}
       <div class="prog"><span style="width:${(qrun.i / qrun.order.length) * 100}%"></span></div>
       <div class="qcard"><h3>${esc(cur.q)}</h3>
         <div class="opts">${cur.opts.map((o, k) => {
@@ -1956,7 +1956,7 @@ ${text.slice(0, 2000)}`;
       <div class="f"><label>表紙の写真</label><div class="bcoverrow">${blogSafe(d.cover) ? `<img class="bthumb" src="${esc(d.cover)}" alt="">` : `<span class="hint">まだありません</span>`}
         <button type="button" class="btn small" id="beCoverBtn">写真を選ぶ</button>${d.cover ? `<button type="button" class="btn ghost small" id="beCoverDel">外す</button>` : ""}<input type="file" id="beCoverIn" accept="image/*" hidden></div></div>
       <div class="f"><label for="beBody">本文</label>
-        <div class="btool"><button type="button" class="btn small" id="beH">＋ 見出し</button><button type="button" class="btn small" id="beImg">＋ 写真</button><button type="button" class="btn small" id="beRef">＋ 論文・基礎知識</button><input type="file" id="beImgIn" accept="image/*" hidden></div>
+        <div class="btool"><button type="button" class="btn small" id="beH">＋ 見出し</button><button type="button" class="btn small" id="beImg">＋ 写真</button><button type="button" class="btn small" id="beRef">＋ 論文・症状の知識</button><input type="file" id="beImgIn" accept="image/*" hidden></div>
         <div id="beRefBox"></div>
         <textarea id="beBody" rows="14" placeholder="ここに本文を書きます。&#10;「■」で始まる行は見出しになります。&#10;空いた行で段落が分かれます。">${esc(d.body)}</textarea>
         <span class="hint">【写真1】【参考1】の文字は、その場所に写真や論文の紹介が入るしるしです。</span></div>
@@ -1992,7 +1992,7 @@ ${text.slice(0, 2000)}`;
     const q = norm(qstr || "");
     const pool = [...state.papers.map((x) => ({ kind: "papers", x })), ...state.basics.map((x) => ({ kind: "basics", x })), ...state.summaries.map((x) => ({ kind: "summaries", x }))]
       .filter(({ x }) => !q || norm([x.title, x.authors, (x.tags || []).join(" "), x.topic].join(" ")).includes(q)).slice(0, 15);
-    return pool.map(({ kind, x }) => `<button type="button" class="bpick" data-pick="${kind}:${esc(x.id)}"><span class="kind">${{ papers: "論文", basics: "基礎知識", summaries: "まとめ" }[kind]}</span>${esc(x.title)}</button>`).join("") || `<p class="hint">見つかりません。</p>`;
+    return pool.map(({ kind, x }) => `<button type="button" class="bpick" data-pick="${kind}:${esc(x.id)}"><span class="kind">${{ papers: "論文", basics: "症状の知識", summaries: "まとめ" }[kind]}</span>${esc(x.title)}</button>`).join("") || `<p class="hint">見つかりません。</p>`;
   }
   document.addEventListener("input", (e) => { if (e.target.id === "beRefQ") $("#beRefList").innerHTML = refPicker(e.target.value); });
   document.addEventListener("change", async (e) => {
@@ -2018,12 +2018,12 @@ ${text.slice(0, 2000)}`;
     if (id === "beImg") { $("#beImgIn").click(); return; }
     if (id === "beCoverBtn") { $("#beCoverIn").click(); return; }
     if (id === "beCoverDel") { syncDraft(); draft.cover = ""; renderEditor(); return; }
-    if (id === "beRef") { const b = $("#beRefBox"); b.innerHTML = b.innerHTML ? "" : `<div class="bpicker"><input id="beRefQ" placeholder="論文・基礎知識を検索"><div id="beRefList">${refPicker("")}</div></div>`; $("#beRefQ")?.focus(); return; }
+    if (id === "beRef") { const b = $("#beRefBox"); b.innerHTML = b.innerHTML ? "" : `<div class="bpicker"><input id="beRefQ" placeholder="論文・症状の知識を検索"><div id="beRefList">${refPicker("")}</div></div>`; $("#beRefQ")?.focus(); return; }
     const pk = e.target.closest("[data-pick]");
     if (pk) {
       const [kind, pid] = splitKey(pk.dataset.pick); const x = (state[kind] || []).find((y) => y.id === pid); if (!x) return;
       const snap = kind === "papers" ? { kind, id: pid, title: x.title, meta: [x.authors, x.year, x.journal].filter(Boolean).join(" · "), url: x.url || "", text: String(x.finding || "").slice(0, 160) }
-        : { kind, id: pid, title: x.title, meta: kind === "basics" ? "基礎知識" : "まとめ", url: "", text: String(x.summary || x.lead || "").slice(0, 160) };
+        : { kind, id: pid, title: x.title, meta: kind === "basics" ? "症状の知識" : "まとめ", url: "", text: String(x.summary || x.lead || "").slice(0, 160) };
       draft.refs.push(snap); insertAtCursor(`【参考${draft.refs.length}】`, true); syncDraft(); renderEditor(); return;
     }
     const imd = e.target.closest("[data-imdel]"); if (imd) { syncDraft(); const i = Number(imd.dataset.imdel); draft.images.splice(i, 1); draft.body = renumber(draft.body, "写真", i); renderEditor(); return; }
