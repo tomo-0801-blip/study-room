@@ -2163,6 +2163,7 @@ ${text.slice(0, 2000)}`;
     }
     if (/[?&#](morning|break)/.test(location.href)) await Promise.race([loadTextbook(), new Promise((r) => setTimeout(r, 1500))]);
     else loadTextbook().then(() => render());
+    if (window.studyBlog && state.posts == null) loadBlog();
     if (/[?&#]morning/.test(location.href)) openMorning();
     else if (/[?&#]break/.test(location.href)) openMorning("break");
     if (window.studyNotes) window.studyNotes.all().then((n) => { state.notes = n.notes; state.noteTimes = n.times; render(); }).catch(() => {});
