@@ -72,8 +72,8 @@ button{font:inherit;cursor:pointer}
 .ex{font-size:12.5px;padding:3px 10px;border-radius:999px;border:1px dashed var(--line);background:transparent;color:var(--ink-2)}
 .ex:hover{border-color:var(--accent);color:var(--accent)}
 
-.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;display:grid;grid-template-columns:repeat(8,1fr);gap:6px;padding-block:10px;margin-bottom:16px;background:var(--paper);border-bottom:1px solid var(--line)}
-@media (max-width:620px){.tabs{grid-template-columns:repeat(4,1fr)}}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;display:grid;grid-template-columns:repeat(10,1fr);gap:6px;padding-block:10px;margin-bottom:16px;background:var(--paper);border-bottom:1px solid var(--line)}
+@media (max-width:620px){.tabs{grid-template-columns:repeat(5,1fr)}}
 .tab{display:grid;gap:1px;justify-items:center;align-content:center;min-height:54px;padding:6px 4px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font:inherit}
 .tab .tl{font-size:15px;font-weight:700;white-space:nowrap}
 .tab .ti{width:30px;height:30px;border-radius:50%;object-fit:cover;border:1.5px solid var(--line);margin-bottom:2px}
@@ -312,7 +312,7 @@ body{padding-top:env(safe-area-inset-top)}
 .card.memo .note{margin-top:4px}
 .linkish{all:unset;cursor:pointer;color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
 .linkish:hover{color:var(--accent)}
-@media (max-width:620px){.tabs{grid-template-columns:repeat(4,1fr)}.tab .tl{font-size:13px}}
+@media (max-width:620px){.tabs{grid-template-columns:repeat(5,1fr);gap:4px}.tab .tl{font-size:11.5px;letter-spacing:-.02em}}
 #morning{position:fixed;inset:0;z-index:50;background:var(--paper);overflow:auto;padding:calc(env(safe-area-inset-top) + 16px) 16px 32px}
 #morning .mwrap{max-width:640px;margin:0 auto;display:grid;gap:12px}
 #morning .mhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -377,6 +377,44 @@ body{padding-top:env(safe-area-inset-top)}
 .newwrap{position:relative}
 .newwrap.unread>.card{border-color:var(--accent)}
 .unreadmark{position:absolute;top:-8px;right:10px;z-index:1;background:var(--accent);color:#fff;font-size:11px;font-weight:700;border-radius:999px;padding:0 8px;line-height:20px}
+.tbbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.tbsw{display:inline-flex;gap:6px;align-items:center;font-size:14px;font-weight:600;background:var(--teal-soft);color:var(--teal);padding:6px 12px;border-radius:999px;cursor:pointer}
+.tbsw input{accent-color:var(--teal);width:16px;height:16px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.tbex{margin-bottom:12px}
+.tbch{background:var(--surface);border:1px solid var(--line);border-radius:8px;margin-bottom:8px}
+.tbch>summary{cursor:pointer;padding:12px 14px;display:flex;gap:8px;align-items:baseline;font-size:15px}
+.tbch>summary .hint{margin-left:auto}
+.tblist{display:grid;border-top:1px solid var(--line-2)}
+.tbrow{display:flex;gap:10px;align-items:baseline;text-align:left;padding:10px 14px;background:none;border:0;border-bottom:1px solid var(--line-2);font:inherit;color:var(--ink);cursor:pointer}
+.tbrow:hover{background:var(--sunk)}
+.tbrow.todo{color:var(--ink-3)}
+.tbrow .tbt{flex:1;font-size:14px;line-height:1.5}
+.tbrow small{margin-left:6px;font-size:11px;color:var(--ink-3);border:1px solid var(--line);border-radius:4px;padding:0 5px}
+.tbno{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbrel{font-size:12px;font-weight:700;border-radius:4px;padding:0 6px;white-space:nowrap}
+.tbrel.r2{background:var(--accent-soft);color:var(--accent)}.tbrel.r1{background:var(--teal-soft);color:var(--teal)}.tbrel.r0{background:var(--sunk);color:var(--ink-3)}
+.tbcard{cursor:pointer;margin-bottom:10px}
+.tbcard:hover{border-color:var(--teal)}
+.tbpage{display:grid;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px}
+.tbpage>.btn{justify-self:start}
+.tbpage h2{font-size:20px;margin:0;line-height:1.45}
+.tbhead{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tbst{font-size:11px;border:1px solid var(--amber,#b7791f);color:var(--amber,#b7791f);border-radius:4px;padding:0 6px}
+.tbone{background:var(--teal-soft);border-radius:8px;padding:12px 14px;line-height:1.75}
+.tbone b,.tbpil b,.tbwarn b{display:block;font-size:13px;margin-bottom:4px}
+.tbone b{color:var(--teal)}
+.tbpage .sec h4{margin:4px 0 4px;font-size:15px}
+.tbpage .sec p{margin:0;line-height:1.8}
+.tbpil{border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 8px 8px 0;padding:10px 14px}
+.tbpil b{color:var(--accent)}
+.tbpil ul{margin:0;padding-left:1.2em;display:grid;gap:4px;line-height:1.7}
+.tbcard .tbpil{margin-top:4px}
+.tbwarn{border:1px solid var(--amber,#b7791f);border-radius:8px;padding:10px 14px;line-height:1.7}
+.tbwarn b{color:var(--amber,#b7791f)}
+.tbq h4{margin:0;font-size:13px;color:var(--teal)}
+.tbdeep{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:10px}
+.tbref{font:inherit;font-size:.92em;color:var(--teal);background:none;border:0;border-bottom:1px dashed var(--teal);padding:0;cursor:pointer}
 </style>
 </head>
 <body>
@@ -395,6 +433,8 @@ body{padding-top:env(safe-area-inset-top)}
     <button class="tab" role="tab" id="tab-summaries" aria-selected="false"><img class="ti" src="img/summaries-icon.jpg" alt=""><span class="tl">まとめ資料</span><span class="n" id="n-summaries">0</span></button>
     <button class="tab" role="tab" id="tab-materials" aria-selected="false"><img class="ti" src="img/materials-icon.jpg" alt=""><span class="tl">勉強会資料</span><span class="n" id="n-materials">0</span></button>
     <button class="tab" role="tab" id="tab-quiz" aria-selected="false"><img class="ti" src="img/quiz-icon.jpg" alt=""><span class="tl">小テスト</span><span class="n">4択・記述</span></button>
+    <button class="tab" role="tab" id="tab-textbook" aria-selected="false"><img class="ti" src="img/basics-icon.jpg" alt=""><span class="tl">教科書</span><span class="n" id="n-textbook">—</span></button>
+    <button class="tab" role="tab" id="tab-atlas" aria-selected="false"><img class="ti" src="img/summaries-icon.jpg" alt=""><span class="tl">Atlas</span><span class="n" id="n-atlas">—</span></button>
     <button class="tab" role="tab" id="tab-books" aria-selected="false"><img class="ti" src="img/books-icon.jpg" alt=""><span class="tl">本</span><span class="n" id="n-books">0</span></button>
     <button class="tab" role="tab" id="tab-blog" aria-selected="false" hidden><img class="ti" src="img/blog-icon.jpg" alt=""><span class="tl">ブログ</span><span class="n" id="n-blog">—</span></button>
     <button class="tab" role="tab" id="tab-memo" aria-selected="false" hidden><img class="ti" src="img/memo-icon.jpg" alt=""><span class="tl">考察</span><span class="n" id="n-memo">0</span></button>
@@ -455,11 +495,12 @@ body{padding-top:env(safe-area-inset-top)}
 <script src="shim.js"></script>
 <script src="presets.js"></script>
 <script src="blogrender.js"></script>
+<script src="atlas.js"></script>
 <script>
 (() => {
   const $ = (s) => document.querySelector(s);
   const BASIC_CATS = ["疾患・症状","受容器","神経と反射","脳","感覚器官"];
-  const state = { newOnly: false, posts: null, comments: [], openComments: null, books: [], bookView: "rec", bookGenre: "all", notes: {}, noteTimes: {}, papers: [], materials: [], basics: [], summaries: [], bcat: null, openTerm: null, tab: "papers", tag: null, q: "", canEdit: false, dbReady: false, ai: null, editing: null,
+  const state = { tb: null, tbOpen: null, tbPil: false, tbRel: "all", tbAns: {}, textbook: [], newOnly: false, posts: null, comments: [], openComments: null, books: [], bookView: "rec", bookGenre: "all", notes: {}, noteTimes: {}, papers: [], materials: [], basics: [], summaries: [], bcat: null, openTerm: null, tab: "papers", tag: null, q: "", canEdit: false, dbReady: false, ai: null, editing: null,
     topic: "all", view: "cards", f: { contraction: null, intensityCat: null, freqCat: null } };
   const CONTRACTIONS = ["アイソメトリック","エキセントリック","コンセントリック","複合（求心＋遠心）","プライオメトリック","ストレッチ・モビライゼーション","その他"];
   const INTENSITY_CATS = ["高（≥70%MVC・重い負荷）","中〜低（<70%MVC）","自重・最大努力","痛み・耐性で調整","—"];
@@ -650,7 +691,112 @@ body{padding-top:env(safe-area-inset-top)}
       <div class="top"><div style="flex:1"></div>${state.canEdit ? `<div class="rowacts">${(b.status || "おすすめ") === "読みたい" ? `<button class="btn ghost small" data-bmove="${esc(b.id)}">読んだ → おすすめへ</button>` : ""}<button class="btn ghost small" data-edit="books:${esc(b.id)}">編集</button></div>` : ""}</div>
     </article>`;
   }
-  const KIND_JA = { papers: "論文", basics: "基礎知識", summaries: "まとめ資料", materials: "勉強会資料", books: "本", free: "自由な考察" };
+  // ---------- 教科書 ----------
+  async function loadTextbook() {
+    if (state.tb) return state.tb;
+    try {
+      const d = await fetch("textbook.json", { cache: "no-cache" }).then((r) => r.json());
+      state.tb = d;
+      state.textbook = d.chapters.flatMap((c) => c.items.map((id) => ({ ...d.items[id], ch: c.n, chTitle: c.title })));
+    } catch { state.tb = { chapters: [], items: {} }; state.textbook = []; }
+    return state.tb;
+  }
+  let atlasOn = false;
+  const tbItem = (id) => state.textbook.find((x) => x.id === id);
+  const tbRefs = (t) => esc(t).replace(/(\d{1,2}-\d{1,2})(?= ?参照|[、）)])/g, (m) => tbItem(m) ? `<button type="button" class="tbref" data-tbopen="${m}">${m}</button>` : m);
+  function tbScore(x, terms) {
+    const pg = x.page || {};
+    const hi = norm([x.title, ...(x.words || [])].join(" "));
+    const mid = norm([pg.one, ...(pg.pilates || [])].join(" "));
+    const lo = norm([...(pg.secs || []).map((s) => s.h + " " + s.b), pg.caution].join(" "));
+    let sc = 0;
+    const tt = norm(x.title);
+    for (const t of terms) { if (tt.includes(t)) sc += 5; if (hi.includes(t)) sc += 10; else if (mid.includes(t)) sc += 4; else if (lo.includes(t)) sc += 2; else return 0; }
+    return sc + (x.page ? 1 : 0) + ({ "◎": .6, "○": .3 }[x.rel] || 0);
+  }
+  const relBadge = (r) => `<span class="tbrel r${r === "◎" ? 2 : r === "○" ? 1 : 0}" title="ピラティスでの使う度合い">${esc(r)}</span>`;
+  function tbRow(x) {
+    return `<button type="button" class="tbrow ${x.page ? "" : "todo"}" data-tbopen="${esc(x.id)}">
+      <span class="tbno">${esc(x.id)}</span><span class="tbt">${esc(x.title)}${x.page ? "" : `<small>準備中</small>`}</span>${relBadge(x.rel)}</button>`;
+  }
+  function tbCard(x) {
+    const pg = x.page;
+    return `<article class="card tbcard" data-tbopen="${esc(x.id)}">
+      <div class="top"><span class="kind">第${x.ch}章 ${esc(x.chTitle)}</span>${relBadge(x.rel)}</div>
+      <h3><span class="tbno">${esc(x.id)}</span> ${esc(x.title)}</h3>
+      ${pg ? (state.tbPil ? `<div class="tbpil"><b>ピラティスでの関わり</b><ul>${pg.pilates.map((t) => `<li>${tbRefs(t)}</li>`).join("")}</ul></div>` : `<p class="finding">${esc(pg.one)}</p>`) : `<p class="hint">このページはまだ準備中です。</p>`}
+      <div class="tags">${(x.words || []).slice(0, 8).map((w) => `<span class="tag">${esc(w)}</span>`).join("")}</div>
+    </article>`;
+  }
+  function tbPage(x) {
+    const pg = x.page;
+    const qz = pg && pg.quiz, ans = state.tbAns[x.id];
+    let opts = state.tbAns["o:" + x.id];
+    if (qz && !opts) { opts = shuffle([qz.ok, ...qz.ng]); state.tbAns["o:" + x.id] = opts; }
+    return `<div class="tbpage">
+      <button type="button" class="btn ghost small" id="tbBack">← ${state.q.trim() ? "検索結果に戻る" : "目次に戻る"}</button>
+      <div class="tbhead"><span class="kind">第${x.ch}章 ${esc(x.chTitle)}</span>${relBadge(x.rel)}${pg ? `<span class="tbst">${esc(pg.status || "下書き")}</span>` : ""}</div>
+      <h2><span class="tbno">${esc(x.id)}</span> ${esc(x.title)}</h2>
+      ${!pg ? `<div class="empty">このページはまだ準備中です。</div>` : `
+      <div class="tbone"><b>ひとことで言うと</b>${tbRefs(pg.one)}</div>
+      ${state.tbPil ? "" : pg.secs.map((s) => `<div class="sec"><h4>${esc(s.h)}</h4><p>${tbRefs(s.b)}</p></div>`).join("")}
+      <div class="tbpil"><b>ピラティスでの関わり</b><ul>${pg.pilates.map((t) => `<li>${tbRefs(t)}</li>`).join("")}</ul></div>
+      ${pg.caution ? `<div class="tbwarn"><b>注意</b>${tbRefs(pg.caution)}</div>` : ""}
+      ${state.tbPil ? `<button type="button" class="linkish" id="tbAll">仕組みの説明も読む</button>` : ""}
+      ${qz ? `<div class="qcard tbq"><h4>確認問題</h4><h3>${esc(qz.q)}</h3><div class="opts">${opts.map((o, k) => {
+          let cls = ""; if (ans != null) { if (o === qz.ok) cls = "right"; else if (k === ans) cls = "wrong"; }
+          return `<button class="opt ${cls}" data-tbq="${k}" ${ans != null ? "disabled" : ""}><span class="ol">${"ABCD"[k]}</span><span>${esc(o)}</span></button>`; }).join("")}</div>
+        ${ans != null ? `<div class="explain ${opts[ans] === qz.ok ? "ok" : "ng"}"><b>${opts[ans] === qz.ok ? "正解" : "不正解"}</b>${esc(qz.ex)}</div>` : ""}</div>` : ""}`}
+      <div class="tags">${(x.words || []).map((w) => `<span class="tag">${esc(w)}</span>`).join("")}</div>
+      ${pg ? noteBlock("textbook", x.id) : ""}
+      ${pg && window.Atlas && atlasOn ? `<div class="tbdeep">${Atlas.has("phys-" + x.id)
+        ? `<button type="button" class="btn ghost small" data-tbdeep="${esc(x.id)}">Atlasの記事を開く</button><span class="hint">このテーマは Atlas で深掘り中です。</span>`
+        : state.canEdit ? `<button type="button" class="btn ghost small" data-tbdeep="${esc(x.id)}">Atlasで深掘りする</button><span class="hint">文献で裏付けて固めたいときに。このページが下書きとして Atlas の記事になります。</span>` : ""}</div>` : ""}
+    </div>`;
+  }
+  function renderTextbook() {
+    const L = $("#list");
+    if (!state.tb) { L.innerHTML = `<div class="empty">教科書を読み込んでいます…</div>`; loadTextbook().then(() => { if (state.tab === "textbook") render(); }); return; }
+    if (!state.textbook.length) { L.innerHTML = `<div class="empty">教科書を読み込めませんでした。通信を確かめて、もう一度開いてください。</div>`; return; }
+    if (state.tbOpen && tbItem(state.tbOpen)) { L.innerHTML = tbPage(tbItem(state.tbOpen)); return; }
+    const done = state.textbook.filter((x) => x.page).length;
+    const bar = `<div class="tbbar">
+      <label class="tbsw"><input type="checkbox" id="tbPil" ${state.tbPil ? "checked" : ""}> ピラティスの部分だけ</label>
+      <div class="chips">${[["all", "すべて"], ["◎", "◎ よく使う"], ["○", "○ ときどき"], ["△", "△ 背景"]].map(([v, t]) => `<button type="button" class="chip" data-tbrel="${v}" aria-pressed="${state.tbRel === v}">${t}</button>`).join("")}</div>
+      <span class="hint">${esc(state.tb.subject || "")} ${done}ページ書き済み／全${state.textbook.length}項目</span></div>`;
+    const relOk = (x) => state.tbRel === "all" || x.rel === state.tbRel;
+    const q = (state.q || "").trim();
+    if (q) {
+      const terms = norm(q).split(/[\s　]+/).filter(Boolean);
+      const hits = state.textbook.filter(relOk).map((x) => [x, tbScore(x, terms)]).filter((p) => p[1] > 0).sort((a, b) => b[1] - a[1]).map((p) => p[0]);
+      L.innerHTML = bar + (hits.length ? `<p class="hint">「${esc(q)}」に関係するページ ${hits.length}件</p>` + hits.map(tbCard).join("") : `<div class="empty">一致するページがありません。別の言い方でも試してみてください。</div>`);
+      return;
+    }
+    const ex = ["むくみ", "肩こり", "立ちくらみ", "筋肉痛", "冷え", "過呼吸", "体が硬い"];
+    L.innerHTML = bar + `<div class="chips tbex">${ex.map((w) => `<button type="button" class="chip" data-tbq-word="${w}">${w}</button>`).join("")}</div>` +
+      state.tb.chapters.map((c) => {
+        const its = c.items.map(tbItem).filter(relOk); if (!its.length) return "";
+        const n = its.filter((x) => x.page).length;
+        return `<details class="tbch" ${state.tbChOpen === c.n ? "open" : ""} data-tbch="${c.n}"><summary><b>第${c.n}章</b> ${esc(c.title)}<span class="hint">${n}/${its.length}ページ</span></summary>
+          <div class="tblist">${its.map(tbRow).join("")}</div></details>`;
+      }).join("");
+  }
+  document.addEventListener("click", (e) => {
+    if (state.tab !== "textbook") return;
+    const dp = e.target.closest("[data-tbdeep]");
+    if (dp && window.Atlas) { Atlas.deepen(dp.dataset.tbdeep).then((ok) => { if (ok) { state.tab = "atlas"; state.q = ""; $("#q").value = ""; render(); window.scrollTo({ top: 0 }); } }); return; }
+    const op = e.target.closest("[data-tbopen]");
+    if (op && !e.target.closest("[data-note-edit],.note")) { state.tbOpen = op.dataset.tbopen; render(); $("#list").scrollIntoView({ block: "start" }); return; }
+    if (e.target.closest("#tbBack")) { state.tbOpen = null; render(); return; }
+    if (e.target.closest("#tbAll")) { state.tbPil = false; render(); return; }
+    const r = e.target.closest("[data-tbrel]"); if (r) { state.tbRel = r.dataset.tbrel; render(); return; }
+    const w = e.target.closest("[data-tbq-word]"); if (w) { state.q = w.dataset.tbqWord; $("#q").value = state.q; render(); return; }
+    const o = e.target.closest("[data-tbq]");
+    if (o && state.tbOpen && state.tbAns[state.tbOpen] == null) { state.tbAns[state.tbOpen] = Number(o.dataset.tbq); render(); }
+  });
+  document.addEventListener("change", (e) => { if (e.target.id === "tbPil") { state.tbPil = e.target.checked; render(); } });
+  document.addEventListener("toggle", (e) => { const d = e.target.closest && e.target.closest("[data-tbch]"); if (d && d.open) state.tbChOpen = Number(d.dataset.tbch); }, true);
+  const KIND_JA = { papers: "論文", basics: "基礎知識", summaries: "まとめ資料", materials: "勉強会資料", books: "本", textbook: "教科書", free: "自由な考察" };
   function renderMemo() {
     const q = norm(state.q || "");
     const items = Object.entries(state.notes).map(([key, text]) => {
@@ -902,6 +1048,8 @@ body{padding-top:env(safe-area-inset-top)}
     quiz: ["小テスト", "4択と記述で理解をたしかめる"],
     memo: ["考察", "自分の考察をまとめて見る"],
     books: ["本", "読みたい本と、おすすめの本"],
+    textbook: ["教科書", "生理学を、普段の言葉でさっと引く"],
+    atlas: ["My Knowledge Atlas", "大事なテーマを、根拠と一緒にじっくり固める"],
     blog: ["ブログ", "学びを記事にして、誰でも読めるページへ"],
   };
   // ---------- 案内キャラ ----------
@@ -914,11 +1062,13 @@ body{padding-top:env(safe-area-inset-top)}
     books: "読みたい本とおすすめの本を分けて残せます。読み終わったら「おすすめへ」。",
     blog: "学びを記事にしてみましょう。下書き保存しておけば、続きはいつでも書けます。",
     memo: "論文や資料に書いた考察が、ここにまとまります。自分だけが見られます。",
+    textbook: "「むくみ」「肩こり」みたいな普段の言葉で探せます。「ピラティスの部分だけ」にすると、指導で使うところだけ読めますよ。",
+    atlas: "教えるために固めたいテーマだけ、ここで記事にしましょう。主張ごとに文献を付けて、確かめるまでは「未検証」です。",
   };
   const GKEY = "evlib-guide-off";
   const guideOff = () => { try { return localStorage.getItem(GKEY) === "1"; } catch { return false; } };
   const guideHtml = (text, cls = "", pose = "wave") => `<div class="guide ${cls} ${pose === "pilates" ? "wide" : ""}"><img src="img/guide-${pose}.png" alt="向トレーナー"><div class="gbubble">${text}</div></div>`;
-  const GUIDE_POSE = { papers: "read", basics: "think", summaries: "think", materials: "read", quiz: "scheme", books: "read", blog: "pilates", memo: "think" };
+  const GUIDE_POSE = { papers: "read", basics: "think", summaries: "think", materials: "read", quiz: "scheme", books: "read", textbook: "read", atlas: "think", blog: "pilates", memo: "think" };
   function renderGuideTip() {
     const g = $("#guideTip"); if (!g) return;
     const k = state.tab;
@@ -934,10 +1084,26 @@ body{padding-top:env(safe-area-inset-top)}
     renderGuideTip();
     if (h.dataset.k === k) return;
     h.dataset.k = k;
-    h.innerHTML = `<img src="img/${k}.jpg" alt=""><div class="ht"><b>${HERO[k][0]}</b><span>${HERO[k][1]}</span></div>`;
+    h.innerHTML = `<img src="img/${k === "textbook" ? "basics" : k === "atlas" ? "summaries" : k}.jpg" alt=""><div class="ht"><b>${HERO[k][0]}</b><span>${HERO[k][1]}</span></div>`;
   }
   function render() {
     renderHero();
+    const tbTab = state.tab === "textbook", atTab = state.tab === "atlas";
+    $("#tab-textbook").setAttribute("aria-selected", tbTab);
+    $("#tab-atlas").setAttribute("aria-selected", atTab);
+    $("#examples").hidden = tbTab || atTab;
+    $("#q").placeholder = tbTab ? "例：むくみ、肩こり、立ちくらみ" : atTab ? "例：腱スティフネス、RFD" : "例：肉離れ後、アイソメトリックはどの長さから？";
+    if (state.tb) $("#n-textbook").textContent = `${state.textbook.filter((x) => x.page).length}/${state.textbook.length}`;
+    if (window.Atlas && Atlas.counts().ready) $("#n-atlas").textContent = Atlas.counts().articles;
+    if (tbTab || atTab) {
+      ["papers","basics","materials","summaries","quiz","memo","books","blog"].forEach((k) => $("#tab-" + k).setAttribute("aria-selected", false));
+      $("#topics").hidden = true; $("#bulkBtn").hidden = true; $("#facets").hidden = true; $("#viewsw").hidden = true; $("#addBtn").hidden = true;
+      if ($("#newBar")) $("#newBar").innerHTML = "";
+      if (tbTab) { $("#searchHint").textContent = "普段の言葉や専門用語で、教科書のページを探します。"; renderTextbook(); return; }
+      $("#searchHint").textContent = "日本語・英語のタイトル、タグ、本文から記事を探します。";
+      if (window.Atlas && atlasOn) Atlas.render($("#list")); else $("#list").innerHTML = `<div class="empty">My Knowledge Atlas を準備しています…</div>`;
+      return;
+    }
     $("#tab-memo").hidden = !window.studyNotes;
     $("#n-memo").textContent = Object.keys(state.notes).length;
     $("#tab-blog").hidden = !window.studyBlog;
@@ -1514,13 +1680,15 @@ ${JSON.stringify(mats)}`;
     return n;
   }
   let mrun = null;
-  function openMorning() {
-    const all = STAGES.flatMap((st) => st.qs.map((q, i) => ({ ...q, key: `${st.id}:${i}` })));
+  function openMorning(mode) {
+    const brk = mode === "break", N = brk ? 3 : MCOUNT;
+    const all = STAGES.flatMap((st) => st.qs.map((q, i) => ({ ...q, key: `${st.id}:${i}` })))
+      .concat(state.textbook.filter((x) => x.page && x.page.quiz).map((x) => ({ ...x.page.quiz, key: `tb:${x.id}` })));
     const now = Date.now();
     const prio = (q) => { const t = mstore.stat[q.key]; if (!t) return 2 + Math.random(); const days = (now - (t.seen || 0)) / 864e5;
       return (t.wrong || 0) * 3 - (t.right || 0) + Math.min(days, 14) / 7 + Math.random(); };
-    const pick = shuffle(all).map((q) => ({ q, p: prio(q) })).sort((a, b) => b.p - a.p).slice(0, MCOUNT).map(({ q }) => ({ ...q, opts: shuffle([q.ok, ...q.ng]) }));
-    mrun = { order: pick, i: 0, picked: null, score: 0 };
+    const pick = shuffle(all).map((q) => ({ q, p: prio(q) })).sort((a, b) => b.p - a.p).slice(0, N).map(({ q }) => ({ ...q, opts: shuffle([q.ok, ...q.ng]) }));
+    mrun = { order: pick, i: 0, picked: null, score: 0, brk };
     let box = $("#morning");
     if (!box) { box = document.createElement("div"); box.id = "morning"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); document.body.appendChild(box); }
     box.hidden = false; document.body.style.overflow = "hidden";
@@ -1528,6 +1696,15 @@ ${JSON.stringify(mats)}`;
   }
   function renderMorning() {
     const box = $("#morning"); if (!box || !mrun) return;
+    const brk = mrun.brk, N = mrun.order.length, H = brk ? "見過ぎ！問題の時間" : "おはようございます";
+    if (mrun.i >= mrun.order.length && brk) {
+      box.innerHTML = `<div class="mwrap"><div class="mhead"><b>${H}</b><span>${N}問</span></div>
+        ${guideHtml(mrun.score === N ? "全問正解！さすがです。スマホを置いて、少し体を動かしましょう。" : "おつかれさまでした！スマホを置いて、ひと息つきましょう。", "", "pilates")}
+        <div class="result pass"><div class="big">${mrun.score} / ${N}</div>
+        <p>間違えた問題は、朝の5問でまた出てきます。</p>
+        <div class="acts" style="justify-content:center"><button class="btn primary" id="mDone">おしまい</button></div></div></div>`;
+      return;
+    }
     if (mrun.i >= mrun.order.length) {
       const d = today(); if (!mstore.days.includes(d)) mstore.days.push(d); mstore.days = mstore.days.slice(-400); saveM();
       box.innerHTML = `<div class="mwrap"><div class="mhead"><b>おはようございます</b><span>朝の${MCOUNT}問</span></div>
@@ -1539,8 +1716,8 @@ ${JSON.stringify(mats)}`;
       return;
     }
     const cur = mrun.order[mrun.i], answered = mrun.picked != null;
-    box.innerHTML = `<div class="mwrap"><div class="mhead"><b>おはようございます</b><span>朝の${MCOUNT}問　${mrun.i + 1} / ${mrun.order.length}</span></div>
-      ${guideHtml(!answered ? (mrun.i === 0 ? "おはようございます！今日も5問いきましょう。" : `ふっふっふ…${mrun.i + 1}問目、解けるかな？`) : cur.opts[mrun.picked] === cur.ok ? "正解！その調子です！" : "おっと！下の説明で確認しておきましょう。", answered && cur.opts[mrun.picked] !== cur.ok ? "warn" : "", !answered ? (mrun.i === 0 ? "wave" : "scheme") : cur.opts[mrun.picked] === cur.ok ? "good" : "oops")}
+    box.innerHTML = `<div class="mwrap"><div class="mhead"><b>${H}</b><span>${brk ? "" : "朝の"}${N}問　${mrun.i + 1} / ${N}</span></div>
+      ${guideHtml(!answered ? (mrun.i === 0 ? (brk ? "見過ぎ！問題の時間ですよ。3問解いたら戻っていいですよ。" : "おはようございます！今日も5問いきましょう。") : `ふっふっふ…${mrun.i + 1}問目、解けるかな？`) : cur.opts[mrun.picked] === cur.ok ? "正解！その調子です！" : "おっと！下の説明で確認しておきましょう。", answered && cur.opts[mrun.picked] !== cur.ok ? "warn" : "", !answered ? (mrun.i === 0 && !brk ? "wave" : "scheme") : cur.opts[mrun.picked] === cur.ok ? "good" : "oops")}
       <div class="prog"><span style="width:${(mrun.i / mrun.order.length) * 100}%"></span></div>
       <div class="qcard"><h3>${esc(cur.q)}</h3>
         <div class="opts">${cur.opts.map((o, k) => {
@@ -1548,7 +1725,7 @@ ${JSON.stringify(mats)}`;
           return `<button class="opt ${cls}" data-mopt="${k}" ${answered ? "disabled" : ""}><span class="ol">${"ABCD"[k]}</span><span>${esc(o)}</span></button>`; }).join("")}</div>
         ${answered ? `<div class="explain ${cur.opts[mrun.picked] === cur.ok ? "ok" : "ng"}"><b>${cur.opts[mrun.picked] === cur.ok ? "正解" : "不正解"}</b>${esc(cur.ex)}</div>
           <div class="acts"><button class="btn primary" id="mNext">${mrun.i + 1 < mrun.order.length ? "次の問題" : "結果を見る"}</button></div>` : ""}
-      </div><p class="hint" style="text-align:center">${MCOUNT}問答えると、アプリが開きます。</p></div>`;
+      </div><p class="hint" style="text-align:center">${N}問答えると、${brk ? "おしまいです" : "アプリが開きます"}。</p></div>`;
   }
   document.addEventListener("click", (e) => { if (e.target.closest("#mTry")) openMorning(); });
   document.addEventListener("click", (e) => {
@@ -1563,7 +1740,7 @@ ${JSON.stringify(mats)}`;
     if (e.target.closest("#mNext")) { mrun.i++; mrun.picked = null; renderMorning(); $("#morning").scrollTop = 0; return; }
     if (e.target.closest("#mDone")) {
       mrun = null; $("#morning").hidden = true; document.body.style.overflow = "";
-      if (/[?&#]morning/.test(location.href)) history.replaceState(null, "", location.pathname);
+      if (/[?&#](morning|break)/.test(location.href)) history.replaceState(null, "", location.pathname);
     }
   });
   function renderWritten() {
@@ -1873,6 +2050,8 @@ ${text.slice(0, 2000)}`;
   });
   // メモタブ
   $("#tab-memo").addEventListener("click", () => { state.tab = "memo"; state.tag = null; render(); });
+  $("#tab-atlas").addEventListener("click", () => { state.tab = "atlas"; state.tag = null; render(); });
+  $("#tab-textbook").addEventListener("click", () => { if (state.tab === "textbook") state.tbOpen = null; state.tab = "textbook"; state.tag = null; render(); });
   $("#list").addEventListener("click", (e) => {
     if (e.target.closest("#memoNew")) {
       const id = "m" + Date.now().toString(36);
@@ -1958,7 +2137,15 @@ ${text.slice(0, 2000)}`;
     try { state.canEdit = !!(userNs && ((await userNs.canEdit()) || (await userNs.isOwner()))); } catch { state.canEdit = false; }
     $("#addBtn").hidden = !state.canEdit;
     db = dbNs;
+    if (db && window.Atlas && !atlasOn) {
+      atlasOn = true;
+      Atlas.init({ db, canEdit: () => state.canEdit, papers: () => state.papers, q: () => state.q, setQ: (v) => { state.q = v; $("#q").value = v; },
+        rerender: () => render(), active: () => state.tab === "atlas", loadTextbook });
+    }
+    if (/[?&#](morning|break)/.test(location.href)) await Promise.race([loadTextbook(), new Promise((r) => setTimeout(r, 1500))]);
+    else loadTextbook().then(() => render());
     if (/[?&#]morning/.test(location.href)) openMorning();
+    else if (/[?&#]break/.test(location.href)) openMorning("break");
     if (window.studyNotes) window.studyNotes.all().then((n) => { state.notes = n.notes; state.noteTimes = n.times; render(); }).catch(() => {});
     if (!db) { $("#counts").textContent = "書庫に接続できません"; return; }
     db.collection("books").onSnapshot((snap) => { state.books = snap.docs.map((d) => ({ id: d.id, ...d.data() })); render(); }, () => {});

@@ -84,6 +84,12 @@
   });
   const fail = (e) => { const err = new Error(e?.message || "error"); err.code = e?.code === "42501" ? "forbidden" : "error"; return err; };
   const db = {
+    // まとめて保存（Atlas の取り込み・復元用）。rows = [{ id, data }]
+    async batchSet(k, rows) {
+      const { error } = await sb.from("docs").upsert(rows.map((r) => ({ collection: k, id: r.id, data: r.data })));
+      if (error) throw fail(error);
+      fetchCol(k).catch(() => {});
+    },
     collection(k) {
       return {
         onSnapshot(ok, bad) {
