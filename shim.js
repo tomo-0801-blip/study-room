@@ -260,6 +260,18 @@
       },
       publicUrl(id) { return new URL(`blog.html?from=app${id ? `&p=${encodeURIComponent(id)}` : ""}`, location.href).href; },
     };
+    // 考察へのAIの返信（Supabase の Edge Function「note-reply」が Claude に問い合わせる）
+    window.studyAI = {
+      async reply(payload) {
+        const { data, error } = await sb.functions.invoke("note-reply", { body: payload });
+        if (error) {
+          let code = "";
+          try { const j = await error.context?.json?.(); code = j?.error || ""; } catch { /* 中身なし */ }
+          const e = new Error(code || error.message || "error"); e.code = code || (error.name === "FunctionsFetchError" ? "network" : "error"); throw e;
+        }
+        return data;
+      },
+    };
     window.studyNotes = {
       async all() {
         const { data, error } = await sb.from("notes").select("collection,doc_id,text,updated_at");

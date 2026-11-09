@@ -415,6 +415,14 @@ body{padding-top:env(safe-area-inset-top)}
 .tbq h4{margin:0;font-size:13px;color:var(--teal)}
 .tbdeep{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:10px}
 .docsw{margin-bottom:10px}
+.nacts{display:flex;gap:6px;flex-wrap:wrap}
+.aireply{margin-top:8px;border:1px solid var(--teal);background:var(--teal-soft);border-radius:8px;padding:10px 12px;display:grid;gap:8px;font-size:14px;line-height:1.75}
+.aireply.err{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.aireply .aih{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.aireply .aih b{color:var(--teal)}
+.aireply .aisub b{display:block;font-size:12.5px;color:var(--ink-2)}
+.aireply ul{margin:2px 0 0;padding-left:1.2em;display:grid;gap:2px}
+.aireply a{color:var(--teal)}
 .tbrefs{font-size:13.5px;line-height:1.6;display:grid;gap:4px}
 .tbrefs ul{margin:0;padding-left:1.2em;display:grid;gap:4px}
 .tbrefs a{color:var(--teal);word-break:break-word}
@@ -439,6 +447,7 @@ body{padding-top:env(safe-area-inset-top)}
     <button class="tab" role="tab" id="tab-docs" aria-selected="false"><img class="ti" src="img/materials-icon.jpg" alt=""><span class="tl">資料</span><span class="n" id="n-docs">0</span></button>
     <button class="tab" role="tab" id="tab-summaries" aria-selected="false" hidden><img class="ti" src="img/summaries-icon.jpg" alt=""><span class="tl">まとめ資料</span><span class="n" id="n-summaries">0</span></button>
     <button class="tab" role="tab" id="tab-materials" aria-selected="false" hidden><img class="ti" src="img/materials-icon.jpg" alt=""><span class="tl">勉強会資料</span><span class="n" id="n-materials">0</span></button>
+    <button class="tab" role="tab" id="tab-lesson" aria-selected="false"><img class="ti" src="img/quiz-icon.jpg" alt=""><span class="tl">レッスン</span><span class="n" id="n-lesson">—</span></button>
     <button class="tab" role="tab" id="tab-quiz" aria-selected="false"><img class="ti" src="img/quiz-icon.jpg" alt=""><span class="tl">小テスト</span><span class="n">4択・記述</span></button>
     <button class="tab" role="tab" id="tab-books" aria-selected="false"><img class="ti" src="img/books-icon.jpg" alt=""><span class="tl">本</span><span class="n" id="n-books">0</span></button>
     <button class="tab" role="tab" id="tab-blog" aria-selected="false" hidden><img class="ti" src="img/blog-icon.jpg" alt=""><span class="tl">ブログ</span><span class="n" id="n-blog">—</span></button>
@@ -501,6 +510,7 @@ body{padding-top:env(safe-area-inset-top)}
 <script src="presets.js"></script>
 <script src="blogrender.js"></script>
 <script src="atlas.js"></script>
+<script src="lessons.js"></script>
 <script>
 (() => {
   const $ = (s) => document.querySelector(s);
@@ -615,8 +625,11 @@ body{padding-top:env(safe-area-inset-top)}
     return s;
   }
 
+  // 症状の知識タブには「疾患・症状」だけを出す（ほかの単発の知識はデータとして残し、小テストやまとめのリンクから開いたときだけ表示）
+  const SYMPTOM_CAT = "疾患・症状";
   function base(kind) {
     let items = state[kind].slice();
+    if (kind === "basics") items = items.filter((x) => x.category === SYMPTOM_CAT || x.id === state.openTerm);
     if (state.topic !== "all") items = items.filter((x) => topicOf(x) === state.topic);
     return items;
   }
@@ -667,8 +680,59 @@ body{padding-top:env(safe-area-inset-top)}
   function noteBlock(kind, id) {
     if (!window.studyNotes) return "";
     const key = `${kind}:${id}`, t = state.notes[key] || "";
-    return `<div class="note" data-note="${esc(key)}">${t ? `<div class="ntext"><b>自分の考察</b>${esc(t)}</div>` : ""}<button type="button" class="btn ghost small" data-note-edit="${esc(key)}">${t ? "考察を直す" : "＋ 考察を書く"}</button></div>`;
+    return `<div class="note" data-note="${esc(key)}">${t ? `<div class="ntext"><b>自分の考察</b>${esc(t)}</div>` : ""}<div class="nacts"><button type="button" class="btn ghost small" data-note-edit="${esc(key)}">${t ? "考察を直す" : "＋ 考察を書く"}</button>${t && window.studyAI ? `<button type="button" class="btn ghost small" data-ai-ask="${esc(key)}" ${aiBusy[key] ? "disabled" : ""}>${aiBusy[key] ? "AIが考えています…" : state.notes["aireply:" + key] ? "AIにもう一度聞く" : "AIに聞く"}</button>` : ""}</div>${t ? aiReplyHtml(key, t) : ""}</div>`;
   }
+  // ---------- 考察へのAIの返信 ----------
+  const aiBusy = {}, aiErr = {};
+  const isUserNote = (k) => !k.startsWith("aireply:");
+  const noteCount = () => Object.keys(state.notes).filter(isUserNote).length;
+  function aiReplyHtml(key, noteText) {
+    if (aiErr[key]) return `<div class="aireply err">${esc(aiErr[key])}</div>`;
+    const raw = state.notes["aireply:" + key]; if (!raw) return "";
+    let r; try { r = JSON.parse(raw); } catch { return ""; }
+    const papers = arr(r.paperIds).map((pid) => state.papers.find((p) => p.id === pid)).filter(Boolean);
+    return `<div class="aireply"><div class="aih"><b>AIの返信</b><span class="hint">${esc(String(r.at || "").slice(0, 10))}・書庫の論文と教科書をもとにした意見です。確かめてから使ってください。</span></div>
+      ${r.src && r.src !== noteText ? `<p class="hint">考察を直す前の内容への返信です。「AIにもう一度聞く」で新しい返信になります。</p>` : ""}
+      <div class="aitext">${esc(r.reply || "").replace(/\n/g, "<br>")}</div>
+      ${papers.length ? `<div class="aisub"><b>根拠にした論文</b><ul>${papers.map((p) => { const u = safeUrl(p.url); return `<li>${u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(p.title)}</a>` : esc(p.title)}<span class="hint">（${esc(shortName(p))}）</span></li>`; }).join("")}</ul></div>` : ""}
+      ${arr(r.followups).length ? `<div class="aisub"><b>次に確かめるとよいこと</b><ul>${arr(r.followups).map((f) => `<li>${esc(f)}</li>`).join("")}</ul></div>` : ""}
+    </div>`;
+  }
+  function aiContext(key) {
+    const [kind, id] = splitKey(key), note = state.notes[key] || "";
+    const item = kind === "free" ? null : (state[kind] || []).find((x) => x.id === id);
+    const cut = (v, n) => String(v || "").slice(0, n);
+    let target = null;
+    if (item) {
+      const pg = item.page || {};
+      target = { 種類: KIND_JA[kind] || kind, タイトル: item.title,
+        内容: cut([item.finding, item.dose, item.summary, item.lead, item.comment, item.author, pg.one,
+          ...(Array.isArray(item.sections) ? item.sections.slice(0, 4).map((x) => `${x.h}：${x.b}`) : []),
+          ...(Array.isArray(pg.pilates) ? pg.pilates : [])].filter(Boolean).join("\n"), 1500) };
+    }
+    const terms = expand(note + " " + (item ? item.title : ""));
+    const papers = state.papers.map((p) => [p, score(p, "papers", terms) + (kind === "papers" && p.id === id ? 100 : 0)])
+      .filter((x) => x[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([p]) => ({ id: p.id, タイトル: p.title, 著者: String(p.authors || "").split(/[,、]/)[0], 年: p.year, デザイン: p.design, 結果: cut(p.finding, 400), 処方: cut(p.dose, 200) }));
+    const words = norm(note).split(/[\s　、。,，?？!！・/]+/).filter((w) => w.length >= 2);
+    const tb = state.textbook.filter((x) => x.page).map((x) => { const h = norm([x.title, ...(x.words || [])].join(" ")); return [x, words.filter((w) => h.includes(w)).length]; })
+      .filter((x) => x[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([x]) => ({ 項目: x.title, 要点: x.page.one, ピラティス: x.page.pilates }));
+    return { note: cut(note, 3000), target, papers, textbook: tb };
+  }
+  const AI_ERR = { forbidden: "AIに聞くには、メンバーとしてログインしている必要があります。", no_key: "AIの設定（APIキー）がまだ済んでいません。", network: "AIにつながりませんでした。通信を確かめて、もう一度お試しください。", api: "AIからの返信を受け取れませんでした。少し時間をおいて、もう一度お試しください。" };
+  async function askNoteAI(key) {
+    if (aiBusy[key] || !window.studyAI) return;
+    aiBusy[key] = true; delete aiErr[key]; render();
+    try {
+      const ctx = aiContext(key);
+      const r = await window.studyAI.reply(ctx);
+      const rec = { reply: r.reply, paperIds: r.paperIds || [], followups: r.followups || [], at: new Date().toISOString(), src: state.notes[key] };
+      const [kind, id] = splitKey(key);
+      await window.studyNotes.set("aireply:" + kind, id, JSON.stringify(rec));
+      state.notes["aireply:" + key] = JSON.stringify(rec);
+    } catch (e) { aiErr[key] = AI_ERR[e.code] || "AIの返信でエラーが出ました。もう一度お試しください。"; }
+    delete aiBusy[key]; render();
+  }
+  document.addEventListener("click", (e) => { const b = e.target.closest("[data-ai-ask]"); if (b) askNoteAI(b.dataset.aiAsk); });
   const BOOK_GENRES = ["解剖学", "生理学", "専門書", "ビジネス書", "その他"];
   const BOOK_STATUS = { rec: "おすすめ", want: "読みたい" };
   function renderBooks() {
@@ -706,7 +770,7 @@ body{padding-top:env(safe-area-inset-top)}
     } catch { state.tb = { chapters: [], items: {} }; state.textbook = []; }
     return state.tb;
   }
-  let atlasOn = false;
+  let atlasOn = false, lessonsOn = false;
   const tbItem = (id) => state.textbook.find((x) => x.id === id);
   const tbRefs = (t) => esc(t).replace(/(\d{1,2}-\d{1,2})(?= ?参照|[、）)])/g, (m) => tbItem(m) ? `<button type="button" class="tbref" data-tbopen="${m}">${m}</button>` : m);
   function tbScore(x, terms) {
@@ -805,7 +869,7 @@ body{padding-top:env(safe-area-inset-top)}
   const KIND_JA = { papers: "論文", basics: "症状の知識", summaries: "まとめ資料", materials: "勉強会資料", books: "本", textbook: "教科書", free: "自由な考察" };
   function renderMemo() {
     const q = norm(state.q || "");
-    const items = Object.entries(state.notes).map(([key, text]) => {
+    const items = Object.entries(state.notes).filter(([key]) => isUserNote(key)).map(([key, text]) => {
       const i = key.indexOf(":"), kind = key.slice(0, i), id = key.slice(i + 1);
       const item = kind === "free" ? null : (state[kind] || []).find((x) => x.id === id);
       const title = kind === "free" ? "" : (item ? item.title : "（削除された項目）");
@@ -1056,6 +1120,7 @@ body{padding-top:env(safe-area-inset-top)}
     books: ["本", "読みたい本と、おすすめの本"],
     textbook: ["教科書", "生理学を、普段の言葉でさっと引く"],
     atlas: ["My Knowledge Atlas", "大事なテーマを、根拠と一緒にじっくり固める"],
+    lesson: ["レッスン", "成長ロードマップと、方法ごとのレッスン"],
     blog: ["ブログ", "学びを記事にして、誰でも読めるページへ"],
   };
   // ---------- 案内キャラ ----------
@@ -1069,12 +1134,13 @@ body{padding-top:env(safe-area-inset-top)}
     blog: "学びを記事にしてみましょう。下書き保存しておけば、続きはいつでも書けます。",
     memo: "論文や資料に書いた考察が、ここにまとまります。自分だけが見られます。",
     textbook: "「むくみ」「肩こり」みたいな普段の言葉で探せます。「ピラティスの部分だけ」にすると、指導で使うところだけ読めますよ。",
+    lesson: "ロードマップの上ほど専門的、下ほど土台です。方法のタブを選ぶと、どこに働くかが色でわかりますよ。",
     atlas: "教えるために固めたいテーマだけ、ここで記事にしましょう。主張ごとに文献を付けて、確かめるまでは「未検証」です。",
   };
   const GKEY = "evlib-guide-off";
   const guideOff = () => { try { return localStorage.getItem(GKEY) === "1"; } catch { return false; } };
   const guideHtml = (text, cls = "", pose = "wave") => `<div class="guide ${cls} ${pose === "pilates" ? "wide" : ""}"><img src="img/guide-${pose}.png" alt="向トレーナー"><div class="gbubble">${text}</div></div>`;
-  const GUIDE_POSE = { papers: "read", basics: "think", summaries: "think", materials: "read", quiz: "scheme", books: "read", textbook: "read", atlas: "think", blog: "pilates", memo: "think" };
+  const GUIDE_POSE = { papers: "read", basics: "think", summaries: "think", materials: "read", quiz: "scheme", books: "read", textbook: "read", atlas: "think", lesson: "pilates", blog: "pilates", memo: "think" };
   function renderGuideTip() {
     const g = $("#guideTip"); if (!g) return;
     const k = state.tab;
@@ -1090,7 +1156,7 @@ body{padding-top:env(safe-area-inset-top)}
     renderGuideTip();
     if (h.dataset.k === k) return;
     h.dataset.k = k;
-    h.innerHTML = `<img src="img/${k === "textbook" ? "basics" : k === "atlas" ? "summaries" : k}.jpg" alt=""><div class="ht"><b>${HERO[k][0]}</b><span>${HERO[k][1]}</span></div>`;
+    h.innerHTML = `<img src="img/${k === "textbook" ? "basics" : k === "atlas" ? "summaries" : k === "lesson" ? "quiz" : k}.jpg" alt=""><div class="ht"><b>${HERO[k][0]}</b><span>${HERO[k][1]}</span></div>`;
   }
   function renderDocSw() {
     let sw = $("#docSw");
@@ -1104,7 +1170,19 @@ body{padding-top:env(safe-area-inset-top)}
     renderHero();
     $("#tab-docs").setAttribute("aria-selected", state.tab === "materials" || state.tab === "summaries");
     if (!["materials", "summaries"].includes(state.tab) && $("#docSw")) $("#docSw").innerHTML = "";
-    const tbTab = state.tab === "textbook", atTab = state.tab === "atlas";
+    if (state.tab !== "papers" && $("#newBar")) $("#newBar").innerHTML = "";
+    const tbTab = state.tab === "textbook", atTab = state.tab === "atlas", lsTab = state.tab === "lesson";
+    $("#tab-lesson").setAttribute("aria-selected", lsTab);
+    if (window.Lessons && lessonsOn && Lessons.count() != null) $("#n-lesson").textContent = Lessons.count();
+    if (lsTab) {
+      ["papers","basics","materials","summaries","quiz","memo","books","blog","textbook","atlas","docs"].forEach((k) => $("#tab-" + k)?.setAttribute("aria-selected", false));
+      $("#examples").hidden = true; $("#topics").hidden = true; $("#bulkBtn").hidden = true; $("#facets").hidden = true; $("#viewsw").hidden = true; $("#addBtn").hidden = true;
+      if ($("#newBar")) $("#newBar").innerHTML = "";
+      $("#q").placeholder = "例：ハンドレッド、CARs";
+      $("#searchHint").textContent = "方法のタブの中で、レッスンを探します。";
+      if (window.Lessons && lessonsOn) Lessons.render($("#list")); else $("#list").innerHTML = `<div class="empty">レッスンを準備しています…</div>`;
+      return;
+    }
     $("#tab-textbook").setAttribute("aria-selected", tbTab);
     $("#tab-atlas").setAttribute("aria-selected", atTab);
     $("#examples").hidden = tbTab || atTab;
@@ -1121,7 +1199,7 @@ body{padding-top:env(safe-area-inset-top)}
       return;
     }
     $("#tab-memo").hidden = !window.studyNotes;
-    $("#n-memo").textContent = Object.keys(state.notes).length;
+    $("#n-memo").textContent = noteCount();
     $("#tab-blog").hidden = !window.studyBlog;
     const blogTab = state.tab === "blog";
     $("#tab-blog").setAttribute("aria-selected", blogTab);
@@ -2069,6 +2147,7 @@ ${text.slice(0, 2000)}`;
   });
   // メモタブ
   $("#tab-memo").addEventListener("click", () => { state.tab = "memo"; state.tag = null; render(); });
+  $("#tab-lesson").addEventListener("click", () => { state.tab = "lesson"; state.tag = null; render(); });
   $("#tab-atlas").addEventListener("click", () => { state.tab = "atlas"; state.tag = null; render(); });
   $("#tab-textbook").addEventListener("click", () => { if (state.tab === "textbook") state.tbOpen = null; state.tab = "textbook"; state.tag = null; render(); });
   $("#list").addEventListener("click", (e) => {
@@ -2106,7 +2185,7 @@ ${text.slice(0, 2000)}`;
       try {
         await window.studyNotes.set(...splitKey(key), text);
         if (text) { state.notes[key] = text; state.noteTimes[key] = new Date().toISOString(); } else { delete state.notes[key]; delete state.noteTimes[key]; }
-        if (state.tab === "memo") render(); else { box.outerHTML = noteBlock(...splitKey(key)); $("#n-memo").textContent = Object.keys(state.notes).length; }
+        if (state.tab === "memo") render(); else { box.outerHTML = noteBlock(...splitKey(key)); $("#n-memo").textContent = noteCount(); }
       } catch { box.querySelector(".nerr").textContent = "保存できませんでした。もう一度試してください。"; sv.disabled = false; }
     }
   });
@@ -2156,6 +2235,10 @@ ${text.slice(0, 2000)}`;
     try { state.canEdit = !!(userNs && ((await userNs.canEdit()) || (await userNs.isOwner()))); } catch { state.canEdit = false; }
     $("#addBtn").hidden = !state.canEdit;
     db = dbNs;
+    if (db && window.Lessons && !lessonsOn) {
+      lessonsOn = true;
+      Lessons.init({ db, canEdit: () => state.canEdit, q: () => state.q, rerender: () => render(), active: () => state.tab === "lesson" });
+    }
     if (db && window.Atlas && !atlasOn) {
       atlasOn = true;
       Atlas.init({ db, canEdit: () => state.canEdit, papers: () => state.papers, q: () => state.q, setQ: (v) => { state.q = v; $("#q").value = v; },
