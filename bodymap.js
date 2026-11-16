@@ -171,15 +171,19 @@
     const cur = S.draft.s[key];
     return `<div class="bm-opt"><span>${{ intensity: "強度", difficulty: "難しさ", exp: "経験", env: "環境", people: "人数" }[key]}</span>${opts.map(([v, t]) => `<button type="button" class="chip" data-bm-s="${key}" data-v="${v}" aria-pressed="${cur === v}">${t}</button>`).join("")}</div>`;
   }
+  // 名前の候補の部分だけ（入力欄そのものは作り直さない：日本語の変換が途切れないように）
+  function nameArea(d, p, hits) {
+    return `${p ? `<div class="bm-picked"><b>${esc(p.name)}</b><span class="ls-tag">${p.src === "quiz" ? "質問から分析" : "運動の一覧"}</span><button type="button" class="linkish" data-bm-a="unpick">選び直す</button></div>` : ""}
+      ${!p && hits.length ? `<div class="f"><span>一覧から選んでください</span><div class="chips">${hits.map((h) => `<button type="button" class="chip" data-bm-pick="${esc(h.id)}">${esc(h.name)}</button>`).join("")}</div></div>` : ""}
+      ${!p && d.name && norm(d.name).length >= 1 ? `<div class="bm-new"><span>${hits.length ? "この中にない場合は" : `「${esc(d.name)}」は一覧にありません。`}</span><button type="button" class="btn ghost small" data-bm-a="wiz">質問に答えて分析する</button></div>` : ""}
+      ${!p && !d.name ? `<p class="hint">名前の一部を入れると、一覧から候補が出ます。</p>` : ""}`;
+  }
   function form() {
     const d = S.draft, p = d.pid ? profById(d.pid) : null, hits = !p && d.name ? search(d.name).slice(0, 8) : [];
     const pts = p ? E.sessionPoints(p.f, d.s, d.self, p.ov || {}) : null;
     return `<div class="ls-form bm-form"><h3>${d.id ? "記録を直す" : "運動を記録"}</h3>
       <label class="f"><span>運動の名前</span><input data-bm-f="name" value="${esc(d.name)}" placeholder="例：ランニング、キャッチボール、登山" autocomplete="off"></label>
-      ${p ? `<div class="bm-picked"><b>${esc(p.name)}</b><span class="ls-tag">${p.src === "quiz" ? "質問から分析" : "運動の一覧"}</span><button type="button" class="linkish" data-bm-a="unpick">選び直す</button></div>` : ""}
-      ${!p && hits.length ? `<div class="f"><span>一覧から選んでください</span><div class="chips">${hits.map((h) => `<button type="button" class="chip" data-bm-pick="${esc(h.id)}">${esc(h.name)}</button>`).join("")}</div></div>` : ""}
-      ${!p && d.name && norm(d.name).length >= 1 ? `<div class="bm-new"><span>${hits.length ? "この中にない場合は" : `「${esc(d.name)}」は一覧にありません。`}</span><button type="button" class="btn ghost small" data-bm-a="wiz">質問に答えて分析する</button></div>` : ""}
-      ${!p && !d.name ? `<p class="hint">名前の一部を入れると、一覧から候補が出ます。</p>` : ""}
+      <div id="bmName">${nameArea(d, p, hits)}</div>
       <details class="bm-ax" ${S.openMore ? "open" : ""} data-bm-more="1"><summary>くわしく入れる<span>なくても大丈夫</span></summary><div class="bm-more">
         <label class="bm-opt"><span>時間（分）</span><input data-bm-min inputmode="numeric" value="${esc(d.s.min || "")}" style="max-width:6em"></label>
         ${chipSet("intensity", [["low", "低"], ["mid", "中"], ["high", "高"]])}
@@ -190,9 +194,9 @@
       <details class="bm-ax" ${S.openSelf ? "open" : ""} data-bm-selfopen="1"><summary>メンタルなどの自己評価<span>入れなければ未評価</span></summary><div class="bm-steps" style="padding:0 8px 8px">
         ${SELF.map((i) => { const v = d.self[i]; return `<div class="bm-step ${v != null ? "on" : ""}"><span>${esc(i)}${i === "侵害受容" ? "（痛み）" : ""}</span><button type="button" data-bm-self="${esc(i)}" data-v="-1" aria-label="${esc(i)}を1減らす">−</button><b>${v == null ? "—" : v}</b><button type="button" data-bm-self="${esc(i)}" data-v="1" aria-label="${esc(i)}を1増やす">＋</button></div>`; }).join("")}
         <p class="hint" style="grid-column:1/-1">「−」を押すと0から、「＋」を押すと1から入ります。</p></div></details>
-      ${pts ? `<div class="f"><span>この記録で入る点数（推定）</span>${axisChips(pts)}</div>` : ""}
+      <div id="bmPrev">${pts ? `<div class="f"><span>この記録で入る点数（推定）</span>${axisChips(pts)}</div>` : ""}</div>
       <label class="f"><span>メモ</span><textarea rows="2" data-bm-f="memo">${esc(d.memo)}</textarea></label>
-      <div class="acts"><button type="button" class="btn ghost" data-bm-a="cancel">やめる</button>${d.id ? `<button type="button" class="btn ghost" data-bm-a="del">${S.sure === d.id ? "本当に削除する" : "削除"}</button>` : ""}<button type="button" class="btn primary" data-bm-a="save" ${S.busy || !p ? "disabled" : ""}>保存</button></div></div>`;
+      <div class="acts"><button type="button" class="btn ghost" data-bm-a="cancel">やめる</button>${d.id ? `<button type="button" class="btn ghost" data-bm-a="del">${S.sure === d.id ? "本当に削除する" : "削除"}</button>` : ""}<button type="button" class="btn primary" id="bmSave" data-bm-a="save" ${S.busy || !p ? "disabled" : ""}>保存</button></div></div>`;
   }
   function wizard() {
     const w = S.wiz, n = w.ans.filter((x) => x != null).length;
@@ -251,9 +255,13 @@
     return `<div class="bm-page">
       <p class="ls-note">一覧の${EX.list.length}種類は、Claudeが運動の特性を見立てて入れたものです（確信度：中）。質問から分析した運動もここに入ります。数字は向さんの感覚に合わせて直せます。</p>
       <input class="bm-lq" data-bm-lq value="${esc(S.lq)}" placeholder="運動の名前で探す">
-      <p class="hint">${ps.length}件</p>
-      ${ps.map((p) => `<article class="card bm-entry bm-li" data-bm-prof="${esc(p.id)}"><div class="bm-eh"><h3>${esc(p.name)}</h3><span class="ls-tag">${p.src === "quiz" ? "質問から" : p.edited ? "直した" : "一覧"}</span></div>${axisChips(E.sessionPoints(p.f, {}, {}, p.ov || {}))}</article>`).join("")}
+      <div id="bmList">${listItems(ps)}</div>
     </div>`;
+  }
+  function listItems(ps) {
+    return `<p class="hint">${ps.length}件</p>
+      ${ps.map((p) => `<article class="card bm-entry bm-li" data-bm-prof="${esc(p.id)}"><div class="bm-eh"><h3>${esc(p.name)}</h3><span class="ls-tag">${p.src === "quiz" ? "質問から" : p.edited ? "直した" : "一覧"}</span></div>${axisChips(E.sessionPoints(p.f, {}, {}, p.ov || {}))}</article>`).join("")}
+    `;
   }
   function viewProf() {
     const e = S.prof, base = E.baseScores(e.f);
@@ -369,9 +377,18 @@
     document.addEventListener("input", (ev) => {
       if (!C.active()) return;
       const el = ev.target;
-      if (el.dataset.bmF && S.draft) { S.draft[el.dataset.bmF] = el.value; if (el.dataset.bmF === "name") { S.draft.pid = null; C.rerender(); } }
+      if (el.dataset.bmF && S.draft) {
+        S.draft[el.dataset.bmF] = el.value;
+        if (el.dataset.bmF === "name") {
+          // 入力欄は作り直さず、候補の部分だけ書きかえる（日本語の変換を途切れさせない）
+          S.draft.pid = null;
+          const box = document.getElementById("bmName"); if (box) box.innerHTML = nameArea(S.draft, null, S.draft.name ? search(S.draft.name).slice(0, 8) : []);
+          const pv = document.getElementById("bmPrev"); if (pv) pv.innerHTML = "";
+          const sv = document.getElementById("bmSave"); if (sv) sv.disabled = true;
+        }
+      }
       if (el.hasAttribute("data-bm-min") && S.draft) S.draft.s.min = el.value.replace(/[^\d]/g, "");
-      if (el.hasAttribute("data-bm-lq")) { S.lq = el.value; C.rerender(); }
+      if (el.hasAttribute("data-bm-lq")) { S.lq = el.value; const box = document.getElementById("bmList"); if (box) box.innerHTML = listItems(S.lq ? search(S.lq) : profiles()); }
     });
   }
 
