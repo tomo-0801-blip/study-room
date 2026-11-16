@@ -301,7 +301,7 @@
     const pts = Object.fromEntries(Object.entries(E.sessionPoints(p.f, s, self, p.ov || {})).filter(([, v]) => v != null));
     const data = { v: 3, date: d.date, name: p.name, pid: p.id, s, self, pts, memo: d.memo || "", createdAt: d.createdAt || t, updatedAt: t };
     try { await C.db.collection("bodylog").doc(id).set(data); S.draft = null; S.msg = "保存しました。"; }
-    catch { S.msg = "保存できませんでした。通信を確かめてください。"; }
+    catch (err) { S.msg = "保存できませんでした。（理由：" + ((err && err.message) || "不明") + "）"; console.error(err); }
     S.busy = false; C.rerender();
   }
   async function saveWiz() {
@@ -311,7 +311,7 @@
       await C.db.collection("exprofiles").doc(id).set({ custom: true, name: w.name.trim(), aka: [], f: r.f, ov: {}, conf: r.conf, why: r.why, answers: w.ans, checks: w.chk, createdAt: t, updatedAt: t });
       D.exprofiles.push({ id, custom: true, name: w.name.trim(), aka: [], f: r.f, ov: {}, conf: r.conf, why: r.why });
       S.wiz = null; S.draft.pid = id; S.draft.name = w.name.trim(); S.msg = `「${w.name.trim()}」を分析して、運動の一覧に保存しました。`;
-    } catch { S.msg = "保存できませんでした。通信を確かめてください。"; }
+    } catch (err) { S.msg = "保存できませんでした。（理由：" + ((err && err.message) || "不明") + "）"; console.error(err); }
     S.busy = false; C.rerender();
   }
   async function saveProf(kind) {
@@ -326,7 +326,7 @@
         await C.db.collection("exprofiles").doc(e.id).set({ f: fd && Object.keys(fd).length ? fd : null, ov: kind === "reset" ? {} : e.ov, updatedAt: t });
       }
       S.prof = null; S.msg = kind === "hide" ? "一覧から外しました（これまでの記録はそのまま残ります）。" : kind === "reset" ? "Claudeの見立てに戻しました。" : "保存しました。これまでの記録にも反映されます。";
-    } catch { S.msg = "保存できませんでした。通信を確かめてください。"; }
+    } catch (err) { S.msg = "保存できませんでした。（理由：" + ((err && err.message) || "不明") + "）"; console.error(err); }
     S.sure = null; C.rerender();
   }
 
