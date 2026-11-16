@@ -1189,13 +1189,14 @@ body{padding-top:env(safe-area-inset-top)}
   };
   const GKEY = "evlib-guide-off";
   const guideOff = () => { try { return localStorage.getItem(GKEY) === "1"; } catch { return false; } };
-  const guideHtml = (text, cls = "", pose = "wave") => `<div class="guide ${cls} ${pose === "pilates" ? "wide" : ""}"><img src="img/guide-${pose}.png" alt="向トレーナー"><div class="gbubble">${text}</div></div>`;
+  const guideHtml = (text, cls = "", pose = "wave") => `<div class="guide ${cls} ${pose === "pilates" || pose === "flip" ? "wide" : ""}"><img src="img/guide-${pose}.png" alt="向トレーナー"><div class="gbubble">${text}</div></div>`;
   const GUIDE_POSE = { papers: "read", basics: "think", summaries: "think", materials: "read", quiz: "scheme", books: "read", textbook: "read", atlas: "think", lesson: "pilates", body: "pilates", blog: "pilates", memo: "think" };
   function renderGuideTip() {
     const g = $("#guideTip"); if (!g) return;
     const k = state.tab;
     if (guideOff() || !GUIDE_TIPS[k]) { g.innerHTML = guideOff() ? `<button type="button" class="linkish gshow" id="guideOn">向トレーナーの案内を表示する</button>` : ""; return; }
-    g.innerHTML = guideHtml(`${esc(GUIDE_TIPS[k])}<button type="button" class="gclose" id="guideOff" aria-label="案内を閉じる">×</button>`, "", GUIDE_POSE[k] || "wave");
+    const pose = k === "body" ? ["catch", "run", "flip"][Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000) % 3] : GUIDE_POSE[k] || "wave"; // フィジカルログは日によって変わる
+    g.innerHTML = guideHtml(`${esc(GUIDE_TIPS[k])}<button type="button" class="gclose" id="guideOff" aria-label="案内を閉じる">×</button>`, "", pose);
   }
   document.addEventListener("click", (e) => {
     if (e.target.closest("#guideOff")) { try { localStorage.setItem(GKEY, "1"); } catch {} renderGuideTip(); }
