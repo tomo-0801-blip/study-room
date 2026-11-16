@@ -1137,7 +1137,7 @@ body{padding-top:env(safe-area-inset-top)}
     blog: "学びを記事にしてみましょう。下書き保存しておけば、続きはいつでも書けます。",
     memo: "論文や資料に書いた考察が、ここにまとまります。自分だけが見られます。",
     textbook: "「むくみ」「肩こり」みたいな普段の言葉で探せます。「ピラティスの部分だけ」にすると、指導で使うところだけ読めますよ。",
-    body: "運動を記録すると、働いた系統にポイントが入って、マップの丸が大きくなりますよ。",
+    body: "運動や食事を記録すると、六角形が広がります。系統の名前を押すと、細かい項目が見られますよ。",
     lesson: "ロードマップの上ほど専門的、下ほど土台です。方法のタブを選ぶと、どこに働くかが色でわかりますよ。",
     atlas: "教えるために固めたいテーマだけ、ここで記事にしましょう。主張ごとに文献を付けて、確かめるまでは「未検証」です。",
   };
@@ -1178,7 +1178,7 @@ body{padding-top:env(safe-area-inset-top)}
     const tbTab = state.tab === "textbook", atTab = state.tab === "atlas", lsTab = state.tab === "lesson", bmTab = state.tab === "body";
     $("#tab-lesson").setAttribute("aria-selected", lsTab);
     $("#tab-body").setAttribute("aria-selected", bmTab);
-    if (window.BodyMap && bodyOn && BodyMap.count() != null) $("#n-body").textContent = BodyMap.count() + "点";
+    if (window.BodyMap && bodyOn && BodyMap.count() != null) $("#n-body").textContent = BodyMap.count() + "件";
     if (bmTab) {
       ["papers","basics","materials","summaries","quiz","memo","books","blog","textbook","atlas","docs","lesson"].forEach((k) => $("#tab-" + k)?.setAttribute("aria-selected", false));
       $("#examples").hidden = true; $("#topics").hidden = true; $("#bulkBtn").hidden = true; $("#facets").hidden = true; $("#viewsw").hidden = true; $("#addBtn").hidden = true;
