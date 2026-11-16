@@ -89,6 +89,15 @@ button{font:inherit;cursor:pointer}
 .tab:hover{border-color:var(--accent)}
 .tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
 .tab[aria-selected="true"] .n{color:rgba(255,255,255,.85)}
+#tabArr{display:flex;justify-content:flex-end;margin:-10px 0 10px}
+.arrbtn{font:inherit;font-size:12px;color:var(--ink-3);background:none;border:none;text-decoration:underline;cursor:pointer;padding:2px 4px}
+.arrbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;width:100%;background:var(--surface);border:1px solid var(--accent);border-radius:10px;padding:8px 10px;font-size:13px}
+.arrbar span{flex:1 1 100%;font-weight:600}
+.arrbar button{font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+.arrbar button:disabled{opacity:.4}
+.arrbar .done{background:var(--accent);border-color:var(--accent);color:#fff;margin-left:auto}
+nav.tabs.arranging .tab{border-style:dashed}
+nav.tabs.arranging .tab.picked{outline:3px solid var(--accent);outline-offset:1px;border-style:solid}
 .anchor{scroll-margin-top:150px}
 .toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-block:12px}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
@@ -454,6 +463,42 @@ body{padding-top:env(safe-area-inset-top)}
     <button class="tab" role="tab" id="tab-blog" aria-selected="false" hidden><img class="ti" src="img/blog-icon.jpg" alt=""><span class="tl">ブログ</span><span class="n" id="n-blog">—</span></button>
     <button class="tab" role="tab" id="tab-memo" aria-selected="false" hidden><img class="ti" src="img/memo-icon.jpg" alt=""><span class="tl">考察</span><span class="n" id="n-memo">0</span></button>
   </nav>
+  <div id="tabArr"></div>
+  <script>
+  // タブの並び替え：順番はこの端末に保存する
+  (function () {
+    const KEY = "study-tab-order", nav = document.querySelector("nav.tabs"), box = document.getElementById("tabArr");
+    const ids = () => [...nav.querySelectorAll(".tab")].map((b) => b.id);
+    const DEF = ids();
+    let on = false, sel = null;
+    function apply(order) { for (const id of order) { const b = document.getElementById(id); if (b && b.parentNode === nav) nav.appendChild(b); } for (const id of DEF) if (!order.includes(id)) nav.appendChild(document.getElementById(id)); }
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(ids())); } catch {} }
+    try { const o = JSON.parse(localStorage.getItem(KEY) || "null"); if (Array.isArray(o)) apply(o); } catch {}
+    function draw() {
+      nav.classList.toggle("arranging", on);
+      nav.querySelectorAll(".tab").forEach((b) => b.classList.toggle("picked", b.id === sel));
+      const name = sel ? document.querySelector("#" + sel + " .tl").textContent : "";
+      box.innerHTML = on
+        ? `<div class="arrbar"><span>${sel ? `「${name}」を動かします` : "動かしたいタブを押してください"}</span>
+            <button type="button" data-arr="-1" ${sel ? "" : "disabled"}>← 前へ</button><button type="button" data-arr="1" ${sel ? "" : "disabled"}>後ろへ →</button>
+            <button type="button" data-arr="reset">最初の並びに戻す</button><button type="button" class="done" data-arr="done">完了</button></div>`
+        : `<button type="button" class="arrbtn" data-arr="start">タブの並び替え</button>`;
+    }
+    nav.addEventListener("click", (e) => { if (!on) return; const b = e.target.closest(".tab"); if (!b) return; e.stopImmediatePropagation(); e.preventDefault(); sel = sel === b.id ? null : b.id; draw(); }, true);
+    box.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-arr]"); if (!b) return; const a = b.dataset.arr;
+      if (a === "start") { on = true; sel = null; }
+      if (a === "done") { on = false; sel = null; }
+      if (a === "reset") { apply(DEF); save(); }
+      if ((a === "1" || a === "-1") && sel) {
+        const vis = [...nav.querySelectorAll(".tab")].filter((x) => !x.hidden), cur = document.getElementById(sel), i = vis.indexOf(cur), j = i + +a;
+        if (j >= 0 && j < vis.length) { if (+a > 0) vis[j].after(cur); else vis[j].before(cur); save(); }
+      }
+      draw();
+    });
+    draw();
+  })();
+  </script>
 
   <div class="searchbar">
     <div class="qrow">
