@@ -72,8 +72,8 @@ button{font:inherit;cursor:pointer}
 .ex{font-size:12.5px;padding:3px 10px;border-radius:999px;border:1px dashed var(--line);background:transparent;color:var(--ink-2)}
 .ex:hover{border-color:var(--accent);color:var(--accent)}
 
-.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;display:grid;grid-template-columns:repeat(9,1fr);gap:6px;padding-block:10px;margin-bottom:16px;background:var(--paper);border-bottom:1px solid var(--line)}
-@media (max-width:620px){.tabs{grid-template-columns:repeat(5,1fr)}}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding-block:10px;margin-bottom:16px;background:var(--paper);border-bottom:1px solid var(--line)}
+@media (max-width:620px){.tabs{grid-template-columns:repeat(6,1fr)}}
 .tab{display:grid;gap:1px;justify-items:center;align-content:center;min-height:54px;padding:6px 4px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font:inherit}
 .tab .tl{font-size:15px;font-weight:700;white-space:nowrap}
 .tab .ti{width:30px;height:30px;border-radius:50%;object-fit:cover;border:1.5px solid var(--line);margin-bottom:2px}
@@ -312,7 +312,7 @@ body{padding-top:env(safe-area-inset-top)}
 .card.memo .note{margin-top:4px}
 .linkish{all:unset;cursor:pointer;color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
 .linkish:hover{color:var(--accent)}
-@media (max-width:620px){.tabs{grid-template-columns:repeat(5,1fr);gap:4px}.tab .tl{font-size:11.5px;letter-spacing:-.02em}}
+@media (max-width:620px){.tabs{grid-template-columns:repeat(6,1fr);gap:3px}.tab .tl{font-size:10.5px;letter-spacing:-.05em;white-space:nowrap}}
 #morning{position:fixed;inset:0;z-index:50;background:var(--paper);overflow:auto;padding:calc(env(safe-area-inset-top) + 16px) 16px 32px}
 #morning .mwrap{max-width:640px;margin:0 auto;display:grid;gap:12px}
 #morning .mhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -447,6 +447,7 @@ body{padding-top:env(safe-area-inset-top)}
     <button class="tab" role="tab" id="tab-docs" aria-selected="false"><img class="ti" src="img/materials-icon.jpg" alt=""><span class="tl">資料</span><span class="n" id="n-docs">0</span></button>
     <button class="tab" role="tab" id="tab-summaries" aria-selected="false" hidden><img class="ti" src="img/summaries-icon.jpg" alt=""><span class="tl">まとめ資料</span><span class="n" id="n-summaries">0</span></button>
     <button class="tab" role="tab" id="tab-materials" aria-selected="false" hidden><img class="ti" src="img/materials-icon.jpg" alt=""><span class="tl">勉強会資料</span><span class="n" id="n-materials">0</span></button>
+    <button class="tab" role="tab" id="tab-body" aria-selected="false"><img class="ti" src="img/basics-icon.jpg" alt=""><span class="tl">体のマップ</span><span class="n" id="n-body">—</span></button>
     <button class="tab" role="tab" id="tab-lesson" aria-selected="false"><img class="ti" src="img/quiz-icon.jpg" alt=""><span class="tl">レッスン</span><span class="n" id="n-lesson">—</span></button>
     <button class="tab" role="tab" id="tab-quiz" aria-selected="false"><img class="ti" src="img/quiz-icon.jpg" alt=""><span class="tl">小テスト</span><span class="n">4択・記述</span></button>
     <button class="tab" role="tab" id="tab-books" aria-selected="false"><img class="ti" src="img/books-icon.jpg" alt=""><span class="tl">本</span><span class="n" id="n-books">0</span></button>
@@ -511,6 +512,7 @@ body{padding-top:env(safe-area-inset-top)}
 <script src="blogrender.js"></script>
 <script src="atlas.js"></script>
 <script src="lessons.js"></script>
+<script src="bodymap.js"></script>
 <script>
 (() => {
   const $ = (s) => document.querySelector(s);
@@ -770,7 +772,7 @@ body{padding-top:env(safe-area-inset-top)}
     } catch { state.tb = { chapters: [], items: {} }; state.textbook = []; }
     return state.tb;
   }
-  let atlasOn = false, lessonsOn = false;
+  let atlasOn = false, lessonsOn = false, bodyOn = false;
   const tbItem = (id) => state.textbook.find((x) => x.id === id);
   const tbRefs = (t) => esc(t).replace(/(\d{1,2}-\d{1,2})(?= ?参照|[、）)])/g, (m) => tbItem(m) ? `<button type="button" class="tbref" data-tbopen="${m}">${m}</button>` : m);
   function tbScore(x, terms) {
@@ -1121,6 +1123,7 @@ body{padding-top:env(safe-area-inset-top)}
     textbook: ["教科書", "生理学を、普段の言葉でさっと引く"],
     atlas: ["My Knowledge Atlas", "大事なテーマを、根拠と一緒にじっくり固める"],
     lesson: ["レッスン", "成長ロードマップと、方法ごとのレッスン"],
+    body: ["体のマップ", "体の系統と、その日の運動で働いた領域"],
     blog: ["ブログ", "学びを記事にして、誰でも読めるページへ"],
   };
   // ---------- 案内キャラ ----------
@@ -1134,13 +1137,14 @@ body{padding-top:env(safe-area-inset-top)}
     blog: "学びを記事にしてみましょう。下書き保存しておけば、続きはいつでも書けます。",
     memo: "論文や資料に書いた考察が、ここにまとまります。自分だけが見られます。",
     textbook: "「むくみ」「肩こり」みたいな普段の言葉で探せます。「ピラティスの部分だけ」にすると、指導で使うところだけ読めますよ。",
+    body: "運動を記録すると、働いた系統にポイントが入って、マップの丸が大きくなりますよ。",
     lesson: "ロードマップの上ほど専門的、下ほど土台です。方法のタブを選ぶと、どこに働くかが色でわかりますよ。",
     atlas: "教えるために固めたいテーマだけ、ここで記事にしましょう。主張ごとに文献を付けて、確かめるまでは「未検証」です。",
   };
   const GKEY = "evlib-guide-off";
   const guideOff = () => { try { return localStorage.getItem(GKEY) === "1"; } catch { return false; } };
   const guideHtml = (text, cls = "", pose = "wave") => `<div class="guide ${cls} ${pose === "pilates" ? "wide" : ""}"><img src="img/guide-${pose}.png" alt="向トレーナー"><div class="gbubble">${text}</div></div>`;
-  const GUIDE_POSE = { papers: "read", basics: "think", summaries: "think", materials: "read", quiz: "scheme", books: "read", textbook: "read", atlas: "think", lesson: "pilates", blog: "pilates", memo: "think" };
+  const GUIDE_POSE = { papers: "read", basics: "think", summaries: "think", materials: "read", quiz: "scheme", books: "read", textbook: "read", atlas: "think", lesson: "pilates", body: "pilates", blog: "pilates", memo: "think" };
   function renderGuideTip() {
     const g = $("#guideTip"); if (!g) return;
     const k = state.tab;
@@ -1156,7 +1160,7 @@ body{padding-top:env(safe-area-inset-top)}
     renderGuideTip();
     if (h.dataset.k === k) return;
     h.dataset.k = k;
-    h.innerHTML = `<img src="img/${k === "textbook" ? "basics" : k === "atlas" ? "summaries" : k === "lesson" ? "quiz" : k}.jpg" alt=""><div class="ht"><b>${HERO[k][0]}</b><span>${HERO[k][1]}</span></div>`;
+    h.innerHTML = `<img src="img/${k === "textbook" ? "basics" : k === "atlas" ? "summaries" : k === "lesson" ? "quiz" : k === "body" ? "basics" : k}.jpg" alt=""><div class="ht"><b>${HERO[k][0]}</b><span>${HERO[k][1]}</span></div>`;
   }
   function renderDocSw() {
     let sw = $("#docSw");
@@ -1171,8 +1175,19 @@ body{padding-top:env(safe-area-inset-top)}
     $("#tab-docs").setAttribute("aria-selected", state.tab === "materials" || state.tab === "summaries");
     if (!["materials", "summaries"].includes(state.tab) && $("#docSw")) $("#docSw").innerHTML = "";
     if (state.tab !== "papers" && $("#newBar")) $("#newBar").innerHTML = "";
-    const tbTab = state.tab === "textbook", atTab = state.tab === "atlas", lsTab = state.tab === "lesson";
+    const tbTab = state.tab === "textbook", atTab = state.tab === "atlas", lsTab = state.tab === "lesson", bmTab = state.tab === "body";
     $("#tab-lesson").setAttribute("aria-selected", lsTab);
+    $("#tab-body").setAttribute("aria-selected", bmTab);
+    if (window.BodyMap && bodyOn && BodyMap.count() != null) $("#n-body").textContent = BodyMap.count() + "点";
+    if (bmTab) {
+      ["papers","basics","materials","summaries","quiz","memo","books","blog","textbook","atlas","docs","lesson"].forEach((k) => $("#tab-" + k)?.setAttribute("aria-selected", false));
+      $("#examples").hidden = true; $("#topics").hidden = true; $("#bulkBtn").hidden = true; $("#facets").hidden = true; $("#viewsw").hidden = true; $("#addBtn").hidden = true;
+      if ($("#newBar")) $("#newBar").innerHTML = "";
+      $("#q").placeholder = "例：むくみ、自律神経";
+      $("#searchHint").textContent = "体の系統と、その日の運動で働いた領域を記録します。";
+      if (window.BodyMap && bodyOn) BodyMap.render($("#list")); else $("#list").innerHTML = `<div class="empty">体のマップを準備しています…</div>`;
+      return;
+    }
     if (window.Lessons && lessonsOn && Lessons.count() != null) $("#n-lesson").textContent = Lessons.count();
     if (lsTab) {
       ["papers","basics","materials","summaries","quiz","memo","books","blog","textbook","atlas","docs"].forEach((k) => $("#tab-" + k)?.setAttribute("aria-selected", false));
@@ -2148,6 +2163,7 @@ ${text.slice(0, 2000)}`;
   // メモタブ
   $("#tab-memo").addEventListener("click", () => { state.tab = "memo"; state.tag = null; render(); });
   $("#tab-lesson").addEventListener("click", () => { state.tab = "lesson"; state.tag = null; render(); });
+  $("#tab-body").addEventListener("click", () => { state.tab = "body"; state.tag = null; render(); });
   $("#tab-atlas").addEventListener("click", () => { state.tab = "atlas"; state.tag = null; render(); });
   $("#tab-textbook").addEventListener("click", () => { if (state.tab === "textbook") state.tbOpen = null; state.tab = "textbook"; state.tag = null; render(); });
   $("#list").addEventListener("click", (e) => {
@@ -2238,6 +2254,10 @@ ${text.slice(0, 2000)}`;
     if (db && window.Lessons && !lessonsOn) {
       lessonsOn = true;
       Lessons.init({ db, canEdit: () => state.canEdit, q: () => state.q, rerender: () => render(), active: () => state.tab === "lesson" });
+    }
+    if (db && window.BodyMap && !bodyOn) {
+      bodyOn = true;
+      BodyMap.init({ db, canEdit: () => state.canEdit, rerender: () => render(), active: () => state.tab === "body" });
     }
     if (db && window.Atlas && !atlasOn) {
       atlasOn = true;
