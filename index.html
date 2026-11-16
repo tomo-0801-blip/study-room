@@ -512,6 +512,7 @@ body{padding-top:env(safe-area-inset-top)}
 <script src="blogrender.js"></script>
 <script src="atlas.js"></script>
 <script src="lessons.js"></script>
+<script src="exengine.js"></script>
 <script src="bodymap.js"></script>
 <script>
 (() => {
@@ -1137,7 +1138,7 @@ body{padding-top:env(safe-area-inset-top)}
     blog: "学びを記事にしてみましょう。下書き保存しておけば、続きはいつでも書けます。",
     memo: "論文や資料に書いた考察が、ここにまとまります。自分だけが見られます。",
     textbook: "「むくみ」「肩こり」みたいな普段の言葉で探せます。「ピラティスの部分だけ」にすると、指導で使うところだけ読めますよ。",
-    body: "運動や食事を記録すると、六角形が広がります。系統の名前を押すと、細かい項目が見られますよ。",
+    body: "運動の名前を入れるだけで、使った能力が推定されて六角形に入りますよ。系統の名前を押すと、細かい項目が見られます。",
     lesson: "ロードマップの上ほど専門的、下ほど土台です。方法のタブを選ぶと、どこに働くかが色でわかりますよ。",
     atlas: "教えるために固めたいテーマだけ、ここで記事にしましょう。主張ごとに文献を付けて、確かめるまでは「未検証」です。",
   };
@@ -1184,7 +1185,7 @@ body{padding-top:env(safe-area-inset-top)}
       $("#examples").hidden = true; $("#topics").hidden = true; $("#bulkBtn").hidden = true; $("#facets").hidden = true; $("#viewsw").hidden = true; $("#addBtn").hidden = true;
       if ($("#newBar")) $("#newBar").innerHTML = "";
       $("#q").placeholder = "例：むくみ、自律神経";
-      $("#searchHint").textContent = "体の系統と、その日の運動で働いた領域を記録します。";
+      $("#searchHint").textContent = "運動の名前から、使った能力を推定して記録します。";
       if (window.BodyMap && bodyOn) BodyMap.render($("#list")); else $("#list").innerHTML = `<div class="empty">体のマップを準備しています…</div>`;
       return;
     }
