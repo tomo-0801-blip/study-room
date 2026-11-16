@@ -1,4 +1,4 @@
-// 体のマップ：運動特性評価エンジン（exengine.js）で、運動名から各能力の要求度を推定し、6つの系統の六角形に反映する
+// フィジカルログ：運動特性評価エンジン（exengine.js）で、運動名から各能力の要求度を推定し、6つの系統の六角形に反映する
 // 保存先は docs テーブルの区分（bodylog・exprofiles）だけ。既存のデータには書き込まない。
 (function () {
   const E = window.ExEngine;
@@ -272,7 +272,7 @@
 
   function render(L) {
     if (!C.db) { L.innerHTML = `<div class="empty">書庫に接続できません。</div>`; return; }
-    if (!ready()) { L.innerHTML = `<div class="empty">体のマップを読み込んでいます…</div>`; return; }
+    if (!ready()) { L.innerHTML = `<div class="empty">フィジカルログを読み込んでいます…</div>`; return; }
     const tabs = [["today", "日ごとの記録"], ["review", "振り返り"], ["list", "運動の一覧"]];
     const ae = document.activeElement, keep = ae && ae.closest && ae.closest("#bodymap") && (ae.dataset.bmF || ae.hasAttribute("data-bm-lq")) ? [ae.dataset.bmF || "lq", ae.selectionStart] : null;
     L.innerHTML = `<div id="bodymap">

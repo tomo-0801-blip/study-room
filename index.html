@@ -456,7 +456,7 @@ body{padding-top:env(safe-area-inset-top)}
     <button class="tab" role="tab" id="tab-docs" aria-selected="false"><img class="ti" src="img/materials-icon.jpg" alt=""><span class="tl">資料</span><span class="n" id="n-docs">0</span></button>
     <button class="tab" role="tab" id="tab-summaries" aria-selected="false" hidden><img class="ti" src="img/summaries-icon.jpg" alt=""><span class="tl">まとめ資料</span><span class="n" id="n-summaries">0</span></button>
     <button class="tab" role="tab" id="tab-materials" aria-selected="false" hidden><img class="ti" src="img/materials-icon.jpg" alt=""><span class="tl">勉強会資料</span><span class="n" id="n-materials">0</span></button>
-    <button class="tab" role="tab" id="tab-body" aria-selected="false"><img class="ti" src="img/basics-icon.jpg" alt=""><span class="tl">体のマップ</span><span class="n" id="n-body">—</span></button>
+    <button class="tab" role="tab" id="tab-body" aria-selected="false"><img class="ti" src="img/basics-icon.jpg" alt=""><span class="tl">フィジカルログ</span><span class="n" id="n-body">—</span></button>
     <button class="tab" role="tab" id="tab-lesson" aria-selected="false"><img class="ti" src="img/quiz-icon.jpg" alt=""><span class="tl">レッスン</span><span class="n" id="n-lesson">—</span></button>
     <button class="tab" role="tab" id="tab-quiz" aria-selected="false"><img class="ti" src="img/quiz-icon.jpg" alt=""><span class="tl">小テスト</span><span class="n">4択・記述</span></button>
     <button class="tab" role="tab" id="tab-books" aria-selected="false"><img class="ti" src="img/books-icon.jpg" alt=""><span class="tl">本</span><span class="n" id="n-books">0</span></button>
@@ -1169,7 +1169,7 @@ body{padding-top:env(safe-area-inset-top)}
     textbook: ["教科書", "生理学を、普段の言葉でさっと引く"],
     atlas: ["My Knowledge Atlas", "大事なテーマを、根拠と一緒にじっくり固める"],
     lesson: ["レッスン", "成長ロードマップと、方法ごとのレッスン"],
-    body: ["体のマップ", "体の系統と、その日の運動で働いた領域"],
+    body: ["フィジカルログ", "体の系統と、その日の運動で働いた領域"],
     blog: ["ブログ", "学びを記事にして、誰でも読めるページへ"],
   };
   // ---------- 案内キャラ ----------
@@ -1231,7 +1231,7 @@ body{padding-top:env(safe-area-inset-top)}
       if ($("#newBar")) $("#newBar").innerHTML = "";
       $("#q").placeholder = "例：むくみ、自律神経";
       $("#searchHint").textContent = "運動の名前から、使った能力を推定して記録します。";
-      if (window.BodyMap && bodyOn) BodyMap.render($("#list")); else $("#list").innerHTML = `<div class="empty">体のマップを準備しています…</div>`;
+      if (window.BodyMap && bodyOn) BodyMap.render($("#list")); else $("#list").innerHTML = `<div class="empty">フィジカルログを準備しています…</div>`;
       return;
     }
     if (window.Lessons && lessonsOn && Lessons.count() != null) $("#n-lesson").textContent = Lessons.count();
